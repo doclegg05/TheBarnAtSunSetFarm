@@ -8,13 +8,18 @@ const About: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">A Venue As Unique As Your Love</h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            Nestled in the heart of rolling hills, The Barn at Sunset Farm offers a breathtaking backdrop for your special day. Our meticulously restored barn blends rustic character with modern amenities, while our charming cottages provide a perfect retreat for you and your guests.
+            Nestled in the heart of rolling hills, The Barn at Sunset Farm offers a breathtaking backdrop for your special day. Our meticulously restored black barn blends rustic character with modern amenities, while our charming cottages provide a perfect retreat for you and your guests.
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="rounded-lg overflow-hidden shadow-xl">
-            <img src="https://picsum.photos/seed/venueInside/800/600" alt="Interior of the barn" className="w-full h-full object-cover" />
+          <div className="rounded-lg overflow-hidden shadow-xl bg-gray-900">
+            <img 
+              src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=75&w=1200&auto=format&fit=crop" 
+              alt="Elegant table setting inside the barn" 
+              className="w-full h-full object-cover" 
+              loading="lazy"
+            />
           </div>
           <div className="text-left">
             <h3 className="text-3xl font-semibold mb-4 text-[#4a4a4a]">The Main Barn</h3>
@@ -43,8 +48,13 @@ const About: React.FC = () => {
               <li>Private patios with scenic views</li>
             </ul>
           </div>
-          <div className="rounded-lg overflow-hidden shadow-xl md:order-1">
-            <img src="https://picsum.photos/seed/cottage/800/600" alt="Charming cottage at the venue" className="w-full h-full object-cover" />
+          <div className="rounded-lg overflow-hidden shadow-xl md:order-1 bg-gray-900">
+            <img 
+              src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=75&w=1200&auto=format&fit=crop" 
+              alt="Exterior of a charming cabin cottage at the venue" 
+              className="w-full h-full object-cover" 
+              loading="lazy"
+            />
           </div>
         </div>
       </div>
