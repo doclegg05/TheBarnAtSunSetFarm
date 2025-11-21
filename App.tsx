@@ -1,11 +1,16 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
+import Pricing from './components/Pricing';
+import FAQ from './components/FAQ';
 import BookingCalendar from './components/BookingCalendar';
 import TheKnotHub from './components/TheKnotHub';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Testimonials from './components/Testimonials';
+import GalleryPage from './components/GalleryPage';
 
 // --- Color Palette ---
 // Background: #FDF8F5 (Soft Cream)
@@ -14,19 +19,51 @@ import Footer from './components/Footer';
 // Text: #4a4a4a (Charcoal)
 // Gold Accent: #D4AF37
 
+import { BookingProvider } from './contexts/BookingContext';
+
+import FadeInSection from './components/FadeInSection';
+
+const HomePage: React.FC = () => (
+  <BookingProvider>
+    <Header />
+    <main>
+      <Hero />
+      <FadeInSection>
+        <About />
+      </FadeInSection>
+      <FadeInSection>
+        <Pricing />
+      </FadeInSection>
+      <FadeInSection>
+        <Testimonials />
+      </FadeInSection>
+      <FadeInSection>
+        <FAQ />
+      </FadeInSection>
+      <FadeInSection>
+        <BookingCalendar />
+      </FadeInSection>
+      <FadeInSection>
+        <TheKnotHub />
+      </FadeInSection>
+      <FadeInSection>
+        <Contact />
+      </FadeInSection>
+    </main>
+    <Footer />
+  </BookingProvider>
+);
+
 const App: React.FC = () => {
   return (
-    <div className="bg-[#FDF8F5] text-[#4a4a4a] antialiased overflow-x-hidden">
-      <Header />
-      <main>
-        <Hero />
-        <About />
-        <BookingCalendar />
-        <TheKnotHub />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <Router>
+      <div className="bg-[#FDF8F5] text-[#4a4a4a] antialiased overflow-x-hidden">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 

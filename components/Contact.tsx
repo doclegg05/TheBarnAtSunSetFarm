@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm, ValidationError } from '@formspree/react';
+import { useBooking } from '../contexts/BookingContext';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', date: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [state, handleSubmit] = useForm("mdkjokdw");
+  const { selectedDateRange } = useBooking();
+
+  useEffect(() => {
+    if (selectedDateRange.start && selectedDateRange.end) {
+      const formattedStart = selectedDateRange.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const formattedEnd = selectedDateRange.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      setFormData(prev => ({ ...prev, date: `${formattedStart} - ${formattedEnd}` }));
+    }
+  }, [selectedDateRange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form Submitted:', formData);
-    // Here you would typically send the data to a server
-    setSubmitted(true);
-    setFormData({ name: '', email: '', date: '', message: '' });
   };
 
   return (
@@ -28,37 +31,79 @@ const Contact: React.FC = () => {
           </p>
         </div>
 
-        <div className="max-w-2xl mx-auto">
-          {submitted ? (
-            <div className="bg-[#A2B29F] text-white text-center p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold">Thank You!</h3>
-              <p className="mt-2">Your inquiry has been sent. We'll be in touch soon!</p>
+        <div className="grid lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
+          {/* Contact Form */}
+          <div className="w-full">
+            {state.succeeded ? (
+              <div className="bg-[#A2B29F] text-white text-center p-8 rounded-lg shadow-lg">
+                <h3 className="text-2xl font-bold">Thank You!</h3>
+                <p className="mt-2">Your inquiry has been sent. We'll be in touch soon!</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6 bg-gray-50 p-8 rounded-xl shadow-md border border-gray-100">
+                <div>
+                  <label htmlFor="name" className="block text-lg font-medium text-gray-700">Full Name</label>
+                  <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white" />
+                  <ValidationError prefix="Name" field="name" errors={state.errors} className="text-red-500 text-sm mt-1" />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-lg font-medium text-gray-700">Email Address</label>
+                  <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white" />
+                  <ValidationError prefix="Email" field="email" errors={state.errors} className="text-red-500 text-sm mt-1" />
+                </div>
+                <div>
+                  <label htmlFor="date" className="block text-lg font-medium text-gray-700">Prospective Event Date(s)</label>
+                  <input
+                    type="text"
+                    name="date"
+                    id="date"
+                    placeholder="MM/DD/YYYY or Date Range"
+                    value={formData.date}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white"
+                  />
+                  <ValidationError prefix="Date" field="date" errors={state.errors} className="text-red-500 text-sm mt-1" />
+                </div>
+                <div>
+                  <label htmlFor="message" className="block text-lg font-medium text-gray-700">Message</label>
+                  <textarea name="message" id="message" rows={5} required value={formData.message} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white"></textarea>
+                  <ValidationError prefix="Message" field="message" errors={state.errors} className="text-red-500 text-sm mt-1" />
+                </div>
+                <div>
+                  <button type="submit" disabled={state.submitting} className="w-full bg-[#A2B29F] text-white py-4 px-6 border border-transparent rounded-md shadow-lg text-lg font-semibold hover:bg-[#8c9a89] active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#A2B29F] transition-all duration-300 disabled:opacity-50">
+                    {state.submitting ? 'Sending...' : 'Send Inquiry'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+
+          {/* Map & Info */}
+          <div className="w-full h-full flex flex-col space-y-8">
+            <div className="flex-grow min-h-[400px]">
+              <iframe
+                width="100%"
+                height="100%"
+                title="map"
+                src="https://maps.google.com/maps?width=100%&height=100%&hl=en&q=Mount%20Nebo,West%20Virginia&ie=UTF8&t=&z=14&iwloc=B&output=embed"
+                style={{ border: 0, minHeight: '400px' }}
+                allowFullScreen
+                loading="lazy"
+                className="rounded-xl shadow-md"
+              ></iframe>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-lg font-medium text-gray-700">Full Name</label>
-                <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F]"/>
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-lg font-medium text-gray-700">Email Address</label>
-                <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F]"/>
-              </div>
-              <div>
-                <label htmlFor="date" className="block text-lg font-medium text-gray-700">Prospective Event Date</label>
-                <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F]"/>
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-lg font-medium text-gray-700">Message</label>
-                <textarea name="message" id="message" rows={5} required value={formData.message} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F]"></textarea>
-              </div>
-              <div>
-                <button type="submit" className="w-full bg-[#A2B29F] text-white py-4 px-6 border border-transparent rounded-md shadow-lg text-lg font-semibold hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#A2B29F] transition-colors duration-300">
-                  Send Inquiry
-                </button>
-              </div>
-            </form>
-          )}
+            <div className="bg-[#FDF8F5] p-8 rounded-xl shadow-md border border-[#EAD1DC]">
+              <h3 className="text-2xl font-bold text-[#4a4a4a] mb-4">Visit Us</h3>
+              <p className="text-gray-600 mb-2">
+                <strong>The Barn at Sunset Farm</strong><br />
+                Mount Nebo, West Virginia<br />
+                Overlooking the Gauley River Gorge
+              </p>
+              <p className="text-gray-600">
+                <em>Visits by appointment only.</em>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

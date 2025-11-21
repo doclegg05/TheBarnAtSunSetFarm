@@ -1,4 +1,5 @@
 import React from 'react';
+import Amenities from './Amenities';
 
 const About: React.FC = () => {
   return (
@@ -8,17 +9,23 @@ const About: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">A Venue As Unique As Your Love</h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            Nestled in the heart of rolling hills, The Barn at Sunset Farm offers a breathtaking backdrop for your special day. Our meticulously restored black barn blends rustic character with modern amenities, while our charming cottages provide a perfect retreat for you and your guests.
+            Nestled in the heart of rolling hills, The Barn at Sunset Farm offers a breathtaking backdrop for your special day. With over 8 years of experience hosting unforgettable celebrations, our meticulously restored black barn blends rustic character with modern amenities, while our charming cottages provide a perfect retreat for you and your guests.
           </p>
         </div>
 
+        {/* Main Barn Section */}
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="rounded-lg overflow-hidden shadow-xl bg-gray-900">
-            <img 
-              src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=75&w=1200&auto=format&fit=crop" 
-              alt="Elegant table setting inside the barn" 
-              className="w-full h-full object-cover" 
+          <div className="rounded-lg overflow-hidden shadow-xl bg-gray-900 h-[400px]">
+            {/* TICKET #010 FIX: Pointing to local file 'real-barn.png' */}
+            <img
+              src="/photos/real-barn.png"
+              alt="Interior view of The Barn at Sunset Farm"
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               loading="lazy"
+              onError={(e) => {
+                // Fallback if user hasn't uploaded the photo yet
+                (e.target as HTMLImageElement).src = 'https://placehold.co/800x600/EAD1DC/4a4a4a?text=Upload+real-barn.png';
+              }}
             />
           </div>
           <div className="text-left">
@@ -26,34 +33,40 @@ const About: React.FC = () => {
             <p className="text-gray-600 mb-4">
               With its soaring ceilings, exposed wooden beams, and grand chandeliers, the barn is a versatile space that can be transformed to match your vision. It comfortably accommodates up to 200 guests, featuring a spacious dance floor, a built-in bar, and panoramic windows overlooking the farm.
             </p>
-            <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>Capacity for 200 guests</li>
-              <li>Climate-controlled for year-round comfort</li>
-              <li>State-of-the-art sound system</li>
-              <li>Bridal suite & Groom's quarters</li>
-            </ul>
+            <p className="text-gray-600">
+              Whether you envision a rustic chic gathering or a formal black-tie affair, our barn provides the perfect canvas. The space is designed to flow seamlessly from your ceremony to cocktail hour and reception.
+            </p>
           </div>
         </div>
 
+        {/* Amenities Section */}
+        <Amenities />
+
+        {/* Cottages Section */}
         <div className="grid md:grid-cols-2 gap-12 items-center mt-20">
           <div className="text-left md:order-2">
             <h3 className="text-3xl font-semibold mb-4 text-[#4a4a4a]">Our Cozy Cottages</h3>
             <p className="text-gray-600 mb-4">
               Extend the celebration with an overnight stay in our beautifully appointed cottages. Perfect for the wedding party or out-of-town guests, each cottage offers a peaceful sanctuary with modern comforts and picturesque views. Wake up to the serene sounds of the countryside.
             </p>
-             <ul className="list-disc list-inside text-gray-600 space-y-2">
+            <ul className="list-disc list-inside text-gray-600 space-y-2">
               <li>Five unique cottages available</li>
               <li>Sleeps up to 20 guests total</li>
               <li>Fully equipped kitchens and living areas</li>
               <li>Private patios with scenic views</li>
             </ul>
           </div>
-          <div className="rounded-lg overflow-hidden shadow-xl md:order-1 bg-gray-900">
-            <img 
-              src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=75&w=1200&auto=format&fit=crop" 
-              alt="Exterior of a charming cabin cottage at the venue" 
-              className="w-full h-full object-cover" 
+          <div className="rounded-lg overflow-hidden shadow-xl md:order-1 bg-gray-900 h-[400px]">
+            {/* TICKET #010 FIX: Pointing to local file 'real-cottage.png' */}
+            <img
+              src="/photos/real-cottage.png"
+              alt="Exterior view of the guest cottages"
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               loading="lazy"
+              onError={(e) => {
+                // Fallback if user hasn't uploaded the photo yet
+                (e.target as HTMLImageElement).src = 'https://placehold.co/800x600/A2B29F/4a4a4a?text=Upload+real-cottage.png';
+              }}
             />
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ChevronLeftIcon from './icons/ChevronLeftIcon';
 import ChevronRightIcon from './icons/ChevronRightIcon';
+import { useBooking } from '../contexts/BookingContext';
 
 const BOOKED_DATES = [
   '2024-08-17', '2024-08-24', '2024-09-07', '2024-09-14',
@@ -11,6 +12,7 @@ const BookingCalendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
+  const { setSelectedDateRange } = useBooking();
 
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -32,7 +34,7 @@ const BookingCalendar: React.FC = () => {
         setDateRange({ start: date, end: null });
         return;
       }
-      
+
       let isRangeInvalid = false;
       const tempDate = new Date(start);
       tempDate.setDate(tempDate.getDate() + 1);
@@ -50,6 +52,14 @@ const BookingCalendar: React.FC = () => {
         setDateRange({ start, end: date });
         setHoveredDate(null);
       }
+    }
+  };
+
+  const handleInquire = () => {
+    setSelectedDateRange(dateRange);
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -86,15 +96,15 @@ const BookingCalendar: React.FC = () => {
         isHoveredInRange = true;
       }
     }
-    
+
     let dayClasses = "h-24 md:h-32 text-center border-r border-b border-gray-200 flex flex-col items-center justify-center relative p-0";
     let contentWrapperClasses = "w-full h-full flex items-center justify-center transition-colors duration-200";
-    
+
     if (isDisabled) {
       dayClasses += " bg-gray-100 text-gray-400 cursor-not-allowed";
     } else {
       dayClasses += " cursor-pointer";
-      
+
       if ((start && end && (isInRange || isStartDate || isEndDate)) || isHoveredInRange) {
         dayClasses += " bg-[#EAD1DC] bg-opacity-30";
       }
@@ -113,8 +123,8 @@ const BookingCalendar: React.FC = () => {
     }
 
     days.push(
-      <div 
-        key={day} 
+      <div
+        key={day}
         className={dayClasses}
         onClick={() => handleDateClick(date)}
         onMouseEnter={() => !isDisabled && setHoveredDate(date)}
@@ -152,9 +162,35 @@ const BookingCalendar: React.FC = () => {
             <button onClick={() => changeMonth(-1)} className="p-2 rounded-full hover:bg-gray-100">
               <ChevronLeftIcon className="w-6 h-6 text-[#4a4a4a]" />
             </button>
-            <h3 className="text-2xl md:text-3xl font-semibold text-[#4a4a4a]">
-              {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-            </h3>
+
+            <div className="flex items-center space-x-2">
+              <select
+                value={currentDate.getMonth()}
+                onChange={(e) => setCurrentDate(new Date(currentDate.getFullYear(), parseInt(e.target.value), 1))}
+                className="text-xl md:text-2xl font-semibold text-[#4a4a4a] bg-transparent border-none focus:ring-0 cursor-pointer hover:text-gray-600 transition-colors appearance-none pr-4"
+                style={{ backgroundImage: 'none' }} // Remove default arrow for cleaner look if desired, or keep it
+              >
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={currentDate.getFullYear()}
+                onChange={(e) => setCurrentDate(new Date(parseInt(e.target.value), currentDate.getMonth(), 1))}
+                className="text-xl md:text-2xl font-semibold text-[#4a4a4a] bg-transparent border-none focus:ring-0 cursor-pointer hover:text-gray-600 transition-colors appearance-none"
+                style={{ backgroundImage: 'none' }}
+              >
+                {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() + i).map(year => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button onClick={() => changeMonth(1)} className="p-2 rounded-full hover:bg-gray-100">
               <ChevronRightIcon className="w-6 h-6 text-[#4a4a4a]" />
             </button>
@@ -173,13 +209,16 @@ const BookingCalendar: React.FC = () => {
                 Start Date: <span className="font-bold text-[#A2B29F]">{formatDate(dateRange.start)}</span>
               </p>
               {dateRange.end && (
-                 <p>
-                   End Date: <span className="font-bold text-[#A2B29F]">{formatDate(dateRange.end)}</span>
-                 </p>
+                <p>
+                  End Date: <span className="font-bold text-[#A2B29F]">{formatDate(dateRange.end)}</span>
+                </p>
               )}
             </div>
             {dateRange.start && dateRange.end && (
-              <button className="mt-4 bg-[#A2B29F] text-white py-3 px-8 rounded-lg text-lg hover:bg-opacity-90 transition-all duration-300 shadow-lg">
+              <button
+                onClick={handleInquire}
+                className="mt-4 bg-[#A2B29F] text-white py-3 px-8 rounded-lg text-lg shadow-lg hover:bg-[#8c9a89] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Inquire for this Range
               </button>
             )}
