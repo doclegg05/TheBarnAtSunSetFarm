@@ -85,7 +85,7 @@ const Contact: React.FC = () => {
                 width="100%"
                 height="100%"
                 title="map"
-                src="https://maps.google.com/maps?width=100%&height=100%&hl=en&q=Mount%20Nebo,West%20Virginia&ie=UTF8&t=&z=14&iwloc=B&output=embed"
+                src="https://maps.google.com/maps?width=100%&height=100%&hl=en&q=19%20Boulder%20Trail%2C%20Mt.%20Nebo%2C%20WV&ie=UTF8&t=&z=14&iwloc=B&output=embed"
                 style={{ border: 0, minHeight: '400px' }}
                 allowFullScreen
                 loading="lazy"
@@ -96,7 +96,8 @@ const Contact: React.FC = () => {
               <h3 className="text-2xl font-bold text-[#4a4a4a] mb-4">Visit Us</h3>
               <p className="text-gray-600 mb-2">
                 <strong>The Barn at Sunset Farm</strong><br />
-                Mount Nebo, West Virginia<br />
+                19 Boulder Trail<br />
+                Mount Nebo, West Virginia 26679<br />
                 Overlooking the Gauley River Gorge
               </p>
               <p className="text-gray-600">

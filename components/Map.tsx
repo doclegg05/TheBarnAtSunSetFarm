@@ -56,12 +56,12 @@ const GoogleMapEmbed: React.FC = () => {
                 scrolling="no"
                 marginHeight={0}
                 marginWidth={0}
-                src="https://maps.google.com/maps?q=The%20Barn%20at%20Sunset%20Farm%2C%20Mount%20Nebo%2C%20WV&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=19%20Boulder%20Trail%2C%20Mt.%20Nebo%2C%20WV&t=&z=13&ie=UTF8&iwloc=&output=embed"
                 className="w-full h-full"
                 title="Map"
             ></iframe>
             <a
-                href="https://www.google.com/maps/search/?api=1&query=The+Barn+at+Sunset+Farm,+Mount+Nebo,+WV"
+                href="https://www.google.com/maps/search/?api=1&query=19+Boulder+Trail,+Mt.+Nebo,+WV"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center"

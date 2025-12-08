@@ -8,29 +8,7 @@ interface Testimonial {
     location?: string;
 }
 
-const testimonials: Testimonial[] = [
-    {
-        id: 1,
-        name: "Sarah & James",
-        date: "October 2023",
-        text: "The Barn at Sunset Farm was the absolute perfect venue for our dream wedding. The views were breathtaking, and the staff went above and beyond to make sure everything was perfect. Our guests are still talking about how beautiful it was!",
-        location: "Charleston, WV"
-    },
-    {
-        id: 2,
-        name: "Emily & Michael",
-        date: "June 2024",
-        text: "We couldn't have asked for a better experience. The rustic charm of the barn combined with the elegant amenities made for a magical evening. Highly recommend to any couple looking for a unique and unforgettable venue.",
-        location: "Morgantown, WV"
-    },
-    {
-        id: 3,
-        name: "Jessica & David",
-        date: "September 2023",
-        text: "From the moment we toured the venue, we knew this was the one. The bridal suite was stunning, and the outdoor ceremony space was exactly what we envisioned. Thank you for making our day so special!",
-        location: "Beckley, WV"
-    }
-];
+const testimonials: Testimonial[] = [];
 
 const Testimonials: React.FC = () => {
     return (

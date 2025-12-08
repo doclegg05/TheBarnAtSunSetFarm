@@ -10,6 +10,7 @@ const Header: React.FC = () => {
     { title: 'Home', id: 'home', type: 'scroll' },
     { title: 'About', id: 'about', type: 'scroll' },
     { title: 'Pricing', id: 'pricing', type: 'scroll' },
+    { title: 'Virtual Tour', id: 'virtual-tour', type: 'route' },
     { title: 'Gallery', id: 'gallery', type: 'route' },
     { title: 'FAQ', id: 'faq', type: 'scroll' },
     { title: 'Availability', id: 'calendar', type: 'scroll' },

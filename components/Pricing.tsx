@@ -5,22 +5,20 @@ const Pricing: React.FC = () => {
   const tiers = [
     {
       name: 'Classic Celebration',
-      price: '$3,000',
-      description: 'Our most popular package for a traditional Saturday wedding surrounded by friends and family.',
+      price: 'up to $3,800',
+      description: 'Our most popular package for a traditional wedding surrounded by friends and family.',
       features: [
-        'Saturday availability',
+        'Open Availability',
         'Up to 200 guests',
-        '12-hour venue rental',
+        'All day rental',
         'Full Barn & Outdoor access',
-        'Bridal Suite & Groom\'s Quarters',
-        'Setup & Cleanup included',
-        'Parking attendants'
+        'Bridal Suite & Groom\'s Quarters'
       ],
       highlight: true,
     },
     {
       name: 'The Sunset Weekend',
-      price: '$6,500',
+      price: '$5,400',
       description: 'The ultimate experience. Enjoy the property for the entire weekend with overnight accommodations.',
       features: [
         'Friday - Sunday access',
@@ -29,7 +27,7 @@ const Pricing: React.FC = () => {
         'Overnight stay for the couple',
         'Priority vendor access',
         'All amenities from Classic package',
-        'Sunday Brunch option'
+        'Additional Amenities Available'
       ],
       highlight: false,
     },
@@ -89,13 +87,6 @@ const Pricing: React.FC = () => {
         </div>
 
         <div className="mt-16 text-center">
-          <p className="text-gray-500 italic">
-            * Starting prices don't include service fees, taxes, gratuity, and rental fees.
-            <br />
-            Guest count and seasonality may also affect prices. Peak season is May-Oct.
-            <br />
-            A 25% non-refundable deposit is required to save your date.
-          </p>
         </div>
       </div>
     </section>

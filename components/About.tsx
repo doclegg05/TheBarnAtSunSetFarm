@@ -1,5 +1,6 @@
 import React from 'react';
 import Amenities from './Amenities';
+import EventCoordination from './EventCoordination';
 
 const About: React.FC = () => {
   return (
@@ -9,7 +10,7 @@ const About: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">A Venue As Unique As Your Love</h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            Nestled in the heart of rolling hills, The Barn at Sunset Farm offers a breathtaking backdrop for your special day. With over 8 years of experience hosting unforgettable celebrations, our meticulously restored black barn blends rustic character with modern amenities, while our charming cottages provide a perfect retreat for you and your guests.
+            Nestled in the heart of rolling hills, The Barn at Sunset Farm offers a breathtaking backdrop for your special day. Our meticulously restored black barn blends rustic character with modern amenities, while our charming cottage provides a perfect retreat for you and your guests.
           </p>
         </div>
 
@@ -45,13 +46,13 @@ const About: React.FC = () => {
         {/* Cottages Section */}
         <div className="grid md:grid-cols-2 gap-12 items-center mt-20">
           <div className="text-left md:order-2">
-            <h3 className="text-3xl font-semibold mb-4 text-[#4a4a4a]">Our Cozy Cottages</h3>
+            <h3 className="text-3xl font-semibold mb-4 text-[#4a4a4a]">Overnight Lodging Included</h3>
             <p className="text-gray-600 mb-4">
-              Extend the celebration with an overnight stay in our beautifully appointed cottages. Perfect for the wedding party or out-of-town guests, each cottage offers a peaceful sanctuary with modern comforts and picturesque views. Wake up to the serene sounds of the countryside.
+              Extend the celebration with an overnight stay in our beautifully appointed one bedroom cottage. Perfect for the wedding party or out-of-town guests, the cottage offers a peaceful sanctuary with modern comforts and picturesque views. Wake up to the serene sounds of the countryside.
             </p>
             <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>Five unique cottages available</li>
-              <li>Sleeps up to 20 guests total</li>
+              <li>One bedroom cottage included</li>
+              <li>Sleeps up to 15 guests (5 bedrooms in barn + 1 cottage)</li>
               <li>Fully equipped kitchens and living areas</li>
               <li>Private patios with scenic views</li>
             </ul>
@@ -70,6 +71,12 @@ const About: React.FC = () => {
             />
           </div>
         </div>
+
+        {/* Event Coordination Section */}
+        <div className="mt-24 pt-12 border-t border-[#EAD1DC]">
+          <EventCoordination />
+        </div>
+
       </div>
     </section>
   );

@@ -7,32 +7,16 @@ const faqs = [
         answer: "We can comfortably accommodate up to 200 guests for both the ceremony and reception, ensuring an intimate and enjoyable experience for everyone."
     },
     {
-        question: "Is the barn climate-controlled?",
-        answer: "Yes! The barn is fully heated and air-conditioned, ensuring comfort for you and your guests year-round, regardless of the weather."
-    },
-    {
         question: "Can we bring our own vendors?",
         answer: "We have a curated list of preferred vendors we love and trust, but you are welcome to bring your own licensed and insured professionals for catering, photography, and florals."
     },
     {
         question: "Is there parking on-site?",
-        answer: "Yes, we have ample parking available for all your guests. Our Classic and Weekend packages also include parking attendants to assist with smooth arrival and departure."
-    },
-    {
-        question: "Are pets allowed?",
-        answer: "We are a pet-friendly venue! Your furry friends are welcome to be part of your ceremony. We just ask that they remain leashed and supervised during the event."
+        answer: "Yes, we have ample parking available for all your guests."
     },
     {
         question: "Do you require event insurance?",
         answer: "Yes, we require a standard event insurance policy for the day of your wedding. This protects both you and the venue and is a standard practice in the industry."
-    },
-    {
-        question: "When is your peak season?",
-        answer: "Our peak season runs from May through October, when the farm is at its most beautiful with lush greenery and stunning sunsets. Pricing and availability may vary during this time."
-    },
-    {
-        question: "Do you offer any special deals or discounts?",
-        answer: "Yes! We currently offer half-price chairs and tables with your booking. Contact us for details and to see if this promotion applies to your date."
     }
 ];
 

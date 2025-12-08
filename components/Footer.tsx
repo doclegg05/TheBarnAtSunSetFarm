@@ -9,12 +9,12 @@ const Footer: React.FC = () => {
         </h3>
         <p className="mb-4">Mount Nebo, West Virginia</p>
         <p className="mb-6">
-          <a href="tel:555-123-4567" className="hover:text-white transition-colors duration-300">
-            (555) 123-4567
+          <a href="tel:304-619-6805" className="hover:text-white transition-colors duration-300">
+            (304) 619-6805
           </a>
           {' | '}
-          <a href="mailto:events@sunsetfarm.com" className="hover:text-white transition-colors duration-300">
-            events@sunsetfarm.com
+          <a href="mailto:MUHeather08@gmail.com" className="hover:text-white transition-colors duration-300">
+            MUHeather08@gmail.com
           </a>
         </p>
 

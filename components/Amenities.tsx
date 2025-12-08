@@ -16,19 +16,9 @@ const amenities = [
         description: 'Breathtaking mountain panoramas and sunset backdrops.'
     },
     {
-        icon: SnowflakeIcon,
-        title: 'Climate Controlled',
-        description: 'Fully heated and air-conditioned barn for year-round comfort.'
-    },
-    {
         icon: UserIcon,
         title: 'Bridal Suite',
-        description: 'Private, elegant space for the bridal party to prepare.'
-    },
-    {
-        icon: MusicIcon,
-        title: 'Sound System',
-        description: 'State-of-the-art audio equipment for your ceremony and reception.'
+        description: 'Elegant space for the bridal party to prepare.'
     },
     {
         icon: WifiIcon,
@@ -38,7 +28,7 @@ const amenities = [
     {
         icon: ParkingIcon,
         title: 'Ample Parking',
-        description: 'Convenient on-site parking with attendants available.'
+        description: 'Convenient on-site parking available.'
     },
     {
         icon: AccessibleIcon,
@@ -53,7 +43,7 @@ const amenities = [
     {
         icon: HomeIcon,
         title: 'On-Site Accommodations',
-        description: 'Cozy cottages available for overnight stays.'
+        description: 'Cozy cottage available for overnight stays.'
     }
 ];
 

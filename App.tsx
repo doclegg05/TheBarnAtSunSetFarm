@@ -54,6 +54,12 @@ const HomePage: React.FC = () => (
   </BookingProvider>
 );
 
+import VirtualTourPage from './components/VirtualTourPage';
+
+// ... imports ...
+
+// ... HomePage component ...
+
 const App: React.FC = () => {
   return (
     <Router>
@@ -61,6 +67,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/virtual-tour" element={<VirtualTourPage />} />
         </Routes>
       </div>
     </Router>
