@@ -6,11 +6,11 @@ import About from './components/About';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
 import BookingCalendar from './components/BookingCalendar';
-import TheKnotHub from './components/TheKnotHub';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Testimonials from './components/Testimonials';
 import GalleryPage from './components/GalleryPage';
+import SocialProof from './components/SocialProof';
 
 // --- Color Palette ---
 // Background: #FDF8F5 (Soft Cream)
@@ -38,13 +38,10 @@ const HomePage: React.FC = () => (
         <Testimonials />
       </FadeInSection>
       <FadeInSection>
-        <FAQ />
-      </FadeInSection>
-      <FadeInSection>
         <BookingCalendar />
       </FadeInSection>
       <FadeInSection>
-        <TheKnotHub />
+        <SocialProof />
       </FadeInSection>
       <FadeInSection>
         <Contact />

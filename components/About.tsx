@@ -32,7 +32,7 @@ const About: React.FC = () => {
           <div className="text-left">
             <h3 className="text-3xl font-semibold mb-4 text-[#4a4a4a]">The Main Barn</h3>
             <p className="text-gray-600 mb-4">
-              With its soaring ceilings, exposed wooden beams, and grand chandeliers, the barn is a versatile space that can be transformed to match your vision. It comfortably accommodates up to 200 guests, featuring a spacious dance floor, a built-in bar, and panoramic windows overlooking the farm.
+              With its soaring ceilings, exposed wooden beams, and grand chandeliers, the barn is a versatile space that can be transformed to match your vision. It comfortably accommodates up to 200 guests, featuring a spacious dance floor, and panoramic windows overlooking the farm.
             </p>
             <p className="text-gray-600">
               Whether you envision a rustic chic gathering or a formal black-tie affair, our barn provides the perfect canvas. The space is designed to flow seamlessly from your ceremony to cocktail hour and reception.

@@ -13,16 +13,24 @@ const Footer: React.FC = () => {
             (304) 619-6805
           </a>
           {' | '}
-          <a href="mailto:MUHeather08@gmail.com" className="hover:text-white transition-colors duration-300">
-            MUHeather08@gmail.com
+          <a href="mailto:sunsetwillowevents@gmail.com" className="hover:text-white transition-colors duration-300">
+            sunsetwillowevents@gmail.com
           </a>
         </p>
 
-        {/* Placeholder for social media icons */}
-        <div className="flex justify-center space-x-6 mb-8">
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-300">Instagram</a>
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-300">Facebook</a>
-          <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-300">Pinterest</a>
+
+        {/* The Knot Badge Container */}
+        <div className="flex justify-center mb-8">
+            <div className="bg-white/10 p-4 rounded-lg flex flex-col items-center">
+                 {/* Using the logo from TheKnotHub as a placeholder until the badge script is added */}
+                 <a href="https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756" target="_blank" rel="noopener noreferrer">
+                    <img
+                        src="/the-knot-logo.png"
+                        alt="The Knot"
+                        className="h-16 md:h-20 w-auto opacity-80 mb-2 hover:opacity-100 transition-opacity duration-300"
+                    />
+                 </a>
+            </div>
         </div>
 
         <p className="text-sm text-gray-500">

@@ -5,31 +5,33 @@ const Pricing: React.FC = () => {
   const tiers = [
     {
       name: 'Classic Celebration',
-      price: 'up to $3,800',
-      description: 'Our most popular package for a traditional wedding surrounded by friends and family.',
+      price: '$3,800',
+      description: '1 Day Wedding ($3,800). Use of the Barn/Porch/Outside Area.',
       features: [
         'Open Availability',
         'Up to 200 guests',
         'All day rental',
         'Full Barn & Outdoor access',
-        'Bridal Suite & Groom\'s Quarters'
+        'Optional: 1 Night at Guest Cabin (Total $4,800)'
       ],
-      highlight: true,
+      highlight: false,
     },
     {
       name: 'The Sunset Weekend',
-      price: '$5,400',
-      description: 'The ultimate experience. Enjoy the property for the entire weekend with overnight accommodations.',
+      price: '$5,800',
+      description: '$5,800 for 2 nights. The ultimate experience.',
       features: [
         'Friday - Sunday access',
         'Up to 200 guests',
+        'Tables and Chairs included',
         'Rehearsal Dinner space',
+        'Bridal Suite & Groom\'s Quarters',
         'Overnight stay for the couple',
         'Priority vendor access',
         'All amenities from Classic package',
         'Additional Amenities Available'
       ],
-      highlight: false,
+      highlight: true,
     },
   ];
 

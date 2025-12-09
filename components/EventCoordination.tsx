@@ -96,7 +96,7 @@ const EventCoordination: React.FC = () => {
                                 <p className="text-xl font-semibold">Heather Tharp</p>
                                 <p className="text-[#A2B29F] font-medium">Event Coordinator</p>
                                 <p className="mt-4"><span className="font-semibold">Phone:</span> 304 619 6805</p>
-                                <p><span className="font-semibold">Email:</span> <a href="mailto:MUHeather08@gmail.com" className="hover:text-[#A2B29F] transition-colors">MUHeather08@gmail.com</a></p>
+                                <p><span className="font-semibold">Email:</span> <a href="mailto:sunsetwillowevents@gmail.com" className="hover:text-[#A2B29F] transition-colors">sunsetwillowevents@gmail.com</a></p>
                             </div>
                             <div className="mt-6 pt-6 border-t border-gray-200">
                                 <p className="italic text-center text-sm text-gray-500">
