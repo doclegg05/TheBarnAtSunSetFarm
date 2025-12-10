@@ -17,20 +17,27 @@ const VirtualTourPage: React.FC = () => {
                     </h1>
                     <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto mb-12"></div>
 
-                    <div className="bg-white p-12 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center">
-                        <div className="w-24 h-24 bg-[#FDF8F5] rounded-full flex items-center justify-center mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
+                    <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center w-full">
+                        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden relative shadow-inner">
+                            <video 
+                                className="w-full h-full object-cover" 
+                                controls 
+                                poster="/images/video-poster.jpg" // Optional: You might want to add a poster image later
+                            >
+                                <source src="/videos/TheBarnAtSunsetFarm_Walkthrough_Winter.mp4" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
                         </div>
-                        <h2 className="text-2xl md:text-3xl font-semibold text-[#4a4a4a] mb-4">
-                            Step Inside The Barn - Coming Soon
-                        </h2>
-                        <p className="text-lg text-gray-600 max-w-xl mx-auto mb-8 leading-relaxed">
-                            We are currently crafting an immersive virtual tour experience for you. Soon you will be able to explore every corner of The Barn at Sunset Farm from the comfort of your home.
-                        </p>
+                        <div className="mt-6 text-center">
+                             <h2 className="text-2xl md:text-3xl font-semibold text-[#4a4a4a] mb-2">
+                                Experience The Barn
+                            </h2>
+                             <p className="text-lg text-gray-600 max-w-xl mx-auto mb-6 leading-relaxed">
+                                Take a virtual walk through our winter wonderland. Imagine your perfect day in this serene setting.
+                            </p>
+                        </div>
                         
-                        <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4 mb-4">
                             <button 
                                 onClick={() => navigate('/gallery')}
                                 className="px-8 py-3 bg-[#4a4a4a] text-white rounded-lg hover:bg-opacity-90 transition-colors duration-300 font-semibold"
