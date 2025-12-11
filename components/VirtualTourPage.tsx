@@ -17,12 +17,12 @@ const VirtualTourPage: React.FC = () => {
                     </h1>
                     <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto mb-12"></div>
 
-                    <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center w-full">
-                        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden relative shadow-inner">
+                    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 flex flex-col items-center w-full max-w-sm">
+                        <div className="w-full aspect-[9/16] bg-black rounded-lg overflow-hidden relative shadow-inner">
                             <video 
                                 className="w-full h-full object-cover" 
                                 controls 
-                                poster="/images/video-poster.jpg" // Optional: You might want to add a poster image later
+                                poster="/images/video-poster.jpg" 
                             >
                                 <source src="/videos/TheBarnAtSunsetFarm_Walkthrough_Winter.mp4" type="video/mp4" />
                                 Your browser does not support the video tag.
