@@ -19,23 +19,16 @@ const Footer: React.FC = () => {
         </p>
 
 
-        {/* The Knot Badge Container */}
-        <div className="flex justify-center mb-8">
-            <div className="bg-white/10 p-4 rounded-lg flex flex-col items-center">
-                 {/* Using the logo from TheKnotHub as a placeholder until the badge script is added */}
-                 <a href="https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756" target="_blank" rel="noopener noreferrer">
-                    <img
-                        src="/the-knot-logo.png"
-                        alt="The Knot"
-                        className="h-16 md:h-20 w-auto opacity-80 mb-2 hover:opacity-100 transition-opacity duration-300"
-                    />
-                 </a>
-            </div>
-        </div>
+
 
         <p className="text-sm text-gray-500">
           &copy; {new Date().getFullYear()} The Barn at Sunset Farm. All Rights Reserved.
         </p>
+
+        {/* Designed By & Makers Mark */}
+        <div className="mt-8 flex flex-col items-center justify-center space-y-4">
+            <img src="/designed-by.png" alt="Designed by Britt Legg" className="h-12 w-auto" />
+        </div>
       </div>
     </footer>
   );

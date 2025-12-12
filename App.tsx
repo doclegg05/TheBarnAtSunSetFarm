@@ -8,9 +8,9 @@ import FAQ from './components/FAQ';
 import BookingCalendar from './components/BookingCalendar';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import Testimonials from './components/Testimonials';
+
 import GalleryPage from './components/GalleryPage';
-import SocialProof from './components/SocialProof';
+
 
 // --- Color Palette ---
 // Background: #FDF8F5 (Soft Cream)
@@ -34,15 +34,11 @@ const HomePage: React.FC = () => (
       <FadeInSection>
         <Pricing />
       </FadeInSection>
-      <FadeInSection>
-        <Testimonials />
-      </FadeInSection>
+
       <FadeInSection>
         <BookingCalendar />
       </FadeInSection>
-      <FadeInSection>
-        <SocialProof />
-      </FadeInSection>
+
       <FadeInSection>
         <Contact />
       </FadeInSection>

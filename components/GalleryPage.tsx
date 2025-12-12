@@ -7,7 +7,7 @@ import ChevronLeftIcon from './icons/ChevronLeftIcon';
 import ChevronRightIcon from './icons/ChevronRightIcon';
 
 // Reusing photos from Hero.tsx for now, plus more for the grid
-const galleryPhotos: Photo[] = [
+const barnPhotos: Photo[] = [
   { id: 1, url: '/photos/gallery/554776877_17844129915581636_4772702611147383898_n.jpg', alt: 'Gallery Image 1' },
   { id: 2, url: '/photos/gallery/554811363_17844129897581636_1173150047932271451_n.jpg', alt: 'Gallery Image 2' },
   { id: 3, url: '/photos/gallery/554859432_17843941959581636_1922670440829880078_n.jpg', alt: 'Gallery Image 3' },
@@ -43,6 +43,21 @@ const galleryPhotos: Photo[] = [
   { id: 33, url: '/photos/gallery/IMG_5102.jpeg', alt: 'Gallery Image 33' },
 ];
 
+const surroundingPhotos: Photo[] = [
+  { id: 101, url: '/photos/gallery/surrounding-1.png', alt: 'Surrounding Area 1' },
+  { id: 102, url: '/photos/gallery/surrounding-2.png', alt: 'Surrounding Area 2' },
+  { id: 103, url: '/photos/gallery/surrounding-3.png', alt: 'Surrounding Area 3' },
+  { id: 104, url: '/photos/gallery/surrounding-4.png', alt: 'Surrounding Area 4' },
+  { id: 105, url: '/photos/gallery/surrounding-5.png', alt: 'Surrounding Area 5' },
+  { id: 106, url: '/photos/gallery/surrounding-6.png', alt: 'Surrounding Area 6' },
+  { id: 107, url: '/photos/gallery/surrounding-7.png', alt: 'Surrounding Area 7' },
+  { id: 108, url: '/photos/gallery/surrounding-8.png', alt: 'Surrounding Area 8' },
+  { id: 109, url: '/photos/gallery/surrounding-9.png', alt: 'Surrounding Area 9' },
+  { id: 110, url: '/photos/gallery/surrounding-10.png', alt: 'Surrounding Area 10' },
+];
+
+const allPhotos = [...barnPhotos, ...surroundingPhotos];
+
 const GalleryPage: React.FC = () => {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
@@ -59,14 +74,14 @@ const GalleryPage: React.FC = () => {
   const nextPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedPhotoIndex !== null) {
-      setSelectedPhotoIndex((prev) => (prev === galleryPhotos.length - 1 ? 0 : (prev as number) + 1));
+      setSelectedPhotoIndex((prev) => (prev === allPhotos.length - 1 ? 0 : (prev as number) + 1));
     }
   };
 
   const prevPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedPhotoIndex !== null) {
-      setSelectedPhotoIndex((prev) => (prev === 0 ? galleryPhotos.length - 1 : (prev as number) - 1));
+      setSelectedPhotoIndex((prev) => (prev === 0 ? allPhotos.length - 1 : (prev as number) - 1));
     }
   };
 
@@ -85,26 +100,72 @@ const GalleryPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryPhotos.map((photo, index) => (
-              <div
-                key={photo.id}
-                className="group relative aspect-[4/3] overflow-hidden rounded-lg shadow-md cursor-pointer"
-                onClick={() => openLightbox(index)}
-              >
-                <img
-                  src={photo.url}
-                  alt={photo.alt}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                  <span className="text-white opacity-0 group-hover:opacity-100 font-medium tracking-wider uppercase text-sm border border-white px-4 py-2">
-                    View
-                  </span>
+          <div className="mb-12">
+            <div className="flex items-center justify-center mb-8">
+                <h2 className="text-3xl font-bold text-[#4a4a4a]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    The Barn & Grounds
+                </h2>
+                <div className="ml-4 h-px bg-[#EAD1DC] w-24"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {barnPhotos.map((photo, index) => (
+                <div
+                    key={photo.id}
+                    className="group relative aspect-[4/3] overflow-hidden rounded-lg shadow-md cursor-pointer"
+                    onClick={() => openLightbox(index)}
+                >
+                    <img
+                    src={photo.url}
+                    alt={photo.alt}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                    <span className="text-white opacity-0 group-hover:opacity-100 font-medium tracking-wider uppercase text-sm border border-white px-4 py-2">
+                        View
+                    </span>
+                    </div>
                 </div>
-              </div>
-            ))}
+                ))}
+            </div>
+          </div>
+
+          {/* Surrounding Area Section */}
+          <div className="mb-12">
+             <div className="flex items-center justify-center mb-8">
+                <h2 className="text-3xl font-bold text-[#4a4a4a]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    Surrounding Area
+                </h2>
+                <div className="ml-4 h-px bg-[#EAD1DC] w-24"></div>
+            </div>
+            {surroundingPhotos.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {surroundingPhotos.map((photo, index) => (
+                    <div
+                        key={photo.id}
+                        className="group relative aspect-[4/3] overflow-hidden rounded-lg shadow-md cursor-pointer"
+                        // Offset the index by the number of barn photos
+                        onClick={() => openLightbox(barnPhotos.length + index)}
+                    >
+                        <img
+                        src={photo.url}
+                        alt={photo.alt}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                        <span className="text-white opacity-0 group-hover:opacity-100 font-medium tracking-wider uppercase text-sm border border-white px-4 py-2">
+                            View
+                        </span>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-12 bg-white/50 rounded-lg border border-dashed border-gray-300">
+                    <p className="text-gray-500 italic">Photos of the surrounding area coming soon...</p>
+                </div>
+            )}
           </div>
         </div>
       </main>
@@ -133,8 +194,8 @@ const GalleryPage: React.FC = () => {
 
           <div className="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center">
             <img
-              src={galleryPhotos[selectedPhotoIndex].url}
-              alt={galleryPhotos[selectedPhotoIndex].alt}
+              src={allPhotos[selectedPhotoIndex].url}
+              alt={allPhotos[selectedPhotoIndex].alt}
               className="max-w-full max-h-[85vh] object-contain shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
@@ -148,7 +209,7 @@ const GalleryPage: React.FC = () => {
           </button>
 
           <div className="absolute bottom-4 left-0 right-0 text-center text-white text-sm md:text-base font-light tracking-wide">
-            {selectedPhotoIndex + 1} / {galleryPhotos.length}
+            {selectedPhotoIndex + 1} / {allPhotos.length}
           </div>
         </div>
       )}

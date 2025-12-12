@@ -12,14 +12,20 @@ const Header: React.FC = () => {
     { title: 'Pricing', id: 'pricing', type: 'scroll' },
     { title: 'Virtual Tour', id: 'virtual-tour', type: 'route' },
     { title: 'Gallery', id: 'gallery', type: 'route' },
-    { title: 'FAQ', id: 'faq', type: 'scroll' },
+
     { title: 'Availability', id: 'calendar', type: 'scroll' },
-    { title: 'The Knot', id: 'theknot', type: 'scroll' },
+    { title: 'The Knot', id: 'theknot', type: 'external', url: 'https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756', imageSrc: '/the-knot-logo.png', imageAlt: 'The Knot', logoClass: 'h-6' },
+    { title: 'WeddingWire', id: 'weddingwire', type: 'external', url: 'https://www.weddingwire.com/biz/the-barn-at-sunset-farm/24dc683f3d58f6da.html', imageSrc: '/wedding-wire-logo.png', imageAlt: 'WeddingWire', logoClass: 'h-4' },
     { title: 'Contact', id: 'contact', type: 'scroll' },
   ];
 
-  const handleNavigation = (link: { title: string; id: string; type: string }) => {
+  const handleNavigation = (link: { title: string; id: string; type: string; url?: string; imageSrc?: string; imageAlt?: string; logoClass?: string }) => {
     setIsMenuOpen(false);
+
+    if (link.type === 'external' && link.url) {
+        window.open(link.url, '_blank', 'noopener,noreferrer');
+        return;
+    }
 
     if (link.type === 'route') {
       navigate(`/${link.id}`);
@@ -45,7 +51,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className={`absolute top-0 left-0 w-full z-20 transition-all duration-300 ${location.pathname === '/gallery' ? 'bg-[#4a4a4a] text-white' : 'bg-transparent text-white'}`}>
+    <header className={`absolute top-0 left-0 w-full z-20 transition-all duration-300 ${['/gallery', '/virtual-tour'].includes(location.pathname) ? 'bg-[#4a4a4a] text-white' : 'bg-transparent text-white'}`}>
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <h1
           className="text-3xl md:text-4xl font-bold tracking-wider cursor-pointer"
@@ -59,9 +65,13 @@ const Header: React.FC = () => {
             <button
               key={link.id}
               onClick={() => handleNavigation(link)}
-              className="text-lg hover:text-[#EAD1DC] transition-colors duration-300 pb-1 border-b-2 border-transparent hover:border-[#EAD1DC]"
+              className="text-lg hover:text-[#EAD1DC] transition-colors duration-300 pb-1 border-b-2 border-transparent hover:border-[#EAD1DC] flex items-center"
             >
-              {link.title}
+              {link.imageSrc ? (
+                <img src={link.imageSrc} alt={link.imageAlt || link.title} className={`${link.logoClass || 'h-4'} w-auto object-contain`} />
+              ) : (
+                link.title
+              )}
             </button>
           ))}
         </nav>
@@ -80,9 +90,13 @@ const Header: React.FC = () => {
               <button
                 key={link.id}
                 onClick={() => handleNavigation(link)}
-                className="text-lg hover:text-[#EAD1DC] transition-colors duration-300 text-white"
+                className="text-lg hover:text-[#EAD1DC] transition-colors duration-300 text-white flex items-center justify-center p-2"
               >
-                {link.title}
+                 {link.imageSrc ? (
+                    <img src={link.imageSrc} alt={link.imageAlt || link.title} className="h-6 w-auto object-contain bg-white/10 rounded px-1" />
+                  ) : (
+                    link.title
+                  )}
               </button>
             ))}
           </nav>
