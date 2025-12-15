@@ -7,7 +7,7 @@ const Pricing: React.FC = () => {
       name: "Classic Celebration",
       price: "$3,800",
       description:
-        "1 Day Wedding ($3,800). Use of the Barn/Porch/Outside Area.",
+        "1 Day Wedding. Use of the Barn/Porch/Outside Area.",
       features: [
         "Open Availability",
         "Up to 200 guests",
@@ -20,7 +20,7 @@ const Pricing: React.FC = () => {
     {
       name: "The Sunset Weekend",
       price: "$5,800",
-      description: "$5,800 for 2 nights. The ultimate experience.",
+      description: "2 nights. The ultimate experience.",
       features: [
         "Friday - Sunday access",
         "Up to 200 guests",
@@ -44,10 +44,9 @@ const Pricing: React.FC = () => {
             Packages & Pricing
           </h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
-          <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            Transparent pricing for your perfect day. Choose the package that
-            fits your vision and budget.
-          </p>
+          <div className="mt-8">
+             <h3 className="text-3xl font-bold text-[#D4AF37]">Starting at $3,800</h3>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -60,22 +59,10 @@ const Pricing: React.FC = () => {
                   : "bg-white shadow-lg border border-gray-100"
               }`}
             >
-              {tier.highlight && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#EAD1DC] text-[#4a4a4a] px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wide">
-                  Most Popular
-                </div>
-              )}
               <h3 className="text-2xl font-bold text-[#4a4a4a] mb-2">
                 {tier.name}
               </h3>
-              <div className="flex flex-col items-center mb-4">
-                <span className="text-sm text-gray-500 font-medium mb-1">
-                  Starting at
-                </span>
-                <span className="text-4xl font-bold text-[#D4AF37]">
-                  {tier.price}
-                </span>
-              </div>
+              
               <p className="text-gray-600 mb-8">{tier.description}</p>
 
               <ul className="space-y-4 mb-8 flex-grow">
@@ -89,11 +76,7 @@ const Pricing: React.FC = () => {
 
               <a
                 href="#contact"
-                className={`block text-center py-4 rounded-lg font-semibold transition-colors duration-300 ${
-                  tier.highlight
-                    ? "bg-[#4a4a4a] text-white hover:bg-opacity-90"
-                    : "bg-[#FDF8F5] text-[#4a4a4a] hover:bg-[#EAD1DC]"
-                }`}
+                className="block text-center py-4 rounded-lg font-semibold transition-colors duration-300 bg-[#4a4a4a] text-white hover:bg-opacity-90"
               >
                 Request Quote
               </a>
