@@ -10,7 +10,7 @@ const About: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">A Venue As Unique As Your Love</h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            Nestled in the heart of rolling hills, The Barn at Sunset Farm offers a breathtaking backdrop for your special day. Our meticulously restored black barn blends rustic character with modern amenities, while our charming cottage provides a perfect retreat for you and your guests.
+            Located just minutes from Summersville, WV and the New River Gorge, The Barn at Sunset Farm offers an affordable, rustic venue for weddings, elopements, and family reunions in the heart of Nicholas County. Our beautifully crafted barn blends rustic character with modern amenities, while our charming cottage provides a perfect retreat for you and your guests.
           </p>
         </div>
 
