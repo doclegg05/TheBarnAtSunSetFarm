@@ -17,15 +17,15 @@ const About: React.FC = () => {
         {/* Main Barn Section */}
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="rounded-lg overflow-hidden shadow-xl bg-gray-900 h-[400px]">
-            {/* TICKET #010 FIX: Pointing to local file 'real-barn.png' */}
+            {/* TICKET #010 FIX: Pointing to local file 'real-barn.webp' */}
             <img
-              src="/photos/real-barn.png"
+              src="/photos/real-barn.webp"
               alt="Interior view of The Barn at Sunset Farm"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               loading="lazy"
               onError={(e) => {
                 // Fallback if user hasn't uploaded the photo yet
-                (e.target as HTMLImageElement).src = 'https://placehold.co/800x600/EAD1DC/4a4a4a?text=Upload+real-barn.png';
+                (e.target as HTMLImageElement).src = 'https://placehold.co/800x600/EAD1DC/4a4a4a?text=Upload+real-barn.webp';
               }}
             />
           </div>
@@ -58,15 +58,15 @@ const About: React.FC = () => {
             </ul>
           </div>
           <div className="rounded-lg overflow-hidden shadow-xl md:order-1 bg-gray-900 h-[400px]">
-            {/* TICKET #010 FIX: Pointing to local file 'real-cottage.png' */}
+            {/* TICKET #010 FIX: Pointing to local file 'real-cottage.webp' */}
             <img
-              src="/photos/real-cottage.png"
+              src="/photos/real-cottage.webp"
               alt="Exterior view of the guest cottages"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               loading="lazy"
               onError={(e) => {
                 // Fallback if user hasn't uploaded the photo yet
-                (e.target as HTMLImageElement).src = 'https://placehold.co/800x600/A2B29F/4a4a4a?text=Upload+real-cottage.png';
+                (e.target as HTMLImageElement).src = 'https://placehold.co/800x600/A2B29F/4a4a4a?text=Upload+real-cottage.webp';
               }}
             />
           </div>

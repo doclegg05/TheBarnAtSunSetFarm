@@ -28,7 +28,7 @@ const SocialProof: React.FC = () => {
                rel="noopener noreferrer"
                className="hover:opacity-80 transition-opacity duration-300"
              >
-               <img src="/wedding-wire-logo.png" alt="WeddingWire" className="h-10 w-auto" />
+               <img loading="lazy" src="/wedding-wire-logo.webp" alt="WeddingWire" className="h-10 w-auto" />
              </a>
           </div>
         </div>

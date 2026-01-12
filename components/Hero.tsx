@@ -4,13 +4,13 @@ import { Photo } from '../types';
 
 // Optimized image URLs for faster loading. Reduced quality slightly (q=75) to improve load speed.
 const venuePhotos: Photo[] = [
-  { id: 1, url: '/photos/carousel/554859432_17843941959581636_1922670440829880078_n.jpg', alt: 'Wedding Setup' },
-  { id: 2, url: '/photos/carousel/555659780_24579290471766013_154526886136814725_n.jpg', alt: 'Scenic View' },
-  { id: 3, url: '/photos/carousel/555732493_17843947656581636_7216313080117116988_n.jpg', alt: 'Celebration Moment' },
-  { id: 4, url: '/photos/carousel/564760941_17847031491581636_4657080208668798040_n.jpg', alt: 'Interior Detail' },
-  { id: 5, url: '/photos/carousel/571698558_17849317746581636_883082292931479919_n.jpg', alt: 'Event Highlight' },
-  { id: 6, url: '/photos/carousel/572241396_17850427008581636_5317694953211561273_n.jpg', alt: 'Rustic Charm' },
-  { id: 7, url: '/photos/carousel/581055459_17851410018581636_1679243285675442589_n.jpg', alt: 'Evening Atmosphere' },
+  { id: 1, url: '/photos/carousel/554859432_17843941959581636_1922670440829880078_n.webp', alt: 'Wedding Setup' },
+  { id: 2, url: '/photos/carousel/555659780_24579290471766013_154526886136814725_n.webp', alt: 'Scenic View' },
+  { id: 3, url: '/photos/carousel/555732493_17843947656581636_7216313080117116988_n.webp', alt: 'Celebration Moment' },
+  { id: 4, url: '/photos/carousel/564760941_17847031491581636_4657080208668798040_n.webp', alt: 'Interior Detail' },
+  { id: 5, url: '/photos/carousel/571698558_17849317746581636_883082292931479919_n.webp', alt: 'Event Highlight' },
+  { id: 6, url: '/photos/carousel/572241396_17850427008581636_5317694953211561273_n.webp', alt: 'Rustic Charm' },
+  { id: 7, url: '/photos/carousel/581055459_17851410018581636_1679243285675442589_n.webp', alt: 'Evening Atmosphere' },
 ];
 
 const Hero: React.FC = () => {
