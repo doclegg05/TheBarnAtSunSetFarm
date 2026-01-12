@@ -59,6 +59,7 @@ async function optimizeImages() {
             }
 
             await pipeline
+                .rotate()
                 .webp({ quality: QUALITY })
                 .toFile(newPath);
 
