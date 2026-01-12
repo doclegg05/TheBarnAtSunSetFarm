@@ -36,6 +36,6 @@ const GOOGLE_CALENDAR_ID = "PASTE_YOUR_CALENDAR_ID_HERE";
 _Note: For better security, creating a `.env` file in the root folder is recommended:_
 
 ```
-VITE_GOOGLE_API_KEY=AIzaSyAjbJLMQveUnc-U7i147J1Zb9YFoAh_9aw
-VITE_GOOGLE_CALENDAR_ID=52a0469a73b4b4a5408374ad0608546d2f0ed6cb0dd69c3a0c72add874a2e3a4@group.calendar.google.com
+VITE_GOOGLE_API_KEY=YOUR_API_KEY_HERE
+VITE_GOOGLE_CALENDAR_ID=your_calendar_id@group.calendar.google.com
 ```
