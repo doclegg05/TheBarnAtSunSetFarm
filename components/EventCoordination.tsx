@@ -9,7 +9,7 @@ const EventCoordination: React.FC = () => {
                     {/* Logo Section */}
                     <div className="w-full md:w-1/3 flex justify-center">
                         <img
-                            src="/photos/sunset-willow-logo.png"
+                            src="/photos/sunset-willow-logo.webp"
                             alt="Sunset Willow Event Planning, LLC Logo"
                             className="w-full max-w-sm object-contain hover:scale-105 transition-transform duration-500"
                             loading="lazy"

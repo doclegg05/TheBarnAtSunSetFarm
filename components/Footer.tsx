@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
 
         {/* Designed By & Makers Mark */}
         <div className="mt-8 flex flex-col items-center justify-center space-y-4">
-            <img src="/designed-by.png" alt="Designed by Britt Legg" className="h-12 w-auto" />
+            <img loading="lazy" src="/designed-by.webp" alt="Designed by Britt Legg" className="h-12 w-auto" />
         </div>
       </div>
     </footer>

@@ -15,8 +15,7 @@ const TheKnotHub: React.FC = () => {
           className="inline-block group transition-transform duration-300 hover:scale-105"
         >
           {/* Official The Knot Logo */}
-          <img
-            src="/the-knot-logo.png"
+          <img loading="lazy" src="/the-knot-logo.webp"
             alt="The Knot"
             className="h-16 md:h-20 w-auto opacity-80 group-hover:opacity-100 transition-opacity duration-300"
           />

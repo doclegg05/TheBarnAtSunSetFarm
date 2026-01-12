@@ -14,8 +14,8 @@ const Header: React.FC = () => {
     { title: 'Gallery', id: 'gallery', type: 'route' },
 
     { title: 'Availability', id: 'calendar', type: 'scroll' },
-    { title: 'The Knot', id: 'theknot', type: 'external', url: 'https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756', imageSrc: '/the-knot-logo.png', imageAlt: 'The Knot', logoClass: 'h-6' },
-    { title: 'WeddingWire', id: 'weddingwire', type: 'external', url: 'https://www.weddingwire.com/biz/the-barn-at-sunset-farm/24dc683f3d58f6da.html', imageSrc: '/wedding-wire-logo.png', imageAlt: 'WeddingWire', logoClass: 'h-4' },
+    { title: 'The Knot', id: 'theknot', type: 'external', url: 'https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756', imageSrc: '/the-knot-logo.webp', imageAlt: 'The Knot', logoClass: 'h-6' },
+    { title: 'WeddingWire', id: 'weddingwire', type: 'external', url: 'https://www.weddingwire.com/biz/the-barn-at-sunset-farm/24dc683f3d58f6da.html', imageSrc: '/wedding-wire-logo.webp', imageAlt: 'WeddingWire', logoClass: 'h-4' },
     { title: 'Contact', id: 'contact', type: 'scroll' },
   ];
 
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
               className="text-lg hover:text-[#EAD1DC] transition-colors duration-300 pb-1 border-b-2 border-transparent hover:border-[#EAD1DC] flex items-center"
             >
               {link.imageSrc ? (
-                <img src={link.imageSrc} alt={link.imageAlt || link.title} className={`${link.logoClass || 'h-4'} w-auto object-contain`} />
+                <img loading="lazy" src={link.imageSrc} alt={link.imageAlt || link.title} className={`${link.logoClass || 'h-4'} w-auto object-contain`} />
               ) : (
                 link.title
               )}
@@ -93,7 +93,7 @@ const Header: React.FC = () => {
                 className="text-lg hover:text-[#EAD1DC] transition-colors duration-300 text-white flex items-center justify-center p-2"
               >
                  {link.imageSrc ? (
-                    <img src={link.imageSrc} alt={link.imageAlt || link.title} className="h-6 w-auto object-contain bg-white/10 rounded px-1" />
+                    <img loading="lazy" src={link.imageSrc} alt={link.imageAlt || link.title} className="h-6 w-auto object-contain bg-white/10 rounded px-1" />
                   ) : (
                     link.title
                   )}
