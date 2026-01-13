@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",
+    "date-fns": "^4.1.0",
     "react": "^19.2.0",
+    "react-calendar": "^6.0.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6"
   },

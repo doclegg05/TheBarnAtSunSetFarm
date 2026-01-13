@@ -1,6 +1,22 @@
 import React from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import { format, isSameDay, parseISO } from 'date-fns';
+import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
+import './BookingCalendar.css'; // We will create this for custom styling
 
 const BookingCalendar: React.FC = () => {
+  const { bookedDates, loading, error } = useGoogleCalendar();
+
+  // Helper to check if a date is booked
+  const isDateBooked = (date: Date) => {
+    return bookedDates.some(bookedDateStr => {
+      // Parse the 'YYYY-MM-DD' string from the hook treated as local date
+      // We compare YYYY-MM-DD strings directly to avoid timezone issues
+      const dateStr = format(date, 'yyyy-MM-dd');
+      return bookedDateStr === dateStr;
+    });
+  };
 
   const handleInquire = () => {
     const contactSection = document.getElementById('contact');
@@ -16,19 +32,46 @@ const BookingCalendar: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">Check Availability</h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            View our availability below. Please note that dates are subject to change.
+            View our availability below. Days marked in <span className="text-[#EAD1DC] font-bold">pink</span> are already booked.
           </p>
         </div>
-        
-        <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden p-4 md:p-8 flex justify-center">
-          <div className="w-full relative" style={{ paddingBottom: '75%', height: 0 }}>
-             <iframe 
-               src="https://calendar.google.com/calendar/embed?src=52a0469a73b4b4a5408374ad0608546d2f0ed6cb0dd69c3a0c72add874a2e3a4%40group.calendar.google.com&ctz=America%2FNew_York" 
-               style={{ border: 0, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} 
-               frameBorder="0" 
-               scrolling="no"
-               title="Google Calendar Availability"
-             ></iframe>
+
+        <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden p-6 md:p-12 flex flex-col items-center">
+          {loading && <p className="text-gray-500 text-lg animate-pulse">Loading availability...</p>}
+          {error && <p className="text-red-500">Unable to load calendar. Please contact us directly.</p>}
+
+          {!loading && !error && (
+            <div className="custom-calendar-wrapper w-full flex justify-center">
+              <Calendar
+                view="month"
+                tileClassName={({ date, view }) => {
+                  if (view === 'month') {
+                    if (isDateBooked(date)) {
+                      return 'booked-date';
+                    }
+                  }
+                  return null;
+                }}
+                tileDisabled={({ date, view }) => {
+                  // Disable text input/clicking for booked dates AND dates in the past
+                  return view === 'month' && (isDateBooked(date) || date < new Date(new Date().setHours(0, 0, 0, 0)));
+                }}
+                minDate={new Date()} // Don't show past months
+                next2Label={null} // Hide "next year" arrow for cleaner look
+                prev2Label={null}
+              />
+            </div>
+          )}
+
+          <div className="mt-8 flex gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full border border-gray-300 bg-white"></div>
+              <span className="text-gray-600">Available</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-[#EAD1DC] opacity-80"></div>
+              <span className="text-gray-600">Booked</span>
+            </div>
           </div>
         </div>
 
@@ -37,7 +80,7 @@ const BookingCalendar: React.FC = () => {
             onClick={handleInquire}
             className="bg-[#A2B29F] text-white py-3 px-8 rounded-lg text-lg shadow-lg hover:bg-[#8c9a89] active:scale-95 transition-all duration-200"
           >
-            Inquire Now
+            Inquire About a Date
           </button>
         </div>
       </div>

@@ -1,0 +1,115 @@
+/* Custom styles for react-calendar */
+.react-calendar {
+    width: 100%;
+    max-width: 600px; /* Limit width for cleaner look */
+    background: white;
+    border: none;
+    font-family: 'Inter', sans-serif; /* Setup nice font inheritance */
+    line-height: 1.125em;
+  }
+  
+  .react-calendar__navigation {
+    display: flex;
+    height: 44px;
+    margin-bottom: 2em;
+  }
+  
+  .react-calendar__navigation button {
+    min-width: 44px;
+    background: none;
+    font-size: 1.25rem;
+    color: #4a4a4a;
+    font-family: 'Cormorant Garamond', serif; /* Use the brand's serif font for headers */
+    font-weight: bold;
+  }
+  
+  .react-calendar__navigation button:disabled {
+    background-color: #f0f0f0;
+  }
+  
+  .react-calendar__navigation button:enabled:hover,
+  .react-calendar__navigation button:enabled:focus {
+    background-color: #f8f8f8;
+  }
+  
+  /* Weekday names */
+  .react-calendar__month-view__weekdays {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.75em;
+    color: #A2B29F; /* Brand Green */
+    text-decoration: none; /* No underline */
+    margin-bottom: 1em;
+  }
+
+  .react-calendar__month-view__weekdays__weekday {
+    padding: 0.5em;
+    text-decoration: none;
+  }
+  
+  abbr[title] {
+    text-decoration: none;
+    cursor: default;
+  }
+
+  /* Day Tiles */
+  .react-calendar__tile {
+    max-width: 100%;
+    padding: 18px 6px;
+    background: none;
+    text-align: center;
+    line-height: 16px;
+    font-size: 1rem;
+    color: #4a4a4a;
+    border-radius: 8px; /* Rounded tiles */
+    transition: background-color 0.2s;
+  }
+  
+  .react-calendar__tile:enabled:hover,
+  .react-calendar__tile:enabled:focus {
+    background-color: #f0fdf4; /* Very light green hint */
+    color: #4a4a4a;
+  }
+  
+  /* Today */
+  .react-calendar__tile--now {
+    background: #fff;
+    border: 1px solid #A2B29F;
+    color: #A2B29F;
+    font-weight: bold;
+  }
+  
+  .react-calendar__tile--now:enabled:hover,
+  .react-calendar__tile--now:enabled:focus {
+    background: #ffffea;
+  }
+  
+  /* BOOKED DATE STYLING */
+  .booked-date {
+    background-color: #EAD1DC !important; /* Brand Pink */
+    color: #a8a8a8 !important;
+    text-decoration: line-through;
+    opacity: 0.7;
+    cursor: not-allowed !important;
+  }
+  
+  .booked-date:hover {
+    background-color: #EAD1DC !important;
+  }
+
+  /* Disabled dates (past) */
+  .react-calendar__tile:disabled {
+    background-color: #ffffff;
+    color: #e0e0e0;
+  }
+
+/* Override default active/selected state (we don't really select dates here) */
+.react-calendar__tile--active {
+    background: #A2B29F;
+    color: white;
+}
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+    background: #8c9a89;
+}

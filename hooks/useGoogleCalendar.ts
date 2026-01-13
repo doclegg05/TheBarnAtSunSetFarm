@@ -1,77 +1,81 @@
 import { useState, useEffect } from 'react';
 
 // --- CONFIGURATION ---
-// Follow the instructions in GOOGLE_CALENDAR_SETUP.md to get these values.
-// You can either paste them here (easier) or use a .env file (more secure).
-const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || ""; 
+// These are standard Google Calendar API keys.
+// Make sure VITE_GOOGLE_API_KEY and VITE_GOOGLE_CALENDAR_ID are set in .env
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "";
 const CALENDAR_ID = import.meta.env.VITE_GOOGLE_CALENDAR_ID || "";
 
 interface GoogleCalendarEvent {
-  start: { date?: string; dateTime?: string };
-  end: { date?: string; dateTime?: string };
-  status: string;
+    start: { date?: string; dateTime?: string };
+    end: { date?: string; dateTime?: string };
+    status: string;
 }
 
 export const useGoogleCalendar = () => {
-  const [bookedDates, setBookedDates] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+    const [bookedDates, setBookedDates] = useState<string[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // If no configuration is present, return (allows usage of hardcoded fallback)
-    if (!API_KEY || !CALENDAR_ID) {
-      console.warn("Google Calendar API Key or ID missing. Using hardcoded dates.");
-      setLoading(false);
-      return;
-    }
-
-    const fetchEvents = async () => {
-      try {
-        // Fetch events from now until 2 years in the future
-        const now = new Date().toISOString();
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${now}&singleEvents=true&orderBy=startTime&maxResults=2500`;
-
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error('Failed to fetch calendar events');
+    useEffect(() => {
+        // If no configuration is present, return (allows usage of hardcoded fallback)
+        if (!API_KEY || !CALENDAR_ID) {
+            console.warn("Google Calendar API Key or ID missing.");
+            setLoading(false);
+            return;
         }
 
-        const data = await response.json();
-        const events: GoogleCalendarEvent[] = data.items || [];
+        const fetchEvents = async () => {
+            try {
+                // Fetch events from now until 2 years in the future
+                const now = new Date().toISOString();
+                const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${now}&singleEvents=true&orderBy=startTime&maxResults=2500`;
 
-        const dates: Set<string> = new Set();
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch calendar events');
+                }
 
-        events.forEach(event => {
-          // Only count confirmed events
-          if (event.status === 'confirmed') {
-            const start = event.start.date || event.start.dateTime;
-            const end = event.end.date || event.end.dateTime;
+                const data = await response.json();
+                const events: GoogleCalendarEvent[] = data.items || [];
 
-            if (start && end) {
-              const startDate = new Date(start);
-              const endDate = new Date(end);
+                const dates: Set<string> = new Set();
 
-              // Loop through each day of the event
-              for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
-                 // Format as YYYY-MM-DD
-                 dates.add(d.toISOString().split('T')[0]);
-              }
-              // Note: Google Calendar "end date" is exclusive for all-day events, which this loop handles correctly.
+                events.forEach(event => {
+                    // Only count confirmed events
+                    if (event.status === 'confirmed') {
+                        const start = event.start.date || event.start.dateTime;
+                        const end = event.end.date || event.end.dateTime;
+
+                        if (start && end) {
+                            const startDate = new Date(start);
+                            const endDate = new Date(end);
+
+                            // Loop through each day of the event
+                            // Note: handling 'all day' events correctly where end date is exclusive
+                            let current = new Date(startDate);
+                            while (current < endDate) {
+                                // If it's a specific time event (dateTime), endDate might be same day.
+                                // If it's all day (date), endDate is next day midnight.
+                                // We just mark the 'current' day as busy.
+                                dates.add(current.toISOString().split('T')[0]);
+                                current.setDate(current.getDate() + 1);
+                            }
+                        }
+                    }
+                });
+
+                setBookedDates(Array.from(dates));
+            } catch (err) {
+                console.error("Error fetching Google Calendar events:", err);
+                setError("Could not load availability.");
+            } finally {
+                setLoading(false);
             }
-          }
-        });
+        };
 
-        setBookedDates(Array.from(dates));
-      } catch (err) {
-        console.error("Error fetching Google Calendar events:", err);
-        setError("Could not load availability.");
-      } finally {
-        setLoading(false);
-      }
-    };
+        fetchEvents();
+    }, []);
 
-    fetchEvents();
-  }, []);
-
-  return { bookedDates, loading, error, isConfigured: !!(API_KEY && CALENDAR_ID) };
+    return { bookedDates, loading, error, isConfigured: !!(API_KEY && CALENDAR_ID) };
 };
