@@ -3,7 +3,7 @@ import { useForm, ValidationError } from '@formspree/react';
 import { useBooking } from '../contexts/BookingContext';
 
 const Contact: React.FC = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', date: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', date: '', message: '' });
   const [state, handleSubmit] = useForm("mdkjokdw");
   const { selectedDateRange } = useBooking();
 
@@ -50,6 +50,11 @@ const Contact: React.FC = () => {
                   <label htmlFor="email" className="block text-lg font-medium text-gray-700">Email Address</label>
                   <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white" />
                   <ValidationError prefix="Email" field="email" errors={state.errors} className="text-red-500 text-sm mt-1" />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block text-lg font-medium text-gray-700">Phone Number</label>
+                  <input type="tel" name="phone" id="phone" placeholder="(555) 123-4567" value={formData.phone} onChange={handleChange} className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white" />
+                  <ValidationError prefix="Phone" field="phone" errors={state.errors} className="text-red-500 text-sm mt-1" />
                 </div>
                 <div>
                   <label htmlFor="date" className="block text-lg font-medium text-gray-700">Prospective Event Date(s)</label>
