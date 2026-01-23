@@ -52,20 +52,20 @@ const Header: React.FC = () => {
 
   return (
     <header className={`absolute top-0 left-0 w-full z-20 transition-all duration-300 ${['/gallery', '/virtual-tour'].includes(location.pathname) ? 'bg-[#4a4a4a] text-white' : 'bg-transparent text-white'}`}>
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center gap-4">
         <h1
-          className="text-3xl md:text-4xl font-bold tracking-wider cursor-pointer"
+          className="text-2xl lg:text-3xl xl:text-4xl font-bold tracking-wider cursor-pointer whitespace-nowrap flex-shrink-0"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
           onClick={() => navigate('/')}
         >
           The Barn at Sunset Farm
         </h1>
-        <nav className="hidden md:flex space-x-8">
+        <nav className="hidden lg:flex items-center gap-3 xl:gap-5">
           {navLinks.map((link) => (
             <button
               key={link.id}
               onClick={() => handleNavigation(link)}
-              className="text-lg hover:text-[#EAD1DC] transition-colors duration-300 pb-1 border-b-2 border-transparent hover:border-[#EAD1DC] flex items-center"
+              className="text-sm xl:text-base hover:text-[#EAD1DC] transition-colors duration-300 pb-1 border-b-2 border-transparent hover:border-[#EAD1DC] flex items-center whitespace-nowrap"
             >
               {link.imageSrc ? (
                 <img loading="lazy" src={link.imageSrc} alt={link.imageAlt || link.title} className={`${link.logoClass || 'h-4'} w-auto object-contain`} />
@@ -75,7 +75,7 @@ const Header: React.FC = () => {
             </button>
           ))}
         </nav>
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="focus:outline-none">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}></path>
@@ -84,7 +84,7 @@ const Header: React.FC = () => {
         </div>
       </div>
       {isMenuOpen && (
-        <div className="md:hidden bg-[#4a4a4a] bg-opacity-95 absolute w-full z-30">
+        <div className="lg:hidden bg-[#4a4a4a] bg-opacity-95 absolute w-full z-30">
           <nav className="flex flex-col items-center space-y-4 py-4">
             {navLinks.map((link) => (
               <button

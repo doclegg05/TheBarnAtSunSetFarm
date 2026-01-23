@@ -42,7 +42,7 @@ const Hero: React.FC = () => {
         className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4 pointer-events-none"
         style={{ transform: `translateY(${offset * 0.2}px)` }}
       >
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight drop-shadow-xl shadow-black pointer-events-auto" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight drop-shadow-xl shadow-black pointer-events-auto whitespace-nowrap" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
           The Barn at Sunset Farm
         </h1>
         <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight drop-shadow-xl shadow-black pointer-events-auto mt-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
