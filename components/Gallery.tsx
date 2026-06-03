@@ -10,21 +10,31 @@ interface GalleryProps {
 const Gallery: React.FC<GalleryProps> = ({ photos }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const nextSlide = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
-    if (e) {
+  const nextSlide = useCallback(
+    (e?: React.MouseEvent | React.TouchEvent) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (photos.length === 0) return;
+      setCurrentIndex((prevIndex) =>
+        prevIndex === photos.length - 1 ? 0 : prevIndex + 1
+      );
+    },
+    [photos.length]
+  );
+
+  const prevSlide = useCallback(
+    (e: React.MouseEvent | React.TouchEvent) => {
       e.preventDefault();
       e.stopPropagation();
-    }
-    if (photos.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex === photos.length - 1 ? 0 : prevIndex + 1));
-  }, [photos.length]);
-
-  const prevSlide = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (photos.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? photos.length - 1 : prevIndex - 1));
-  }, [photos.length]);
+      if (photos.length === 0) return;
+      setCurrentIndex((prevIndex) =>
+        prevIndex === 0 ? photos.length - 1 : prevIndex - 1
+      );
+    },
+    [photos.length]
+  );
 
   useEffect(() => {
     const slideInterval = setInterval(() => nextSlide(), 6000); // Slightly slower interval for a more relaxed pace
@@ -52,7 +62,7 @@ const Gallery: React.FC<GalleryProps> = ({ photos }) => {
                 src={photo.url}
                 alt={photo.alt}
                 className={`w-full h-full object-cover object-[center_35%] transform transition-transform duration-[10000ms] ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
-                loading={index === 0 ? "eager" : "lazy"}
+                loading={index === 0 ? 'eager' : 'lazy'}
               />
 
               {/* Subtle gradient overlay to ensure text readability is always maintained without overpowering the image */}
