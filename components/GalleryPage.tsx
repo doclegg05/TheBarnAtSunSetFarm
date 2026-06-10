@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Photo } from '../types';
 import Header from './Header';
 import Footer from './Footer';
@@ -71,19 +71,41 @@ const GalleryPage: React.FC = () => {
     document.body.style.overflow = 'unset';
   };
 
+  const goToNext = () => {
+    setSelectedPhotoIndex((prev) => (prev === null ? prev : prev === allPhotos.length - 1 ? 0 : prev + 1));
+  };
+
+  const goToPrev = () => {
+    setSelectedPhotoIndex((prev) => (prev === null ? prev : prev === 0 ? allPhotos.length - 1 : prev - 1));
+  };
+
   const nextPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (selectedPhotoIndex !== null) {
-      setSelectedPhotoIndex((prev) => (prev === allPhotos.length - 1 ? 0 : (prev as number) + 1));
-    }
+    goToNext();
   };
 
   const prevPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (selectedPhotoIndex !== null) {
-      setSelectedPhotoIndex((prev) => (prev === 0 ? allPhotos.length - 1 : (prev as number) - 1));
-    }
+    goToPrev();
   };
+
+  // Keyboard support while the lightbox is open.
+  useEffect(() => {
+    if (selectedPhotoIndex === null) {
+      return;
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowRight') {
+        goToNext();
+      } else if (e.key === 'ArrowLeft') {
+        goToPrev();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPhotoIndex]);
 
   return (
     <div className="bg-[#FDF8F5] min-h-screen flex flex-col">
@@ -181,6 +203,7 @@ const GalleryPage: React.FC = () => {
           <button
             className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-50"
             onClick={closeLightbox}
+            aria-label="Close photo viewer"
           >
             <XMarkIcon className="w-8 h-8" />
           </button>
@@ -188,6 +211,7 @@ const GalleryPage: React.FC = () => {
           <button
             className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2"
             onClick={prevPhoto}
+            aria-label="Previous photo"
           >
             <ChevronLeftIcon className="w-8 h-8 md:w-10 md:h-10" />
           </button>
@@ -203,6 +227,7 @@ const GalleryPage: React.FC = () => {
           <button
             className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2"
             onClick={nextPhoto}
+            aria-label="Next photo"
           >
             <ChevronRightIcon className="w-8 h-8 md:w-10 md:h-10" />
           </button>

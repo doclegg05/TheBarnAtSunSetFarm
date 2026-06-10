@@ -51,9 +51,10 @@ const Amenities: React.FC = () => {
     return (
         <div className="mt-20">
             <h3 className="text-3xl font-semibold text-center text-[#4a4a4a] mb-12">Venue Amenities</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* flex-wrap with justify-center so an incomplete last row stays centered */}
+            <div className="flex flex-wrap justify-center gap-8">
                 {amenities.map((item, index) => (
-                    <div key={index} className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center">
+                    <div key={index} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)] bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center">
                         <div className="p-4 bg-[#FDF8F5] rounded-full mb-4">
                             <item.icon className="w-8 h-8 text-[#A2B29F]" />
                         </div>
