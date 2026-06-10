@@ -7,7 +7,7 @@
 - **Repo**: github.com/doclegg05 (branch: claude/wonderful-hopper-433bb0 worktree)
 
 ## Current Status
-Site reviewed by Fable 5 (full design critique, scored 23/40 on Nielsen heuristics) and all findings fixed. Build + typecheck green, fixes verified visually with scripted browser tests. Changes are **uncommitted** in the worktree.
+All review fixes committed AND merged with the true production branch. CRITICAL CONTEXT: the live site (thebarnatsunsetfarm.com) was deployed from `origin/codex/add-gallery-photos-header-spacing` (one-line header, gap-based nav, brand-token Tailwind config, ~20 wedding gallery photos, 404 page, refactored contexts/useBooking) — NOT from `main`, which is stale. The working branch now = production code + all fixes; header geometry verified pixel-identical to production at 2000px. Awaiting push + PR to main.
 
 ## Last Session
 - **Date**: 2026-06-10
@@ -19,7 +19,8 @@ Site reviewed by Fable 5 (full design critique, scored 23/40 on Nielsen heuristi
 - **Where we left off**: All fixes verified; awaiting commit/PR decision from user
 
 ## Open Items
-- [ ] Commit + PR the review fixes (uncommitted in worktree)
+- [ ] Push branch + PR to main (merge commit bcaa6a6 includes production branch + all fixes)
+- [ ] After PR merges: confirm Netlify deploys from main (it was deploying the codex branch); user's Safari has a content filter that strips brand-named logo files on localhost (fixed via generic filenames nav-img-1/2.webp)
 - [ ] Testimonials section: component exists at components/Testimonials.tsx, unused — wire up when real couple quotes available
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [ ] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env (calendar shows "temporarily offline" notice without them)
