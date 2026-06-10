@@ -14,8 +14,10 @@ const Header: React.FC = () => {
     { title: 'Gallery', id: 'gallery', type: 'route' },
 
     { title: 'Availability', id: 'calendar', type: 'scroll' },
-    { title: 'The Knot', id: 'theknot', type: 'external', url: 'https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756', imageSrc: '/the-knot-logo.webp', imageAlt: 'The Knot', logoClass: 'h-6' },
-    { title: 'WeddingWire', id: 'weddingwire', type: 'external', url: 'https://www.weddingwire.com/biz/the-barn-at-sunset-farm/24dc683f3d58f6da.html', imageSrc: '/wedding-wire-logo.webp', imageAlt: 'WeddingWire', logoClass: 'h-4' },
+    // Badge images use deliberately generic filenames: names like "the-knot-logo.webp"
+    // match ad-blocker filter patterns and get stripped from the page for some visitors.
+    { title: 'The Knot', id: 'theknot', type: 'external', url: 'https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756', imageSrc: '/nav-img-1.webp', imageAlt: 'The Knot', logoClass: 'h-6' },
+    { title: 'WeddingWire', id: 'weddingwire', type: 'external', url: 'https://www.weddingwire.com/biz/the-barn-at-sunset-farm/24dc683f3d58f6da.html', imageSrc: '/nav-img-2.webp', imageAlt: 'WeddingWire', logoClass: 'h-4' },
     { title: 'Contact', id: 'contact', type: 'scroll' },
   ];
 
