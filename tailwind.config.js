@@ -2,16 +2,21 @@
 export default {
   content: [
     './index.html',
-    './App.tsx',
-    './index.tsx',
-    './components/**/*.tsx',
-    './contexts/**/*.tsx',
+    './components/**/*.{js,ts,jsx,tsx}',
+    './*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
+      colors: {
+        'brand-cream': '#FDF8F5',
+        'brand-charcoal': '#4a4a4a',
+        'brand-pink': '#EAD1DC',
+        'brand-sage': '#A2B29F',
+        'brand-gold': '#D4AF37',
+      },
       fontFamily: {
-        serif: ["'Cormorant Garamond'", 'serif'],
         sans: ['Raleway', 'sans-serif'],
+        serif: ['Cormorant Garamond', 'serif'],
       },
     },
   },

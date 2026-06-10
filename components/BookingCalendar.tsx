@@ -3,7 +3,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { format } from 'date-fns';
 import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
-import { useBooking } from '../contexts/BookingContext';
+import { useBooking } from '../contexts/useBooking';
 import './BookingCalendar.css'; // We will create this for custom styling
 
 const BookingCalendar: React.FC = () => {

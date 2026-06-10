@@ -15,7 +15,9 @@ const TheKnotHub: React.FC = () => {
           className="inline-block group transition-transform duration-300 hover:scale-105"
         >
           {/* Official The Knot Logo */}
-          <img loading="lazy" src="/the-knot-logo.webp"
+          <img
+            loading="lazy"
+            src="/the-knot-logo.webp"
             alt="The Knot"
             className="h-16 md:h-20 w-auto opacity-80 group-hover:opacity-100 transition-opacity duration-300"
           />
@@ -24,7 +26,11 @@ const TheKnotHub: React.FC = () => {
         <div className="mt-8 flex flex-col items-center justify-center space-y-2">
           <div className="flex items-center space-x-1 text-[#A2B29F]">
             {[1, 2, 3, 4, 5].map((star) => (
-              <svg key={star} className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+              <svg
+                key={star}
+                className="w-6 h-6 fill-current"
+                viewBox="0 0 24 24"
+              >
                 <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
               </svg>
             ))}
