@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { addDays, format, parseISO, startOfDay } from 'date-fns';
 
 // --- CONFIGURATION ---
 // These are standard Google Calendar API keys.
@@ -43,24 +44,30 @@ export const useGoogleCalendar = () => {
 
                 events.forEach(event => {
                     // Only count confirmed events
-                    if (event.status === 'confirmed') {
-                        const start = event.start.date || event.start.dateTime;
-                        const end = event.end.date || event.end.dateTime;
+                    if (event.status !== 'confirmed') {
+                        return;
+                    }
 
-                        if (start && end) {
-                            const startDate = new Date(start);
-                            const endDate = new Date(end);
-
-                            // Loop through each day of the event
-                            // Note: handling 'all day' events correctly where end date is exclusive
-                            let current = new Date(startDate);
-                            while (current < endDate) {
-                                // If it's a specific time event (dateTime), endDate might be same day.
-                                // If it's all day (date), endDate is next day midnight.
-                                // We just mark the 'current' day as busy.
-                                dates.add(current.toISOString().split('T')[0]);
-                                current.setDate(current.getDate() + 1);
-                            }
+                    // Dates must be computed in LOCAL time, not UTC: an evening
+                    // event (e.g. 6-11pm Eastern) converted via toISOString()
+                    // would mark the wrong day as booked.
+                    if (event.start.date && event.end.date) {
+                        // All-day event: end date is exclusive per the API.
+                        let current = parseISO(event.start.date);
+                        const endExclusive = parseISO(event.end.date);
+                        while (current < endExclusive) {
+                            dates.add(format(current, 'yyyy-MM-dd'));
+                            current = addDays(current, 1);
+                        }
+                    } else if (event.start.dateTime && event.end.dateTime) {
+                        // Timed event: mark every local day it touches.
+                        // Subtract 1ms so an event ending exactly at midnight
+                        // doesn't spill into the next day.
+                        let current = startOfDay(new Date(event.start.dateTime));
+                        const lastDay = startOfDay(new Date(new Date(event.end.dateTime).getTime() - 1));
+                        while (current <= lastDay) {
+                            dates.add(format(current, 'yyyy-MM-dd'));
+                            current = addDays(current, 1);
                         }
                     }
                 });

@@ -8,11 +8,15 @@ const Contact: React.FC = () => {
   const { selectedDateRange } = useBooking();
 
   useEffect(() => {
-    if (selectedDateRange.start && selectedDateRange.end) {
-      const formattedStart = selectedDateRange.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const formattedEnd = selectedDateRange.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      setFormData(prev => ({ ...prev, date: `${formattedStart} - ${formattedEnd}` }));
+    const { start, end } = selectedDateRange;
+    if (!start) {
+      return;
     }
+    const dateFormat: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+    const formattedStart = start.toLocaleDateString('en-US', dateFormat);
+    const isRange = end && end.getTime() !== start.getTime();
+    const dateValue = isRange ? `${formattedStart} - ${end.toLocaleDateString('en-US', dateFormat)}` : formattedStart;
+    setFormData(prev => ({ ...prev, date: dateValue }));
   }, [selectedDateRange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -1,12 +1,14 @@
 import React from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { format, isSameDay, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
+import { useBooking } from '../contexts/BookingContext';
 import './BookingCalendar.css'; // We will create this for custom styling
 
 const BookingCalendar: React.FC = () => {
   const { bookedDates, loading, error } = useGoogleCalendar();
+  const { selectedDateRange, setSelectedDateRange } = useBooking();
 
   // Helper to check if a date is booked
   const isDateBooked = (date: Date) => {
@@ -18,12 +20,27 @@ const BookingCalendar: React.FC = () => {
     });
   };
 
+  const handleDateChange = (value: Date | [Date | null, Date | null] | null) => {
+    if (Array.isArray(value)) {
+      const [start, end] = value;
+      setSelectedDateRange({ start: start ?? null, end: end ?? start ?? null });
+    } else if (value instanceof Date) {
+      setSelectedDateRange({ start: value, end: value });
+    }
+  };
+
   const handleInquire = () => {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
       contactSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const selectedLabel = selectedDateRange.start
+    ? selectedDateRange.end && selectedDateRange.end.getTime() !== selectedDateRange.start.getTime()
+      ? `${format(selectedDateRange.start, 'MMM d, yyyy')} – ${format(selectedDateRange.end, 'MMM d, yyyy')}`
+      : format(selectedDateRange.start, 'MMM d, yyyy')
+    : null;
 
   return (
     <section id="calendar" className="py-20 md:py-32 bg-white">
@@ -32,7 +49,8 @@ const BookingCalendar: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">Check Availability</h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            View our availability below. Days marked in <span className="text-[#EAD1DC] font-bold">pink</span> are already booked.
+            Days marked in <span className="text-[#EAD1DC] font-bold">pink</span> are already booked.
+            Tap a date (or a start and end date) to pre-fill your inquiry below.
           </p>
         </div>
 
@@ -44,6 +62,9 @@ const BookingCalendar: React.FC = () => {
             <div className="custom-calendar-wrapper w-full flex justify-center">
               <Calendar
                 view="month"
+                selectRange
+                allowPartialRange
+                onChange={handleDateChange}
                 tileClassName={({ date, view }) => {
                   if (view === 'month') {
                     if (isDateBooked(date)) {
@@ -76,11 +97,16 @@ const BookingCalendar: React.FC = () => {
         </div>
 
         <div className="text-center mt-12">
+          {selectedLabel && (
+            <p className="mb-4 text-lg text-gray-600">
+              Selected: <span className="font-semibold text-[#4a4a4a]">{selectedLabel}</span>
+            </p>
+          )}
           <button
             onClick={handleInquire}
             className="bg-[#A2B29F] text-white py-3 px-8 rounded-lg text-lg shadow-lg hover:bg-[#8c9a89] active:scale-95 transition-all duration-200"
           >
-            Inquire About a Date
+            {selectedLabel ? 'Inquire About This Date' : 'Inquire About a Date'}
           </button>
         </div>
       </div>
