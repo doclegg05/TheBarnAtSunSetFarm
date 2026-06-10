@@ -40,6 +40,10 @@ const HomePage: React.FC = () => (
       </FadeInSection>
 
       <FadeInSection>
+        <FAQ />
+      </FadeInSection>
+
+      <FadeInSection>
         <Contact />
       </FadeInSection>
     </main>
@@ -48,10 +52,6 @@ const HomePage: React.FC = () => (
 );
 
 import VirtualTourPage from './components/VirtualTourPage';
-
-// ... imports ...
-
-// ... HomePage component ...
 
 const App: React.FC = () => {
   return (

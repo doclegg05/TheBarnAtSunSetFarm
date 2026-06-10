@@ -59,10 +59,19 @@ const Pricing: React.FC = () => {
                   : "bg-white shadow-lg border border-gray-100"
               }`}
             >
+              {tier.highlight && (
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-white text-sm font-semibold tracking-wide uppercase px-4 py-1 rounded-full shadow-md whitespace-nowrap">
+                  Most Popular
+                </span>
+              )}
               <h3 className="text-2xl font-bold text-[#4a4a4a] mb-2">
                 {tier.name}
               </h3>
-              
+
+              <p className="text-4xl font-bold text-[#4a4a4a] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                {tier.price}
+              </p>
+
               <p className="text-gray-600 mb-8">{tier.description}</p>
 
               <ul className="space-y-4 mb-8 flex-grow">
@@ -83,8 +92,6 @@ const Pricing: React.FC = () => {
             </div>
           ))}
         </div>
-
-        <div className="mt-16 text-center"></div>
       </div>
     </section>
   );
