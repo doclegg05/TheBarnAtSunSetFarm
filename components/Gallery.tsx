@@ -53,6 +53,8 @@ const Gallery: React.FC<GalleryProps> = ({ photos }) => {
                 alt={photo.alt}
                 className={`w-full h-full object-cover object-[center_35%] transform transition-transform duration-[10000ms] ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
                 loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : undefined}
+                decoding="async"
               />
 
               {/* Subtle gradient overlay to ensure text readability is always maintained without overpowering the image */}
