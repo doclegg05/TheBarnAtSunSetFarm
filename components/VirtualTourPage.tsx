@@ -25,6 +25,7 @@ const VirtualTourPage: React.FC = () => {
               <video
                 className="w-full h-full object-cover"
                 controls
+                preload="none"
                 poster="/photos/gallery/Barn 2.webp"
               >
                 <source

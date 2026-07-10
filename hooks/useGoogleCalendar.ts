@@ -9,16 +9,16 @@ import {
 // Make sure VITE_GOOGLE_API_KEY and VITE_GOOGLE_CALENDAR_ID are set in .env
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || '';
 const CALENDAR_ID = import.meta.env.VITE_GOOGLE_CALENDAR_ID || '';
-const IS_CONFIGURED = Boolean(API_KEY && CALENDAR_ID);
 
 export const useGoogleCalendar = () => {
+  const isConfigured = !!(API_KEY && CALENDAR_ID);
   const [bookedDates, setBookedDates] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(IS_CONFIGURED);
+  const [loading, setLoading] = useState<boolean>(isConfigured);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // If no configuration is present, return (allows usage of hardcoded fallback)
-    if (!IS_CONFIGURED) {
+    if (!isConfigured) {
       console.warn('Google Calendar API Key or ID missing.');
       return;
     }
@@ -47,12 +47,12 @@ export const useGoogleCalendar = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [isConfigured]);
 
   return {
     bookedDates,
     loading,
     error,
-    isConfigured: IS_CONFIGURED,
+    isConfigured,
   };
 };

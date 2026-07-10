@@ -51,6 +51,17 @@ describe('Contact form validation', () => {
     expect(email.type).toBe('email');
   });
 
+  it('pre-fills a single date when the calendar selection is one day', () => {
+    renderContact({
+      start: new Date(2027, 0, 5),
+      end: new Date(2027, 0, 5),
+    });
+    const date = screen.getByLabelText(
+      'Prospective Event Date(s)'
+    ) as HTMLInputElement;
+    expect(date.value).toBe('Jan 5, 2027');
+  });
+
   it('pre-fills the date field from the calendar selection', () => {
     renderContact({
       start: new Date(2027, 0, 5),

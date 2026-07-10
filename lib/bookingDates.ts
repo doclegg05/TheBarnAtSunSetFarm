@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { addDays, format, parseISO, startOfDay } from 'date-fns';
 
 export interface GoogleCalendarEvent {
   start: { date?: string; dateTime?: string };
@@ -8,8 +8,9 @@ export interface GoogleCalendarEvent {
 
 /**
  * Expand Google Calendar events into the set of booked 'YYYY-MM-DD' day
- * strings. Only confirmed events count; all-day events have an exclusive
- * end date, so the loop marks days while current < endDate.
+ * strings. Only confirmed events count. Days are computed in LOCAL time,
+ * not UTC: an evening event (e.g. 6-11pm Eastern) converted via
+ * toISOString() would mark the wrong day as booked.
  */
 export const expandEventsToBookedDates = (
   events: GoogleCalendarEvent[]
@@ -18,24 +19,29 @@ export const expandEventsToBookedDates = (
 
   events.forEach((event) => {
     // Only count confirmed events
-    if (event.status === 'confirmed') {
-      const start = event.start.date || event.start.dateTime;
-      const end = event.end.date || event.end.dateTime;
+    if (event.status !== 'confirmed') {
+      return;
+    }
 
-      if (start && end) {
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-
-        // Loop through each day of the event
-        // Note: handling 'all day' events correctly where end date is exclusive
-        const current = new Date(startDate);
-        while (current < endDate) {
-          // If it's a specific time event (dateTime), endDate might be same day.
-          // If it's all day (date), endDate is next day midnight.
-          // We just mark the 'current' day as busy.
-          dates.add(current.toISOString().split('T')[0]);
-          current.setDate(current.getDate() + 1);
-        }
+    if (event.start.date && event.end.date) {
+      // All-day event: end date is exclusive per the API.
+      let current = parseISO(event.start.date);
+      const endExclusive = parseISO(event.end.date);
+      while (current < endExclusive) {
+        dates.add(format(current, 'yyyy-MM-dd'));
+        current = addDays(current, 1);
+      }
+    } else if (event.start.dateTime && event.end.dateTime) {
+      // Timed event: mark every local day it touches.
+      // Subtract 1ms so an event ending exactly at midnight
+      // doesn't spill into the next day.
+      let current = startOfDay(new Date(event.start.dateTime));
+      const lastDay = startOfDay(
+        new Date(new Date(event.end.dateTime).getTime() - 1)
+      );
+      while (current <= lastDay) {
+        dates.add(format(current, 'yyyy-MM-dd'));
+        current = addDays(current, 1);
       }
     }
   });
@@ -59,13 +65,14 @@ export const isPastDate = (date: Date, now: Date = new Date()): boolean => {
 
 /**
  * Human-readable label for a selected date range, e.g.
- * "Jan 5, 2027 - Jan 7, 2027". Empty string when either end is missing.
+ * "Jan 5, 2027 - Jan 7, 2027". A single-day selection (no end yet, or
+ * end === start) yields just the start date; no start yields ''.
  */
 export const formatDateRangeLabel = (
   start: Date | null,
   end: Date | null
 ): string => {
-  if (!start || !end) {
+  if (!start) {
     return '';
   }
 
@@ -74,6 +81,12 @@ export const formatDateRangeLabel = (
     day: 'numeric',
     year: 'numeric',
   });
+
+  // A single-day selection arrives as start === end (or no end yet).
+  if (!end || end.getTime() === start.getTime()) {
+    return formattedStart;
+  }
+
   const formattedEnd = end.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',

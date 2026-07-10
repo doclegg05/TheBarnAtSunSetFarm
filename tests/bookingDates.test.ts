@@ -29,15 +29,39 @@ describe('expandEventsToBookedDates', () => {
     expect(dates).toEqual(['2027-03-05', '2027-03-06']);
   });
 
-  it('marks the day of a timed (dateTime) event', () => {
+  it('marks the LOCAL day of a timed evening event (timezone regression)', () => {
+    // An evening event must mark the local day it happens on, not the
+    // UTC day — built from local Dates so the test is TZ-independent.
     const dates = expandEventsToBookedDates([
       {
-        start: { dateTime: '2027-03-05T15:00:00Z' },
-        end: { dateTime: '2027-03-05T20:00:00Z' },
+        start: { dateTime: new Date(2027, 2, 5, 18, 0).toISOString() },
+        end: { dateTime: new Date(2027, 2, 5, 23, 0).toISOString() },
         status: 'confirmed',
       },
     ]);
     expect(dates).toEqual(['2027-03-05']);
+  });
+
+  it('does not spill a timed event ending exactly at midnight into the next day', () => {
+    const dates = expandEventsToBookedDates([
+      {
+        start: { dateTime: new Date(2027, 2, 5, 18, 0).toISOString() },
+        end: { dateTime: new Date(2027, 2, 6, 0, 0).toISOString() },
+        status: 'confirmed',
+      },
+    ]);
+    expect(dates).toEqual(['2027-03-05']);
+  });
+
+  it('marks every local day a multi-day timed event touches', () => {
+    const dates = expandEventsToBookedDates([
+      {
+        start: { dateTime: new Date(2027, 2, 5, 18, 0).toISOString() },
+        end: { dateTime: new Date(2027, 2, 7, 10, 0).toISOString() },
+        status: 'confirmed',
+      },
+    ]);
+    expect(dates).toEqual(['2027-03-05', '2027-03-06', '2027-03-07']);
   });
 
   it('ignores cancelled and tentative events', () => {
@@ -52,6 +76,17 @@ describe('expandEventsToBookedDates', () => {
     const dates = expandEventsToBookedDates([
       { start: {}, end: { date: '2027-03-06' }, status: 'confirmed' },
       { start: { date: '2027-03-05' }, end: {}, status: 'confirmed' },
+    ]);
+    expect(dates).toEqual([]);
+  });
+
+  it('skips malformed events mixing all-day and timed fields', () => {
+    const dates = expandEventsToBookedDates([
+      {
+        start: { date: '2027-03-05' },
+        end: { dateTime: '2027-03-06T10:00:00Z' },
+        status: 'confirmed',
+      },
     ]);
     expect(dates).toEqual([]);
   });
@@ -124,10 +159,18 @@ describe('isPastDate', () => {
 });
 
 describe('formatDateRangeLabel', () => {
-  it('is empty when either end of the range is missing', () => {
+  it('is empty when there is no start date', () => {
     expect(formatDateRangeLabel(null, null)).toBe('');
-    expect(formatDateRangeLabel(new Date(2027, 0, 5), null)).toBe('');
     expect(formatDateRangeLabel(null, new Date(2027, 0, 7))).toBe('');
+  });
+
+  it('shows a single date for a single-day selection (no end, or end === start)', () => {
+    expect(formatDateRangeLabel(new Date(2027, 0, 5), null)).toBe(
+      'Jan 5, 2027'
+    );
+    expect(
+      formatDateRangeLabel(new Date(2027, 0, 5), new Date(2027, 0, 5))
+    ).toBe('Jan 5, 2027');
   });
 
   it('formats a complete range as "Mon D, YYYY - Mon D, YYYY"', () => {
