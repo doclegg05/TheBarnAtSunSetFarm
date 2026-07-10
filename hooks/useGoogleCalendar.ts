@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import {
+  GoogleCalendarEvent,
+  expandEventsToBookedDates,
+} from '../lib/bookingDates';
 
 // --- CONFIGURATION ---
 // These are standard Google Calendar API keys.
@@ -6,12 +10,6 @@ import { useState, useEffect } from 'react';
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || '';
 const CALENDAR_ID = import.meta.env.VITE_GOOGLE_CALENDAR_ID || '';
 const IS_CONFIGURED = Boolean(API_KEY && CALENDAR_ID);
-
-interface GoogleCalendarEvent {
-  start: { date?: string; dateTime?: string };
-  end: { date?: string; dateTime?: string };
-  status: string;
-}
 
 export const useGoogleCalendar = () => {
   const [bookedDates, setBookedDates] = useState<string[]>([]);
@@ -39,33 +37,7 @@ export const useGoogleCalendar = () => {
         const data = await response.json();
         const events: GoogleCalendarEvent[] = data.items || [];
 
-        const dates: Set<string> = new Set();
-
-        events.forEach((event) => {
-          // Only count confirmed events
-          if (event.status === 'confirmed') {
-            const start = event.start.date || event.start.dateTime;
-            const end = event.end.date || event.end.dateTime;
-
-            if (start && end) {
-              const startDate = new Date(start);
-              const endDate = new Date(end);
-
-              // Loop through each day of the event
-              // Note: handling 'all day' events correctly where end date is exclusive
-              const current = new Date(startDate);
-              while (current < endDate) {
-                // If it's a specific time event (dateTime), endDate might be same day.
-                // If it's all day (date), endDate is next day midnight.
-                // We just mark the 'current' day as busy.
-                dates.add(current.toISOString().split('T')[0]);
-                current.setDate(current.getDate() + 1);
-              }
-            }
-          }
-        });
-
-        setBookedDates(Array.from(dates));
+        setBookedDates(expandEventsToBookedDates(events));
       } catch (err) {
         console.error('Error fetching Google Calendar events:', err);
         setError('Could not load availability.');

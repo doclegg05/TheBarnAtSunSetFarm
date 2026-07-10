@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useForm, ValidationError } from '@formspree/react';
 import { useBooking } from '../contexts/useBooking';
+import { formatDateRangeLabel } from '../lib/bookingDates';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -16,24 +17,10 @@ const Contact: React.FC = () => {
     selectedDateRange: { start, end },
   } = useBooking();
 
-  const selectedDateLabel = useMemo(() => {
-    if (!start || !end) {
-      return '';
-    }
-
-    const formattedStart = start.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    const formattedEnd = end.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-
-    return `${formattedStart} - ${formattedEnd}`;
-  }, [start, end]);
+  const selectedDateLabel = useMemo(
+    () => formatDateRangeLabel(start, end),
+    [start, end]
+  );
 
   const dateValue = isDateEdited
     ? formData.date
