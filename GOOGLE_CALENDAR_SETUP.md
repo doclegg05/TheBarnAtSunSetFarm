@@ -29,8 +29,8 @@ To automatically display booked dates on your website, follow these steps to con
 2.  Replace the placeholder text with your keys (or ideally, create a `.env` file):
 
 ```typescript
-const GOOGLE_API_KEY = "PASTE_YOUR_API_KEY_HERE";
-const GOOGLE_CALENDAR_ID = "PASTE_YOUR_CALENDAR_ID_HERE";
+const GOOGLE_API_KEY = 'PASTE_YOUR_API_KEY_HERE';
+const GOOGLE_CALENDAR_ID = 'PASTE_YOUR_CALENDAR_ID_HERE';
 ```
 
 _Note: For better security, creating a `.env` file in the root folder is recommended:_

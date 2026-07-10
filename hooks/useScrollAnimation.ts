@@ -1,33 +1,52 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+
+const shouldStartVisible = () =>
+  typeof window !== 'undefined' &&
+  (window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+    typeof IntersectionObserver === 'undefined');
 
 export const useScrollAnimation = () => {
-    const elementRef = useRef<HTMLDivElement>(null);
-    const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(shouldStartVisible);
 
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    observer.unobserve(entry.target);
-                }
-            },
-            {
-                threshold: 0.1, // Trigger when 10% of the element is visible
-                rootMargin: '0px 0px -50px 0px' // Offset slightly so it doesn't trigger too early
-            }
-        );
+  useLayoutEffect(() => {
+    const element = elementRef.current;
+    if (!element) {
+      return;
+    }
 
-        if (elementRef.current) {
-            observer.observe(elementRef.current);
+    if (isVisible) {
+      return;
+    }
+
+    // Content already in the viewport on first paint (e.g. mid-page reload,
+    // anchor links) must show immediately instead of waiting for a scroll.
+    if (element.getBoundingClientRect().top < window.innerHeight) {
+      const frame = window.requestAnimationFrame(() => setIsVisible(true));
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
         }
+      },
+      {
+        // threshold 0 so very tall sections (taller than the viewport)
+        // still trigger; the rootMargin keeps it from firing too early.
+        threshold: 0,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
 
-        return () => {
-            if (elementRef.current) {
-                observer.unobserve(elementRef.current);
-            }
-        };
-    }, []);
+    observer.observe(element);
 
-    return { elementRef, isVisible };
+    return () => {
+      observer.unobserve(element);
+    };
+  }, [isVisible]);
+
+  return { elementRef, isVisible };
 };
