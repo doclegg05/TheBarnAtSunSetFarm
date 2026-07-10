@@ -4,21 +4,12 @@ import 'react-calendar/dist/Calendar.css';
 import { format } from 'date-fns';
 import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
 import { useBooking } from '../contexts/useBooking';
+import { isDateBooked, isPastDate } from '../lib/bookingDates';
 import './BookingCalendar.css'; // We will create this for custom styling
 
 const BookingCalendar: React.FC = () => {
   const { bookedDates, loading, error } = useGoogleCalendar();
   const { selectedDateRange, setSelectedDateRange } = useBooking();
-
-  // Helper to check if a date is booked
-  const isDateBooked = (date: Date) => {
-    return bookedDates.some((bookedDateStr) => {
-      // Parse the 'YYYY-MM-DD' string from the hook treated as local date
-      // We compare YYYY-MM-DD strings directly to avoid timezone issues
-      const dateStr = format(date, 'yyyy-MM-dd');
-      return bookedDateStr === dateStr;
-    });
-  };
 
   const handleDateChange = (
     value: Date | [Date | null, Date | null] | null
@@ -82,7 +73,7 @@ const BookingCalendar: React.FC = () => {
                 onChange={handleDateChange}
                 tileClassName={({ date, view }) => {
                   if (view === 'month') {
-                    if (isDateBooked(date)) {
+                    if (isDateBooked(bookedDates, date)) {
                       return 'booked-date';
                     }
                   }
@@ -92,8 +83,7 @@ const BookingCalendar: React.FC = () => {
                   // Disable text input/clicking for booked dates AND dates in the past
                   return (
                     view === 'month' &&
-                    (isDateBooked(date) ||
-                      date < new Date(new Date().setHours(0, 0, 0, 0)))
+                    (isDateBooked(bookedDates, date) || isPastDate(date))
                   );
                 }}
                 minDate={new Date()} // Don't show past months
