@@ -26,3 +26,6 @@ dist-ssr
 # Environment Variables
 .env
 .env.local
+
+# Removed website photos kept as local backups (not part of the site)
+Photo Archive/

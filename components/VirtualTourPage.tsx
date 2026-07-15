@@ -2,6 +2,17 @@ import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { useNavigate } from 'react-router-dom';
+import { photosFromFolder } from '../lib/photoFolders';
+
+// Use the first barn gallery photo as the video poster so this page
+// keeps working no matter which files are in the folder.
+const posterPhoto = photosFromFolder(
+  import.meta.glob('/photos/gallery/barn/*', {
+    eager: true,
+    query: '?url',
+    import: 'default',
+  })
+)[0];
 
 const VirtualTourPage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,7 +37,7 @@ const VirtualTourPage: React.FC = () => {
                 className="w-full h-full object-cover"
                 controls
                 preload="none"
-                poster="/photos/gallery/Barn 2.webp"
+                poster={posterPhoto?.url}
               >
                 <source
                   src="/videos/TheBarnAtSunsetFarm_Walkthrough_Winter.mp4"
