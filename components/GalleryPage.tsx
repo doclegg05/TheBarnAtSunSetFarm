@@ -49,6 +49,14 @@ const sections = [
 
 const allPhotos = sections.flatMap((section) => section.photos);
 
+// The lightbox indexes into allPhotos, so each section's tiles are
+// offset by the number of photos in the sections before it.
+const sectionOffsets = sections.map((_, index) =>
+  sections
+    .slice(0, index)
+    .reduce((total, section) => total + section.photos.length, 0)
+);
+
 const GalleryPage: React.FC = () => {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null
@@ -115,10 +123,6 @@ const GalleryPage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedPhotoIndex]);
 
-  // The lightbox indexes into allPhotos, so each section's tiles are
-  // offset by the number of photos in the sections before it.
-  let sectionOffset = 0;
-
   return (
     <div className="bg-[#FDF8F5] min-h-screen flex flex-col">
       <Header />
@@ -142,9 +146,8 @@ const GalleryPage: React.FC = () => {
             </p>
           </div>
 
-          {sections.map((section) => {
-            const offset = sectionOffset;
-            sectionOffset += section.photos.length;
+          {sections.map((section, sectionIndex) => {
+            const offset = sectionOffsets[sectionIndex];
 
             return (
               <div key={section.title} className="mb-12">
