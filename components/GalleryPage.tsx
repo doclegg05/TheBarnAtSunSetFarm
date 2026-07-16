@@ -24,6 +24,14 @@ const weddingPhotos = photosFromFolder(
   })
 );
 
+const otherEventPhotos = photosFromFolder(
+  import.meta.glob('/photos/gallery/other-events/*', {
+    eager: true,
+    query: '?url',
+    import: 'default',
+  })
+);
+
 const surroundingPhotos = photosFromFolder(
   import.meta.glob('/photos/gallery/surrounding/*', {
     eager: true,
@@ -35,6 +43,7 @@ const surroundingPhotos = photosFromFolder(
 const sections = [
   { title: 'The Barn & Grounds', photos: barnPhotos },
   { title: 'Weddings & Celebrations', photos: weddingPhotos },
+  { title: 'Other Events', photos: otherEventPhotos },
   { title: 'Surrounding Area', photos: surroundingPhotos },
 ];
 

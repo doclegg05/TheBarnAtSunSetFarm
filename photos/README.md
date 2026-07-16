@@ -8,6 +8,7 @@ changes needed. Just add or delete image files and the site updates.
 | `carousel/`            | Homepage photo carousel (behind the title) |
 | `gallery/barn/`        | Gallery page — "The Barn & Grounds"        |
 | `gallery/weddings/`    | Gallery page — "Weddings & Celebrations"   |
+| `gallery/other-events/`| Gallery page — "Other Events"              |
 | `gallery/surrounding/` | Gallery page — "Surrounding Area"          |
 
 ## Things to know
