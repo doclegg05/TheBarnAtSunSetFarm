@@ -1,36 +1,16 @@
 import React from 'react';
 import Gallery from './Gallery';
-import { Photo } from '../types';
+import { photosFromFolder } from '../lib/photoFolders';
 
-const venuePhotos: Photo[] = [
-  { id: 1, url: '/photos/carousel/Carosel Barn 1.webp', alt: 'Wedding Setup' },
-  { id: 2, url: '/photos/carousel/Carosel Barn 2.webp', alt: 'Scenic View' },
-  {
-    id: 3,
-    url: '/photos/carousel/Carosel Barn 3.webp',
-    alt: 'Celebration Moment',
-  },
-  {
-    id: 4,
-    url: '/photos/carousel/Carosel Barn 4.webp',
-    alt: 'Interior Detail',
-  },
-  {
-    id: 5,
-    url: '/photos/carousel/Carosel Barn 5.webp',
-    alt: 'Event Highlight',
-  },
-  {
-    id: 6,
-    url: '/photos/carousel/Carosel Outdoor Wedding 1.webp',
-    alt: 'Rustic Charm',
-  },
-  {
-    id: 7,
-    url: '/photos/carousel/Carosel Outdoor Wedding 2.webp',
-    alt: 'Evening Atmosphere',
-  },
-];
+// The homepage carousel shows every image in photos/carousel — add or
+// remove files there and it updates automatically.
+const venuePhotos = photosFromFolder(
+  import.meta.glob('/photos/carousel/*', {
+    eager: true,
+    query: '?url',
+    import: 'default',
+  })
+);
 
 const scrollToSection = (id: string) => {
   const element = document.getElementById(id);

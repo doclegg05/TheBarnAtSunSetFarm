@@ -5,20 +5,18 @@ const Pricing: React.FC = () => {
   const tiers = [
     {
       name: 'Classic Celebration',
-      price: '$3,800',
       description: '1 Day Wedding. Use of the Barn/Porch/Outside Area.',
       features: [
         'Open Availability',
         'Up to 200 guests',
         'All day rental',
         'Full Barn & Outdoor access',
-        'Optional: 1 Night at Guest Cabin (Total $4,800)',
+        'Optional: 1 Night at Guest Cabin',
       ],
       highlight: false,
     },
     {
       name: 'The Sunset Weekend',
-      price: '$5,800',
       description: '2 nights. The ultimate experience.',
       features: [
         'Friday - Sunday access',
@@ -68,13 +66,6 @@ const Pricing: React.FC = () => {
               <h3 className="text-2xl font-bold text-[#4a4a4a] mb-2">
                 {tier.name}
               </h3>
-
-              <p
-                className="text-4xl font-bold text-[#4a4a4a] mb-2"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
-                {tier.price}
-              </p>
 
               <p className="text-gray-600 mb-8">{tier.description}</p>
 
