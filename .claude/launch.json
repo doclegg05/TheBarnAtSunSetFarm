@@ -2,6 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "barn-dev-mac",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "3003", "--strictPort"],
+      "port": 3003,
+      "autoPort": false
+    },
+    {
       "name": "barn-dev",
       "runtimeExecutable": "cmd.exe",
       "runtimeArgs": [
