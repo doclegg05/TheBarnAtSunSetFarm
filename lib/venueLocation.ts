@@ -1,11 +1,12 @@
 /**
  * Single source of truth for the venue's physical location.
  *
- * Rural addresses around Mount Nebo geocode badly: querying Google Maps for
- * "19 Boulder Trail" routes drivers into the Rivers Edge housing development
- * instead of the barn. Every map link and embed must therefore target the
- * exact GPS coordinates below (the pin from the venue's "86 Harper Ln"
- * Google Business listing) rather than a street-address query.
+ * The barn is a new build at 86 Harper Ln — that address is not yet in any
+ * geocoding database, so navigation apps can't find it. "19 Boulder Trail"
+ * is only the nearest mailbox address, and Google routes it into the Rivers
+ * Edge housing development instead of the farm. Every map link and embed
+ * must therefore target the exact GPS coordinates below rather than a
+ * street-address query.
  */
 export const VENUE_NAME = 'The Barn at Sunset Farm';
 

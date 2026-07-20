@@ -229,6 +229,13 @@ const Contact: React.FC = () => {
                 <br />
                 Overlooking the Gauley River Gorge
               </p>
+              <p className="text-gray-600 text-sm mb-2">
+                <em>
+                  Our address is new and most GPS apps can&apos;t find it yet —
+                  please use the directions buttons below, which navigate
+                  straight to our farm.
+                </em>
+              </p>
               <p className="text-gray-600 mb-6">
                 <em>Visits by appointment only.</em>
               </p>
