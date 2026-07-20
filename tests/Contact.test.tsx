@@ -4,6 +4,11 @@ import { useEffect } from 'react';
 import Contact from '../components/Contact';
 import { BookingProvider } from '../contexts/BookingContext';
 import { useBooking } from '../contexts/useBooking';
+import {
+  APPLE_MAPS_DIRECTIONS_URL,
+  GOOGLE_MAPS_DIRECTIONS_URL,
+  GOOGLE_MAPS_EMBED_URL,
+} from '../lib/venueLocation';
 
 vi.mock('@formspree/react', () => ({
   useForm: () => [
@@ -95,5 +100,35 @@ describe('Contact form validation', () => {
     fireEvent.change(message, { target: { value: huge } });
 
     expect(message.value).toHaveLength(10_000);
+  });
+});
+
+describe('Contact location and directions', () => {
+  beforeEach(() => cleanup());
+
+  it('embeds the map by exact GPS coordinates, not street address', () => {
+    renderContact();
+    const map = screen.getByTitle(
+      'Map showing the exact location of The Barn at Sunset Farm'
+    ) as HTMLIFrameElement;
+    expect(map.src).toBe(GOOGLE_MAPS_EMBED_URL);
+  });
+
+  it('offers coordinate-pinned directions for Google Maps and Apple Maps', () => {
+    renderContact();
+    const google = screen.getByRole('link', {
+      name: 'Directions in Google Maps',
+    }) as HTMLAnchorElement;
+    const apple = screen.getByRole('link', {
+      name: 'Directions in Apple Maps',
+    }) as HTMLAnchorElement;
+    expect(google.href).toBe(GOOGLE_MAPS_DIRECTIONS_URL);
+    expect(apple.href).toBe(APPLE_MAPS_DIRECTIONS_URL);
+  });
+
+  it('shows the venue address on Harper Ln with arrival guidance', () => {
+    renderContact();
+    expect(screen.getByText(/86 Harper Ln/)).toBeTruthy();
+    expect(screen.getByText(/Rivers Edge/)).toBeTruthy();
   });
 });

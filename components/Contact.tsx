@@ -2,6 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { useForm, ValidationError } from '@formspree/react';
 import { useBooking } from '../contexts/useBooking';
 import { formatDateRangeLabel } from '../lib/bookingDates';
+import {
+  APPLE_MAPS_DIRECTIONS_URL,
+  ARRIVAL_INSTRUCTIONS,
+  GOOGLE_MAPS_DIRECTIONS_URL,
+  GOOGLE_MAPS_EMBED_URL,
+  VENUE_ADDRESS,
+  VENUE_NAME,
+} from '../lib/venueLocation';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -199,8 +207,8 @@ const Contact: React.FC = () => {
               <iframe
                 width="100%"
                 height="100%"
-                title="map"
-                src="https://maps.google.com/maps?width=100%&height=100%&hl=en&q=19%20Boulder%20Trail%2C%20Mt.%20Nebo%2C%20WV&ie=UTF8&t=&z=14&iwloc=B&output=embed"
+                title="Map showing the exact location of The Barn at Sunset Farm"
+                src={GOOGLE_MAPS_EMBED_URL}
                 style={{ border: 0, minHeight: '400px' }}
                 allowFullScreen
                 loading="lazy"
@@ -212,17 +220,58 @@ const Contact: React.FC = () => {
                 Visit Us
               </h3>
               <p className="text-gray-600 mb-2">
-                <strong>The Barn at Sunset Farm</strong>
+                <strong>{VENUE_NAME}</strong>
                 <br />
-                19 Boulder Trail
+                {VENUE_ADDRESS.street}
                 <br />
-                Mount Nebo, West Virginia 26679
+                {VENUE_ADDRESS.locality}, {VENUE_ADDRESS.region}{' '}
+                {VENUE_ADDRESS.postalCode}
                 <br />
                 Overlooking the Gauley River Gorge
               </p>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm mb-2">
+                <em>
+                  Our address is new and most GPS apps can&apos;t find it yet —
+                  please use the directions buttons below, which navigate
+                  straight to our farm.
+                </em>
+              </p>
+              <p className="text-gray-600 mb-6">
                 <em>Visits by appointment only.</em>
               </p>
+              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                <a
+                  href={GOOGLE_MAPS_DIRECTIONS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-center bg-[#A2B29F] text-white py-3 px-4 rounded-md shadow font-semibold hover:bg-[#8c9a89] transition-colors duration-300"
+                >
+                  Directions in Google Maps
+                </a>
+                <a
+                  href={APPLE_MAPS_DIRECTIONS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-center border border-[#A2B29F] text-[#4a4a4a] py-3 px-4 rounded-md shadow font-semibold hover:bg-[#A2B29F] hover:text-white transition-colors duration-300"
+                >
+                  Directions in Apple Maps
+                </a>
+              </div>
+              <div className="border-t border-[#EAD1DC] pt-4">
+                <h4 className="text-lg font-bold text-[#4a4a4a] mb-2">
+                  Finding Us
+                </h4>
+                <p className="text-gray-600 text-sm mb-2">
+                  We are a working farm on a country road, so please use the
+                  directions buttons above — they navigate to our exact GPS pin.
+                  For the last stretch:
+                </p>
+                <ul className="list-disc list-inside text-gray-600 text-sm space-y-1">
+                  {ARRIVAL_INSTRUCTIONS.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>

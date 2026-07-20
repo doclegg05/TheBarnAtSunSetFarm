@@ -4,7 +4,14 @@
     {
       "name": "barn-dev-mac",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "3003", "--strictPort"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3003",
+        "--strictPort"
+      ],
       "port": 3003,
       "autoPort": false
     },
@@ -26,6 +33,20 @@
         "set PATH=C:\\Program Files\\nodejs;%PATH% && npm run dev -- --port 3002 --strictPort"
       ],
       "port": 3002,
+      "autoPort": false
+    },
+    {
+      "name": "barn-dev-mac-alt",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3004",
+        "--strictPort"
+      ],
+      "port": 3004,
       "autoPort": false
     }
   ]
