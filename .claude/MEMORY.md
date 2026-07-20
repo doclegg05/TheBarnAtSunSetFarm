@@ -9,22 +9,19 @@
 
 ## Current Status
 
-All review fixes committed AND merged with the true production branch. CRITICAL CONTEXT: the live site (thebarnatsunsetfarm.com) was deployed from `origin/codex/add-gallery-photos-header-spacing` (one-line header, gap-based nav, brand-token Tailwind config, ~20 wedding gallery photos, 404 page, refactored contexts/useBooking) — NOT from `main`, which is stale. The working branch now = production code + all fixes; header geometry verified pixel-identical to production at 2000px. Awaiting push + PR to main.
+Site is on `main` (PRs #14/#15 merged; earlier codex-branch confusion resolved). PR #16 open: 18 new wedding gallery photos. Photo workflow is drop-in folders (`photos/gallery/*`, `photos/carousel/`) + `node optimize_images.js`; see photos/README.md.
 
 ## Last Session
 
-- **Date**: 2026-06-10
-- **What we worked on**: Full critique of the Opus 4.6-built site, then fixed everything:
-  - Bugs: package prices never rendered (now shown + "Most Popular" badge); FAQ built but never displayed (now on homepage); fade-in left content invisible on mid-page loads (fixed in useScrollAnimation); calendar date selection now pre-fills contact form (was dead plumbing); Google Calendar timezone bug for timed events (UTC→local); visible notice when calendar API unconfigured
-  - Efficiency: replaced Tailwind CDN with proper v3 PostCSS build (~6KB gzip CSS); removed AI Studio importmap + GEMINI_API_KEY define from vite.config; hero parallax now rAF + refs (no re-render per scroll); video preload="none"; first carousel image fetchPriority="high"
-  - Design: hero CTA buttons (Check Available Dates / Schedule a Tour); amenities last row centered; lightbox keyboard support (Esc/arrows) + aria-labels
-- **What we decided**: Skip testimonials for now (component exists unused — user choice); keep Tailwind v3 (matches CDN classes, v4 would break bg-opacity-\* utilities); USER PREFERENCE: keep the ORIGINAL header (absolute, with The Knot/WeddingWire logos in nav) — sticky header + footer logos were reverted; no "calendar offline" warning (API is connected in production)
-- **Where we left off**: All fixes verified; awaiting commit/PR decision from user
+- **Date**: 2026-07-20
+- **What we worked on**: Added 18 new wedding photos the user dropped into `photos/gallery/weddings/` (main repo working tree). Fixed 10 files that had no extension (gallery glob filters on extension — they'd be invisible), renamed `Wedding_Decorations.1/.15/.16` → `Wedding_decorations.15-17` (avoided case-insensitive overwrite of existing `Wedding_decorations.1.webp`), `Wedding.Party.1` → `wedding_party.2`, `IMG_9059` → `Reception_Table_Centerpiece`. Ran optimize_images.js (JPEG→WebP, ~2MB saved). Verified /gallery shows all 112 images, none broken. Added macOS entry to .claude/launch.json (was Windows-only).
+- **What we decided**: When new decoration/party photos arrive, continue the existing lowercase filename families and numbering — never reuse low numbers (case-insensitive FS overwrites on optimize).
+- **Where we left off**: PR #16 (github.com/doclegg05/TheBarnAtSunSetFarm/pull/16) awaiting merge; after merge Netlify deploys from main.
 
 ## Open Items
 
-- [ ] Push branch + PR to main (merge commit bcaa6a6 includes production branch + all fixes)
-- [ ] After PR merges: confirm Netlify deploys from main (it was deploying the codex branch); user's Safari has a content filter that strips brand-named logo files on localhost (fixed via generic filenames nav-img-1/2.webp)
+- [ ] Merge PR #16 (18 new wedding gallery photos), then spot-check live /gallery
+- [ ] Original un-optimized photos still sit untracked in the MAIN repo working tree at `photos/gallery/weddings/` (Barn.1, Wedding.13-17, Wedding_Design\*.jpg, etc.) — safe to delete once PR #16 merges
 - [ ] Testimonials section: component exists at components/Testimonials.tsx, unused — wire up when real couple quotes available
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [ ] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env (calendar shows "temporarily offline" notice without them)
