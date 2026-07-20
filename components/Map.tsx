@@ -1,4 +1,8 @@
 import React from 'react';
+import {
+  GOOGLE_MAPS_EMBED_URL,
+  GOOGLE_MAPS_PIN_URL,
+} from '../lib/venueLocation';
 
 const GoogleMapEmbed: React.FC = () => {
   return (
@@ -10,12 +14,12 @@ const GoogleMapEmbed: React.FC = () => {
         scrolling="no"
         marginHeight={0}
         marginWidth={0}
-        src="https://maps.google.com/maps?q=19%20Boulder%20Trail%2C%20Mt.%20Nebo%2C%20WV&t=&z=13&ie=UTF8&iwloc=&output=embed"
+        src={GOOGLE_MAPS_EMBED_URL}
         className="w-full h-full"
         title="Map"
       ></iframe>
       <a
-        href="https://www.google.com/maps/search/?api=1&query=19+Boulder+Trail,+Mt.+Nebo,+WV"
+        href={GOOGLE_MAPS_PIN_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center"
