@@ -9,19 +9,20 @@
 
 ## Current Status
 
-Site is on `main` (PRs #14–#17 merged). PR #18 open: accurate Google Maps directions via exact GPS pin. Photo workflow is drop-in folders (`photos/gallery/*`, `photos/carousel/`) + `node optimize_images.js`; see photos/README.md.
+Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and verified live). Canonical barn pin: **38.1904268, -80.8917911** (owner-placed official Google listing pin, 2026-07-20) — lib/venueLocation.ts is the single source of truth. Photo workflow is drop-in folders (`photos/gallery/*`, `photos/carousel/`) + `node optimize_images.js`; see photos/README.md.
 
 ## Last Session
 
 - **Date**: 2026-07-20 (maps session)
 - **What we worked on**: Fixed inaccurate Google Maps directions. Root causes: site published "19 Boulder Trail" (geocodes into Rivers Edge development — venue's own Knot materials warn against it; real address is 86 Harper Ln) and JSON-LD geo was 38.1695,-80.8123 (~7 km off). Added `lib/venueLocation.ts` (single source of truth: barn pin 38.1900676,-80.8911541 from the venue's 86 Harper Ln Google listing), coordinate-pinned embed + Google/Apple directions buttons + "Finding Us" gravel-road guidance on Contact, corrected JSON-LD (geo/streetAddress/hasMap), 7 new tests (44 total pass).
 - **What we decided**: All map links/embeds must be coordinate-based, never street-address queries; venue address displayed as 86 Harper Ln.
-- **Where we left off**: PR #18 (github.com/doclegg05/TheBarnAtSunSetFarm/pull/18) awaiting merge. Owner should verify pin lands on the barn (tweak the two numbers in lib/venueLocation.ts if needed).
+- **Where we left off**: PR #18 merged + deployed. Owner fixed their Google Business listing (address → 86 Harper Ln, pin dragged to 38.1904268,-80.8917911 — verified live). Website coords synced to that official pin. Next: owner reports the unclaimed duplicate listing (cid 4489418448821586540) via Suggest an edit → Close or remove → Duplicate; then re-verify removal + review transfer in a few days.
 
 ## Open Items
 
-- [ ] Merge PR #18 (GPS directions fix), then test directions buttons on a phone from the live site
-- [ ] Owner action (not code): venue has TWO duplicate Google Business listings — "19 Boulder Tr" (photos/hours, pin 38.1923483,-80.8880726) and "86 Harper Ln" (pin 38.1900676,-80.8911541). Merge/remove one in Google Business Profile and mark the correct entrance, or Google keeps routing guests wrong
+- [ ] Owner: report unclaimed duplicate Google listing "86 Harper Ln" (maps.google.com/?cid=4489418448821586540) as duplicate of the main listing (cid 15081211618553277720, now also at 86 Harper Ln); afterwards verify removal and that Alan Nethery's review transferred
+- [ ] Update address to 86 Harper Ln on The Knot, WeddingWire, and Facebook (NAP consistency)
+- [ ] Test directions buttons on a phone from the live site
 - [ ] Original un-optimized photos still sit untracked in the MAIN repo working tree at `photos/gallery/weddings/` (Barn.1, Wedding.13-17, Wedding_Design\*.jpg, etc.) — safe to delete (PR #16 merged)
 - [ ] Testimonials section: component exists at components/Testimonials.tsx, unused — wire up when real couple quotes available
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)

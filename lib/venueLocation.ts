@@ -10,9 +10,11 @@
  */
 export const VENUE_NAME = 'The Barn at Sunset Farm';
 
+// Matches the official pin the owner placed on the Google Business listing
+// (2026-07-20). If the listing pin ever moves, update these to match.
 export const VENUE_COORDINATES = {
-  latitude: 38.1900676,
-  longitude: -80.8911541,
+  latitude: 38.1904268,
+  longitude: -80.8917911,
 } as const;
 
 export const VENUE_ADDRESS = {
