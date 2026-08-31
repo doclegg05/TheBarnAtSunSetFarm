@@ -1,0 +1,15 @@
+# Thin caller for the education-toolkit reusable quality workflow.
+# Runs gitleaks (secret scan) and then scripts/quality.sh.
+# Requires the toolkit repo's Actions access to allow calls from this repo
+# (education-toolkit is private): Settings > Actions > General > Access.
+name: quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    uses: doclegg05/education-toolkit/.github/workflows/quality.yml@main
