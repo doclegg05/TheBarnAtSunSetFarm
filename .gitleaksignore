@@ -5,3 +5,7 @@
 # committed in b25e9dd, removed from the tree in 3e59ee4, still in public git
 # history. Treat the key as compromised until rotated.
 b25e9dd89e38a5cc0f6425246553bb32f9babb4e:GOOGLE_CALENDAR_SETUP.md:gcp-api-key:39
+# The SAME known key, as CI's pinned gitleaks v8.18.4 actually fingerprints it
+# (rule generic-api-key, and commit abc6efa5 where a later doc edit re-touched
+# the line). Two fingerprints, one leak — still shrink-only.
+abc6efa5912338c932ae3f3e5fb0a26878df3876:GOOGLE_CALENDAR_SETUP.md:generic-api-key:39
