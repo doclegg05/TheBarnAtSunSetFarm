@@ -1,0 +1,7 @@
+# Baseline allowlist for the secret scan. May only shrink — never add an entry
+# to get a new leak past CI.
+#
+# Known historical leak, already documented in AGENTS.md: VITE_GOOGLE_API_KEY
+# committed in b25e9dd, removed from the tree in 3e59ee4, still in public git
+# history. Treat the key as compromised until rotated.
+b25e9dd89e38a5cc0f6425246553bb32f9babb4e:GOOGLE_CALENDAR_SETUP.md:gcp-api-key:39
