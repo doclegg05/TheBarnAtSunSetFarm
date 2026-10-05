@@ -5,12 +5,10 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
-import BookingCalendar from './components/BookingCalendar';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import GalleryPage from './components/GalleryPage';
 import VirtualTourPage from './components/VirtualTourPage';
-import { BookingProvider } from './contexts/BookingContext';
 import FadeInSection from './components/FadeInSection';
 
 const NotFound: React.FC = () => (
@@ -31,7 +29,7 @@ const NotFound: React.FC = () => (
 );
 
 const HomePage: React.FC = () => (
-  <BookingProvider>
+  <>
     <Header />
     <main>
       <Hero />
@@ -43,10 +41,6 @@ const HomePage: React.FC = () => (
       </FadeInSection>
 
       <FadeInSection>
-        <BookingCalendar />
-      </FadeInSection>
-
-      <FadeInSection>
         <FAQ />
       </FadeInSection>
 
@@ -55,7 +49,7 @@ const HomePage: React.FC = () => (
       </FadeInSection>
     </main>
     <Footer />
-  </BookingProvider>
+  </>
 );
 
 const App: React.FC = () => {

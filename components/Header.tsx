@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 type NavLink = {
@@ -19,6 +19,16 @@ const Header: React.FC = () => {
     location.pathname
   );
 
+  useEffect(() => {
+    if (location.pathname !== '/' || !location.hash) return;
+    // Old availability links should still lead visitors to a useful next step.
+    if (location.hash === '#calendar') {
+      navigate('/#contact', { replace: true });
+      return;
+    }
+    document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  }, [location.pathname, location.hash, navigate]);
+
   const navLinks: NavLink[] = [
     { title: 'Home', id: 'home', type: 'scroll' },
     { title: 'About', id: 'about', type: 'scroll' },
@@ -26,7 +36,6 @@ const Header: React.FC = () => {
     { title: 'Virtual Tour', id: 'virtual-tour', type: 'route' },
     { title: 'Gallery', id: 'gallery', type: 'route' },
 
-    { title: 'Availability', id: 'calendar', type: 'scroll' },
     // Badge images use deliberately generic filenames: names like "the-knot-logo.webp"
     // match ad-blocker filter patterns and get stripped from the page for some visitors.
     {
@@ -64,14 +73,7 @@ const Header: React.FC = () => {
     } else {
       // Scroll type
       if (location.pathname !== '/') {
-        navigate('/');
-        // Wait for navigation to complete before scrolling
-        setTimeout(() => {
-          const element = document.getElementById(link.id);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
+        navigate(`/#${link.id}`);
       } else {
         const element = document.getElementById(link.id);
         if (element) {
@@ -113,7 +115,9 @@ const Header: React.FC = () => {
           type="button"
           className="min-w-0 shrink cursor-pointer text-left text-2xl font-bold leading-tight tracking-wide transition-colors duration-300 hover:text-[#EAD1DC] sm:text-3xl xl:shrink-0 xl:text-4xl"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
-          onClick={() => navigate('/')}
+          onClick={() =>
+            handleNavigation({ title: 'Home', id: 'home', type: 'scroll' })
+          }
           aria-label="Go to home page"
         >
           The Barn at Sunset Farm

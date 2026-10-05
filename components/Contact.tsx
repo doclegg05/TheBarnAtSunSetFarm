@@ -1,7 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, ValidationError } from '@formspree/react';
-import { useBooking } from '../contexts/useBooking';
-import { formatDateRangeLabel } from '../lib/bookingDates';
 import {
   APPLE_MAPS_DIRECTIONS_URL,
   ARRIVAL_INSTRUCTIONS,
@@ -19,28 +17,12 @@ const Contact: React.FC = () => {
     date: '',
     message: '',
   });
-  const [isDateEdited, setIsDateEdited] = useState(false);
   const [state, handleSubmit] = useForm('mdkjokdw');
-  const {
-    selectedDateRange: { start, end },
-  } = useBooking();
-
-  const selectedDateLabel = useMemo(
-    () => formatDateRangeLabel(start, end),
-    [start, end]
-  );
-
-  const dateValue = isDateEdited
-    ? formData.date
-    : selectedDateLabel || formData.date;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    if (name === 'date') {
-      setIsDateEdited(true);
-    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -53,8 +35,8 @@ const Contact: React.FC = () => {
           </h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
-            Have questions or ready to book a tour? Fill out the form below, and
-            our team will get back to you shortly.
+            Have questions or ready to book a tour? Share your preferred event
+            date or date range below, and our team will confirm availability.
           </p>
         </div>
 
@@ -62,7 +44,10 @@ const Contact: React.FC = () => {
           {/* Contact Form */}
           <div className="w-full">
             {state.succeeded ? (
-              <div className="bg-[#A2B29F] text-white text-center p-8 rounded-lg shadow-lg">
+              <div
+                role="status"
+                className="bg-[#A2B29F] text-white text-center p-8 rounded-lg shadow-lg"
+              >
                 <h3 className="text-2xl font-bold">Thank You!</h3>
                 <p className="mt-2">
                   Your inquiry has been sent. We'll be in touch soon!
@@ -154,7 +139,7 @@ const Contact: React.FC = () => {
                     name="date"
                     id="date"
                     placeholder="MM/DD/YYYY or Date Range"
-                    value={dateValue}
+                    value={formData.date}
                     onChange={handleChange}
                     className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white"
                   />
@@ -188,6 +173,11 @@ const Contact: React.FC = () => {
                     className="text-red-500 text-sm mt-1"
                   />
                 </div>
+                <ValidationError
+                  errors={state.errors}
+                  role="alert"
+                  className="text-red-700 text-sm"
+                />
                 <div>
                   <button
                     type="submit"

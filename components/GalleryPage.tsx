@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import XMarkIcon from './icons/XMarkIcon';
@@ -62,18 +62,26 @@ const GalleryPage: React.FC = () => {
     null
   );
 
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const isLightboxOpen = selectedPhotoIndex !== null;
+
   useEffect(() => {
-    if (selectedPhotoIndex === null) {
+    if (!isLightboxOpen) {
       return;
     }
 
+    const trigger = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    dialog?.showModal();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
     return () => {
+      dialog?.close();
       document.body.style.overflow = previousOverflow;
+      trigger?.focus();
     };
-  }, [selectedPhotoIndex]);
+  }, [isLightboxOpen]);
 
   const openLightbox = (index: number) => {
     setSelectedPhotoIndex(index);
@@ -163,7 +171,9 @@ const GalleryPage: React.FC = () => {
                 {section.photos.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {section.photos.map((photo, index) => (
-                      <div
+                      <button
+                        type="button"
+                        aria-label={`View ${photo.alt}`}
                         key={photo.url}
                         className="group relative aspect-[4/3] overflow-hidden rounded-lg shadow-md cursor-pointer"
                         onClick={() => openLightbox(offset + index)}
@@ -179,7 +189,7 @@ const GalleryPage: React.FC = () => {
                             View
                           </span>
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 ) : (
@@ -199,8 +209,11 @@ const GalleryPage: React.FC = () => {
 
       {/* Lightbox */}
       {selectedPhotoIndex !== null && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center p-4"
+        <dialog
+          ref={dialogRef}
+          aria-label="Photo viewer"
+          onCancel={closeLightbox}
+          className="fixed inset-0 m-0 h-full w-full max-h-none max-w-none z-50 bg-black bg-opacity-95 flex items-center justify-center p-4"
           onClick={closeLightbox}
         >
           <button
@@ -212,7 +225,7 @@ const GalleryPage: React.FC = () => {
           </button>
 
           <button
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2"
+            className="absolute z-10 left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2"
             onClick={prevPhoto}
             aria-label="Previous photo"
           >
@@ -221,7 +234,7 @@ const GalleryPage: React.FC = () => {
 
           <div className="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center">
             <img
-              loading="lazy"
+              loading="eager"
               src={allPhotos[selectedPhotoIndex].url}
               alt={allPhotos[selectedPhotoIndex].alt}
               className="max-w-full max-h-[85vh] object-contain shadow-2xl"
@@ -230,7 +243,7 @@ const GalleryPage: React.FC = () => {
           </div>
 
           <button
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2"
+            className="absolute z-10 right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2"
             onClick={nextPhoto}
             aria-label="Next photo"
           >
@@ -240,7 +253,7 @@ const GalleryPage: React.FC = () => {
           <div className="absolute bottom-4 left-0 right-0 text-center text-white text-sm md:text-base font-light tracking-wide">
             {selectedPhotoIndex + 1} / {allPhotos.length}
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );
