@@ -31,13 +31,13 @@ const FAQ: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-20 md:py-32 bg-[#FDF8F5]">
+    <section id="faq" className="py-20 md:py-32 bg-brand-cream">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">
+          <h2 className="text-4xl md:text-5xl font-bold text-brand-charcoal">
             Frequently Asked Questions
           </h2>
-          <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
+          <div className="mt-4 w-24 h-1 bg-brand-pink mx-auto"></div>
           <p className="mt-6 text-lg text-gray-600">
             Everything you need to know about hosting your special day at The
             Barn at Sunset Farm.
@@ -52,13 +52,13 @@ const FAQ: React.FC = () => {
             >
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50"
+                className="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-hidden hover:bg-gray-50"
               >
-                <span className="text-lg font-semibold text-[#4a4a4a]">
+                <span className="text-lg font-semibold text-brand-charcoal">
                   {faq.question}
                 </span>
                 <ChevronDownIcon
-                  className={`w-6 h-6 text-[#A2B29F] transition-transform duration-300 ${openIndex === index ? 'transform rotate-180' : ''}`}
+                  className={`w-6 h-6 text-brand-sage transition-transform duration-300 ${openIndex === index ? 'transform rotate-180' : ''}`}
                 />
               </button>
               <div
@@ -78,7 +78,7 @@ const FAQ: React.FC = () => {
           <p className="text-lg text-gray-600 mb-6">Still have questions?</p>
           <a
             href="#contact"
-            className="inline-block bg-[#4a4a4a] text-white py-3 px-8 rounded-lg font-semibold hover:bg-opacity-90 transition-colors duration-300 shadow-lg"
+            className="inline-block bg-brand-charcoal text-white py-3 px-8 rounded-lg font-semibold hover:bg-brand-charcoal/90 transition-colors duration-300 shadow-lg"
           >
             Contact Us
           </a>

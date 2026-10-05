@@ -13,15 +13,17 @@ import FadeInSection from './components/FadeInSection';
 
 const NotFound: React.FC = () => (
   <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-    <h1 className="text-5xl font-bold text-[#D4AF37] mb-4">404</h1>
-    <h2 className="text-2xl font-serif text-[#4a4a4a] mb-6">Page Not Found</h2>
-    <p className="text-lg text-[#4a4a4a]/80 mb-8 max-w-md">
+    <h1 className="text-5xl font-bold text-brand-gold mb-4">404</h1>
+    <h2 className="text-2xl font-serif text-brand-charcoal mb-6">
+      Page Not Found
+    </h2>
+    <p className="text-lg text-brand-charcoal/80 mb-8 max-w-md">
       The page you are looking for might have been removed, had its name
       changed, or is temporarily unavailable.
     </p>
     <Link
       to="/"
-      className="px-8 py-3 bg-[#D4AF37] text-white rounded-full hover:bg-[#4a4a4a] transition-colors"
+      className="px-8 py-3 bg-brand-gold text-white rounded-full hover:bg-brand-charcoal transition-colors"
     >
       Return Home
     </Link>
@@ -55,7 +57,7 @@ const HomePage: React.FC = () => (
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="bg-[#FDF8F5] text-[#4a4a4a] antialiased overflow-x-hidden">
+      <div className="bg-brand-cream text-brand-charcoal antialiased overflow-x-hidden">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/gallery" element={<GalleryPage />} />

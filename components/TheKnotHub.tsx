@@ -24,7 +24,7 @@ const TheKnotHub: React.FC = () => {
         </a>
 
         <div className="mt-8 flex flex-col items-center justify-center space-y-2">
-          <div className="flex items-center space-x-1 text-[#A2B29F]">
+          <div className="flex items-center space-x-1 text-brand-sage">
             {[1, 2, 3, 4, 5].map((star) => (
               <svg
                 key={star}
@@ -35,14 +35,14 @@ const TheKnotHub: React.FC = () => {
               </svg>
             ))}
           </div>
-          <p className="text-[#4a4a4a] font-semibold text-lg">
+          <p className="text-brand-charcoal font-semibold text-lg">
             "A romantic wedding venue in Mount Nebo, WV"
           </p>
           <a
             href="https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#EAD1DC] hover:text-[#d4b6c3] font-medium underline decoration-2 underline-offset-4 transition-colors"
+            className="text-brand-pink hover:text-[#d4b6c3] font-medium underline decoration-2 underline-offset-4 transition-colors"
           >
             Read our reviews
           </a>

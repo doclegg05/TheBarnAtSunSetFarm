@@ -132,14 +132,14 @@ const GalleryPage: React.FC = () => {
   }, [selectedPhotoIndex]);
 
   return (
-    <div className="bg-[#FDF8F5] min-h-screen flex flex-col">
+    <div className="bg-brand-cream min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-grow pt-32 pb-12 px-4 md:px-8 lg:px-12">
+      <main className="grow pt-32 pb-12 px-4 md:px-8 lg:px-12">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h1
-              className="text-4xl md:text-5xl font-bold text-[#4a4a4a] mb-4"
+              className="text-4xl md:text-5xl font-bold text-brand-charcoal mb-4"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               Our Gallery
@@ -161,12 +161,12 @@ const GalleryPage: React.FC = () => {
               <div key={section.title} className="mb-12">
                 <div className="flex items-center justify-center mb-8">
                   <h2
-                    className="text-3xl font-bold text-[#4a4a4a]"
+                    className="text-3xl font-bold text-brand-charcoal"
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                   >
                     {section.title}
                   </h2>
-                  <div className="ml-4 h-px bg-[#EAD1DC] w-24"></div>
+                  <div className="ml-4 h-px bg-brand-pink w-24"></div>
                 </div>
                 {section.photos.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -175,7 +175,7 @@ const GalleryPage: React.FC = () => {
                         type="button"
                         aria-label={`View ${photo.alt}`}
                         key={photo.url}
-                        className="group relative aspect-[4/3] overflow-hidden rounded-lg shadow-md cursor-pointer"
+                        className="group relative aspect-4/3 overflow-hidden rounded-lg shadow-md cursor-pointer"
                         onClick={() => openLightbox(offset + index)}
                       >
                         <img
@@ -184,7 +184,7 @@ const GalleryPage: React.FC = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
                           <span className="text-white opacity-0 group-hover:opacity-100 font-medium tracking-wider uppercase text-sm border border-white px-4 py-2">
                             View
                           </span>
@@ -213,7 +213,7 @@ const GalleryPage: React.FC = () => {
           ref={dialogRef}
           aria-label="Photo viewer"
           onCancel={closeLightbox}
-          className="fixed inset-0 m-0 h-full w-full max-h-none max-w-none z-50 bg-black bg-opacity-95 flex items-center justify-center p-4"
+          className="fixed inset-0 m-0 h-full w-full max-h-none max-w-none z-50 bg-black/95 flex items-center justify-center p-4"
           onClick={closeLightbox}
         >
           <button

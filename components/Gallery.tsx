@@ -61,14 +61,14 @@ const Gallery: React.FC<GalleryProps> = ({ photos }) => {
               <img
                 src={photo.url}
                 alt={photo.alt}
-                className={`w-full h-full object-cover object-[center_35%] transform transition-transform duration-[10000ms] ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
+                className={`w-full h-full object-cover object-[center_35%] transform transition-transform duration-10000 ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
                 loading={index === 0 ? 'eager' : 'lazy'}
                 fetchPriority={index === 0 ? 'high' : undefined}
                 decoding="async"
               />
 
               {/* Subtle gradient overlay to ensure text readability is always maintained without overpowering the image */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
+              <div className="absolute inset-0 bg-linear-to-b from-black/20 via-transparent to-black/40" />
             </div>
           ))
         ) : (
@@ -83,14 +83,14 @@ const Gallery: React.FC<GalleryProps> = ({ photos }) => {
         <>
           <button
             onClick={prevSlide}
-            className="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-50 text-white p-3 rounded-full transition-all duration-300 z-20 cursor-pointer backdrop-blur-[2px]"
+            className="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 bg-black/20 hover:bg-black/50 text-white p-3 rounded-full transition-all duration-300 z-20 cursor-pointer backdrop-blur-[2px]"
             aria-label="Previous slide"
           >
             <ChevronLeftIcon className="w-6 h-6" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-50 text-white p-3 rounded-full transition-all duration-300 z-20 cursor-pointer backdrop-blur-[2px]"
+            className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 bg-black/20 hover:bg-black/50 text-white p-3 rounded-full transition-all duration-300 z-20 cursor-pointer backdrop-blur-[2px]"
             aria-label="Next slide"
           >
             <ChevronRightIcon className="w-6 h-6" />
@@ -105,7 +105,7 @@ const Gallery: React.FC<GalleryProps> = ({ photos }) => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-500 cursor-pointer shadow-sm ${index === currentIndex ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'}`}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-500 cursor-pointer shadow-xs ${index === currentIndex ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'}`}
               aria-label={`Go to slide ${index + 1}`}
             ></button>
           ))}

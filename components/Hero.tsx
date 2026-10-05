@@ -68,7 +68,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* Overlay for text readability */}
-      <div className="absolute inset-0 bg-black bg-opacity-30 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
 
       {/* Hero Content - Parallax (slower) */}
       <div
@@ -97,13 +97,13 @@ const Hero: React.FC = () => {
         <div className="mt-8 flex flex-col sm:flex-row gap-4 pointer-events-auto">
           <button
             onClick={() => scrollToSection('contact')}
-            className="bg-[#A2B29F] text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-[#8c9a89] active:scale-95 transition-all duration-200"
+            className="bg-brand-sage text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-[#8c9a89] active:scale-95 transition-all duration-200"
           >
             Inquire About Your Event
           </button>
           <button
             onClick={() => scrollToSection('contact')}
-            className="bg-white/15 backdrop-blur-sm border border-white/70 text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-white/30 active:scale-95 transition-all duration-200"
+            className="bg-white/15 backdrop-blur-xs border border-white/70 text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-white/30 active:scale-95 transition-all duration-200"
           >
             Schedule a Tour
           </button>
