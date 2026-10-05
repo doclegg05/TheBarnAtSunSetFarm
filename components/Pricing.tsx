@@ -34,15 +34,15 @@ const Pricing: React.FC = () => {
   ];
 
   return (
-    <section id="pricing" className="py-20 md:py-32 bg-[#FDF8F5]">
+    <section id="pricing" className="py-20 md:py-32 bg-brand-cream">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">
+          <h2 className="text-4xl md:text-5xl font-bold text-brand-charcoal">
             Packages & Pricing
           </h2>
-          <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
+          <div className="mt-4 w-24 h-1 bg-brand-pink mx-auto"></div>
           <div className="mt-8">
-            <h3 className="text-3xl font-bold text-[#D4AF37]">
+            <h3 className="text-3xl font-bold text-brand-gold">
               Starting at $3,800
             </h3>
           </div>
@@ -54,25 +54,25 @@ const Pricing: React.FC = () => {
               key={index}
               className={`relative flex flex-col p-8 rounded-2xl transition-transform duration-300 hover:-translate-y-2 ${
                 tier.highlight
-                  ? 'bg-white shadow-2xl border-2 border-[#EAD1DC] scale-105 z-10'
+                  ? 'bg-white shadow-2xl border-2 border-brand-pink scale-105 z-10'
                   : 'bg-white shadow-lg border border-gray-100'
               }`}
             >
               {tier.highlight && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-white text-sm font-semibold tracking-wide uppercase px-4 py-1 rounded-full shadow-md whitespace-nowrap">
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-gold text-white text-sm font-semibold tracking-wide uppercase px-4 py-1 rounded-full shadow-md whitespace-nowrap">
                   Most Popular
                 </span>
               )}
-              <h3 className="text-2xl font-bold text-[#4a4a4a] mb-2">
+              <h3 className="text-2xl font-bold text-brand-charcoal mb-2">
                 {tier.name}
               </h3>
 
               <p className="text-gray-600 mb-8">{tier.description}</p>
 
-              <ul className="space-y-4 mb-8 flex-grow">
+              <ul className="space-y-4 mb-8 grow">
                 {tier.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start">
-                    <CheckIcon className="w-5 h-5 text-[#A2B29F] mt-1 mr-3 flex-shrink-0" />
+                    <CheckIcon className="w-5 h-5 text-brand-sage mt-1 mr-3 shrink-0" />
                     <span className="text-gray-600">{feature}</span>
                   </li>
                 ))}
@@ -80,7 +80,7 @@ const Pricing: React.FC = () => {
 
               <a
                 href="#contact"
-                className="block text-center py-4 rounded-lg font-semibold transition-colors duration-300 bg-[#4a4a4a] text-white hover:bg-opacity-90"
+                className="block text-center py-4 rounded-lg font-semibold transition-colors duration-300 bg-brand-charcoal text-white hover:bg-brand-charcoal/90"
               >
                 Request Quote
               </a>
