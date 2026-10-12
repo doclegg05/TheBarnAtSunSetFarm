@@ -37,6 +37,7 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 | 2026-06-10 | Keep scroll fade-in but guard it | Visible-on-mount check + reduced-motion + threshold 0 prevents invisible content           |
 | 2026-06-10 | Keep original header per user    | User prefers the original nav with The Knot/WeddingWire logo links; sticky header reverted |
 | 2026-07-20 | Maps by GPS coords, never address | "19 Boulder Trail" misgeocodes into Rivers Edge; real address 86 Harper Ln unmapped — lib/venueLocation.ts is the single source of truth |
+| 2026-10-12 | Contact form asks "How did you hear about us?" | Owner is cancelling paid Knot/WeddingWire plans; `heard_about` (options in lib/inquirySources.ts) measures lead sources before/after. Keep option wording stable |
 
 ## Architecture Notes
 

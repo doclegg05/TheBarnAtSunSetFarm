@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Contact from '../components/Contact';
 import { BookingProvider } from '../contexts/BookingContext';
 import { useBooking } from '../contexts/useBooking';
+import { HEARD_ABOUT_OPTIONS } from '../lib/inquirySources';
 import {
   APPLE_MAPS_DIRECTIONS_URL,
   GOOGLE_MAPS_DIRECTIONS_URL,
@@ -100,6 +101,50 @@ describe('Contact form validation', () => {
     fireEvent.change(message, { target: { value: huge } });
 
     expect(message.value).toHaveLength(10_000);
+  });
+});
+
+describe('Contact form lead source', () => {
+  beforeEach(() => cleanup());
+
+  it('requires "How did you hear about us?" and submits it as heard_about', () => {
+    renderContact();
+    const source = screen.getByLabelText(
+      'How did you hear about us?'
+    ) as HTMLSelectElement;
+    expect(source.required).toBe(true);
+    expect(source.name).toBe('heard_about');
+    expect(source.value).toBe('');
+  });
+
+  it('offers every lead-source option, including both wedding directories', () => {
+    renderContact();
+    const source = screen.getByLabelText(
+      'How did you hear about us?'
+    ) as HTMLSelectElement;
+    const values = Array.from(source.options)
+      .map((option) => option.value)
+      .filter(Boolean);
+    expect(values).toEqual([...HEARD_ABOUT_OPTIONS]);
+    expect(values).toContain('The Knot');
+    expect(values).toContain('WeddingWire');
+  });
+
+  it('asks for details only when "Other" is chosen', () => {
+    renderContact();
+    const source = screen.getByLabelText(
+      'How did you hear about us?'
+    ) as HTMLSelectElement;
+    expect(screen.queryByLabelText('Where did you hear about us?')).toBeNull();
+
+    fireEvent.change(source, { target: { value: 'Other' } });
+    const details = screen.getByLabelText(
+      'Where did you hear about us?'
+    ) as HTMLInputElement;
+    expect(details.name).toBe('heard_about_other');
+
+    fireEvent.change(source, { target: { value: 'Google Maps' } });
+    expect(screen.queryByLabelText('Where did you hear about us?')).toBeNull();
   });
 });
 
