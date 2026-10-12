@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import './index.css';
+import { initAnalytics } from './lib/analytics';
+
+initAnalytics();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

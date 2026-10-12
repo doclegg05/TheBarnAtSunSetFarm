@@ -28,6 +28,7 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [ ] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env (calendar shows "temporarily offline" notice without them)
 - [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
+- [ ] Owner: create GA4 property and set VITE_GA_MEASUREMENT_ID in Netlify, then redeploy (steps in GOOGLE_ANALYTICS_SETUP.md)
 
 ## Key Decisions Log
 
@@ -38,6 +39,7 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 | 2026-06-10 | Keep original header per user    | User prefers the original nav with The Knot/WeddingWire logo links; sticky header reverted |
 | 2026-07-20 | Maps by GPS coords, never address | "19 Boulder Trail" misgeocodes into Rivers Edge; real address 86 Harper Ln unmapped — lib/venueLocation.ts is the single source of truth |
 | 2026-10-12 | Contact form asks "How did you hear about us?" | Owner is cancelling paid Knot/WeddingWire plans; `heard_about` (options in lib/inquirySources.ts) measures lead sources before/after. Keep option wording stable |
+| 2026-10-12 | GA4 via lib/analytics.ts, live domain only | Loads only when VITE_GA_MEASUREMENT_ID is set AND hostname is thebarnatsunsetfarm.com (previews/dev never send data). Page views come from GA enhanced measurement history events — never send page_view by hand. Events: generate_lead {heard_about}, click {link_url, link_domain, outbound} for header directory links. /privacy page discloses GA (required by GA terms) |
 
 ## Architecture Notes
 

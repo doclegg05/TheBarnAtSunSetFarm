@@ -11,9 +11,13 @@ import {
   GOOGLE_MAPS_EMBED_URL,
 } from '../lib/venueLocation';
 
+const formspree = vi.hoisted(() => ({
+  state: { succeeded: false, submitting: false, errors: null },
+}));
+
 vi.mock('@formspree/react', () => ({
   useForm: () => [
-    { succeeded: false, submitting: false, errors: null },
+    formspree.state,
     vi.fn((e: { preventDefault: () => void }) => e.preventDefault()),
   ],
   ValidationError: () => null,
@@ -145,6 +149,37 @@ describe('Contact form lead source', () => {
 
     fireEvent.change(source, { target: { value: 'Google Maps' } });
     expect(screen.queryByLabelText('Where did you hear about us?')).toBeNull();
+  });
+
+  it('records one Google Analytics lead, tagged with the source, when an inquiry is sent', () => {
+    const gtag = vi.fn();
+    window.gtag = gtag;
+    try {
+      const { rerender } = render(
+        <BookingProvider>
+          <Contact />
+        </BookingProvider>
+      );
+      fireEvent.change(screen.getByLabelText('How did you hear about us?'), {
+        target: { value: 'Google Maps' },
+      });
+      expect(gtag).not.toHaveBeenCalled();
+
+      formspree.state = { ...formspree.state, succeeded: true };
+      rerender(
+        <BookingProvider>
+          <Contact />
+        </BookingProvider>
+      );
+
+      expect(gtag).toHaveBeenCalledTimes(1);
+      expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', {
+        heard_about: 'Google Maps',
+      });
+    } finally {
+      formspree.state = { ...formspree.state, succeeded: false };
+      delete window.gtag;
+    }
   });
 });
 

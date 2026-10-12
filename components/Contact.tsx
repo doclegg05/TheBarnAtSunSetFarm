@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm, ValidationError } from '@formspree/react';
 import { useBooking } from '../contexts/useBooking';
 import { formatDateRangeLabel } from '../lib/bookingDates';
 import { HEARD_ABOUT_OPTIONS, HEARD_ABOUT_OTHER } from '../lib/inquirySources';
+import { trackEvent } from '../lib/analytics';
 import {
   APPLE_MAPS_DIRECTIONS_URL,
   ARRIVAL_INSTRUCTIONS,
@@ -32,6 +33,14 @@ const Contact: React.FC = () => {
     () => formatDateRangeLabel(start, end),
     [start, end]
   );
+
+  // One GA4 lead per sent inquiry, tagged with its source. Only the fixed
+  // dropdown answer is sent — never names, contact details or free text.
+  useEffect(() => {
+    if (state.succeeded) {
+      trackEvent('generate_lead', { heard_about: formData.heard_about });
+    }
+  }, [state.succeeded, formData.heard_about]);
 
   const dateValue = isDateEdited
     ? formData.date

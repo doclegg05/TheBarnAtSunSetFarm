@@ -10,6 +10,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import GalleryPage from './components/GalleryPage';
 import VirtualTourPage from './components/VirtualTourPage';
+import PrivacyPage from './components/PrivacyPage';
 import { BookingProvider } from './contexts/BookingContext';
 import FadeInSection from './components/FadeInSection';
 
@@ -66,6 +67,7 @@ const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/virtual-tour" element={<VirtualTourPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
