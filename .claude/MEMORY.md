@@ -20,7 +20,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - **What we decided**:
   - Dependabot: no separate dependency PR. #25's lockfile already cleared all 25 alerts, so a lockfile PR from main would only have conflicted with it. Once #25 merged, the 22-alert commit rebased to empty and was dropped.
   - Promo video: Britt picked concept "Meet You at Sunset" from five pitches. Surrounding-area photos (lake, gorge) left out (look like stock, rights unknown); AI "journey" clip left out (barn differs from the real one).
-- **Where we left off**: Britt merged #25 (calendar removal, Tailwind 4) and then #27 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/27) into main on 2026-10-13. #25 had been live since 2026-10-05 through a published deploy preview (gotcha in auto-memory `netlify-production-source`); production now matches main at 68e4d3b. `CI=true scripts/quality.sh` on 68e4d3b exits 0 with 25 tests passing. Next: review the promo renders and decide on the 16:9 cut for the site.
+- **Where we left off**: #25 (calendar removal, Tailwind 4) and then #27 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/27) merged into main on 2026-10-13. #25 had been live since 2026-10-05 through a published deploy preview (gotcha in auto-memory `netlify-production-source`); production now matches main at 68e4d3b. `CI=true scripts/quality.sh` on 68e4d3b exits 0 with 25 tests passing. Next: review the promo renders and decide on the 16:9 cut for the site.
 
 ## Open Items
 
