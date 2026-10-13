@@ -1,38 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { useEffect } from 'react';
 import Contact from '../components/Contact';
-import { BookingProvider } from '../contexts/BookingContext';
-import { useBooking } from '../contexts/useBooking';
 import {
   APPLE_MAPS_DIRECTIONS_URL,
   GOOGLE_MAPS_DIRECTIONS_URL,
   GOOGLE_MAPS_EMBED_URL,
 } from '../lib/venueLocation';
 
-vi.mock('@formspree/react', () => ({
-  useForm: () => [
-    { succeeded: false, submitting: false, errors: null },
-    vi.fn((e: { preventDefault: () => void }) => e.preventDefault()),
-  ],
-  ValidationError: () => null,
+const form = vi.hoisted(() => ({
+  state: { succeeded: false, submitting: false, errors: null as unknown },
+  submit: vi.fn((e: { preventDefault: () => void }) => e.preventDefault()),
 }));
 
-const SetRange = ({ start, end }: { start: Date; end: Date }) => {
-  const { setSelectedDateRange } = useBooking();
-  useEffect(() => {
-    setSelectedDateRange({ start, end });
-  }, [setSelectedDateRange, start, end]);
-  return null;
-};
+vi.mock('@formspree/react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@formspree/react')>()),
+  useForm: () => [form.state, form.submit],
+}));
 
-const renderContact = (range?: { start: Date; end: Date }) =>
-  render(
-    <BookingProvider>
-      {range && <SetRange start={range.start} end={range.end} />}
-      <Contact />
-    </BookingProvider>
-  );
+const renderContact = () => render(<Contact />);
+
+beforeEach(() => {
+  form.state = { succeeded: false, submitting: false, errors: null };
+  form.submit.mockClear();
+});
 
 describe('Contact form validation', () => {
   beforeEach(() => cleanup());
@@ -56,40 +46,52 @@ describe('Contact form validation', () => {
     expect(email.type).toBe('email');
   });
 
-  it('pre-fills a single date when the calendar selection is one day', () => {
-    renderContact({
-      start: new Date(2027, 0, 5),
-      end: new Date(2027, 0, 5),
-    });
+  it('accepts a manually entered date range without a calendar provider', () => {
+    renderContact();
     const date = screen.getByLabelText(
       'Prospective Event Date(s)'
     ) as HTMLInputElement;
-    expect(date.value).toBe('Jan 5, 2027');
+    expect(date.value).toBe('');
+    fireEvent.change(date, { target: { value: '06/12/2027 - 06/14/2027' } });
+    fireEvent.change(screen.getByLabelText('Full Name'), {
+      target: { value: 'Test Guest' },
+    });
+    expect(date.value).toBe('06/12/2027 - 06/14/2027');
+    const fields = new FormData(date.form!);
+    expect(fields.get('date')).toBe('06/12/2027 - 06/14/2027');
   });
 
-  it('pre-fills the date field from the calendar selection', () => {
-    renderContact({
-      start: new Date(2027, 0, 5),
-      end: new Date(2027, 0, 7),
+  it('shows general submission errors and preserves the inquiry for retry', () => {
+    const view = renderContact();
+    fireEvent.change(screen.getByLabelText('Message'), {
+      target: { value: 'A test inquiry' },
     });
-    const date = screen.getByLabelText(
-      'Prospective Event Date(s)'
-    ) as HTMLInputElement;
-    expect(date.value).toBe('Jan 5, 2027 - Jan 7, 2027');
+    form.state.errors = {
+      getFormErrors: () => [{ message: 'Unable to send. Please try again.' }],
+      getFieldErrors: () => [],
+    };
+    view.rerender(<Contact />);
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Unable to send. Please try again.'
+    );
+    expect(
+      (screen.getByLabelText('Message') as HTMLTextAreaElement).value
+    ).toBe('A test inquiry');
   });
 
-  it('lets a manual edit override the calendar selection', () => {
-    renderContact({
-      start: new Date(2027, 0, 5),
-      end: new Date(2027, 0, 7),
-    });
-    const date = screen.getByLabelText(
-      'Prospective Event Date(s)'
-    ) as HTMLInputElement;
-
-    fireEvent.change(date, { target: { value: '06/12/2027' } });
-
-    expect(date.value).toBe('06/12/2027');
+  it('disables resubmission while sending and announces success', () => {
+    form.state.submitting = true;
+    const view = renderContact();
+    expect(
+      (screen.getByRole('button', { name: 'Sending...' }) as HTMLButtonElement)
+        .disabled
+    ).toBe(true);
+    form.state = { succeeded: true, submitting: false, errors: null };
+    view.rerender(<Contact />);
+    expect(screen.getByRole('status').textContent).toContain(
+      'Your inquiry has been sent'
+    );
+    expect(screen.queryByRole('button', { name: 'Send Inquiry' })).toBeNull();
   });
 
   it('accepts an oversized message without crashing or truncating state', () => {

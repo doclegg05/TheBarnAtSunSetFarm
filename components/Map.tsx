@@ -22,7 +22,7 @@ const GoogleMapEmbed: React.FC = () => {
         href={GOOGLE_MAPS_PIN_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center"
+        className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center"
       >
         <span className="sr-only">View on Google Maps</span>
       </a>

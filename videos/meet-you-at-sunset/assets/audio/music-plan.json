@@ -1,0 +1,89 @@
+{
+  "positive_global_styles": [
+    "warm acoustic folk-pop",
+    "fingerpicked acoustic guitar",
+    "soft piano",
+    "romantic",
+    "playful",
+    "hopeful",
+    "major key",
+    "92 bpm",
+    "instrumental"
+  ],
+  "negative_global_styles": [
+    "vocals",
+    "singing",
+    "electronic drums",
+    "synth bass",
+    "dark",
+    "aggressive"
+  ],
+  "sections": [
+    {
+      "section_name": "Afternoon intro",
+      "positive_local_styles": [
+        "gentle fingerpicked guitar",
+        "light piano notes",
+        "airy",
+        "anticipation"
+      ],
+      "negative_local_styles": [
+        "drums"
+      ],
+      "duration_ms": 7000,
+      "lines": []
+    },
+    {
+      "section_name": "Getting ready and vows",
+      "positive_local_styles": [
+        "soft hand claps",
+        "tambourine",
+        "warm upright bass",
+        "sweet and bouncy"
+      ],
+      "negative_local_styles": [
+        "loud"
+      ],
+      "duration_ms": 11600,
+      "lines": []
+    },
+    {
+      "section_name": "Celebration build",
+      "positive_local_styles": [
+        "mandolin joins",
+        "strings swell",
+        "building energy",
+        "joyful"
+      ],
+      "negative_local_styles": [],
+      "duration_ms": 8000,
+      "lines": []
+    },
+    {
+      "section_name": "Golden hour chorus",
+      "positive_local_styles": [
+        "full band lift",
+        "soaring strings",
+        "sunlit",
+        "euphoric but gentle"
+      ],
+      "negative_local_styles": [],
+      "duration_ms": 13800,
+      "lines": []
+    },
+    {
+      "section_name": "Dusk outro",
+      "positive_local_styles": [
+        "slow down",
+        "solo guitar and piano",
+        "final held chord",
+        "tender ending"
+      ],
+      "negative_local_styles": [
+        "abrupt stop"
+      ],
+      "duration_ms": 6600,
+      "lines": []
+    }
+  ]
+}

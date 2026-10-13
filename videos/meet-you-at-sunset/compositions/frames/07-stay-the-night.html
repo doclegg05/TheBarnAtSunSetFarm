@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <template>
+      <link rel="stylesheet" href="../../assets/brand.css">
+      <style>
+        #f07 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          background: #1f1a1c;
+          container-type: size;
+        }
+        #f07-cam { position: absolute; inset: 0; transform-origin: 55% 55%; }
+        #f07-photo {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: 50% 62%;
+        }
+        #f07-night {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(130% 90% at 20% 100%, rgba(31, 26, 28, 0.85) 0%, rgba(31, 26, 28, 0.4) 50%, rgba(31, 26, 28, 0.1) 80%);
+        }
+        #f07-lights { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+        #f07-wire { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+        .f07-bulb {
+          position: absolute;
+          left: 0;
+          top: 0;
+          display: block;
+          width: 22px;
+          height: 30px;
+          margin: -4px 0 0 -11px;
+          border-radius: 45% 45% 50% 50%;
+          background: #6b5a48;
+        }
+        .f07-halo {
+          position: absolute;
+          left: 50%;
+          top: 55%;
+          display: block;
+          width: 120px;
+          height: 120px;
+          margin: -60px 0 0 -60px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(255, 244, 214, 1) 0%, rgba(255, 214, 150, 0.55) 18%, rgba(255, 190, 110, 0) 62%);
+          opacity: 0;
+        }
+        #f07-copy {
+          position: absolute;
+          left: 120px;
+          bottom: 120px;
+          width: 820px;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          color: var(--cream);
+          text-shadow: 0 2px 20px rgba(20, 16, 18, 0.6);
+        }
+        #f07-head {
+          margin: 0;
+          font-family: var(--serif);
+          font-style: italic;
+          font-weight: 600;
+          font-size: 140px;
+          line-height: 0.95;
+        }
+        #f07-facts { display: block; color: #ffe3b0; font-size: 22px; letter-spacing: 0.18em; white-space: nowrap; }
+        #f07-cards {
+          position: absolute;
+          right: 90px;
+          bottom: 110px;
+          display: flex;
+          gap: 26px;
+        }
+        #f07-cards .polaroid {
+          position: relative;
+          width: 290px;
+          height: 270px;
+          padding: 12px 12px 52px;
+        }
+        #f07-cards .note { font-size: 27px; bottom: 9px; }
+        @container (max-aspect-ratio: 1/1) {
+          #f07-photo { object-position: 50% 60%; }
+          #f07-copy { left: 80px; bottom: 860px; width: 920px; }
+          #f07-cards { right: 60px; left: 60px; bottom: 470px; justify-content: space-between; gap: 16px; }
+          #f07-cards .polaroid { width: 300px; height: 290px; }
+        }
+      </style>
+
+      <div data-hf-id="hf-8l3b" id="f07" data-composition-id="f07">
+        <div data-hf-id="hf-enhw" id="f07-cam"><img data-color-grading="{&quot;preset&quot;:&quot;warm-daylight&quot;,&quot;intensity&quot;:0.6,&quot;adjust&quot;:{&quot;exposure&quot;:0.06,&quot;contrast&quot;:0.07,&quot;highlights&quot;:-0.06,&quot;shadows&quot;:0.08,&quot;whites&quot;:0,&quot;blacks&quot;:0,&quot;temperature&quot;:0.18,&quot;tint&quot;:0,&quot;vibrance&quot;:0,&quot;saturation&quot;:0.08},&quot;details&quot;:{&quot;vignette&quot;:0,&quot;vignetteMidpoint&quot;:0.5,&quot;vignetteRoundness&quot;:0,&quot;vignetteFeather&quot;:0.65,&quot;grain&quot;:0,&quot;grainSize&quot;:0.25,&quot;grainRoughness&quot;:0.5},&quot;effects&quot;:{&quot;blur&quot;:0,&quot;pixelate&quot;:0,&quot;chromaBleed&quot;:0,&quot;tapeDamage&quot;:0,&quot;tapeTracking&quot;:0,&quot;tapeNoise&quot;:1,&quot;tapeSpeed&quot;:0.5,&quot;filmArtifacts&quot;:0,&quot;halftone&quot;:0,&quot;halftoneSize&quot;:0,&quot;twoInkPrint&quot;:0,&quot;twoInkPrintSize&quot;:0,&quot;ascii&quot;:0,&quot;asciiSize&quot;:0.06578947368421052,&quot;asciiInvert&quot;:0,&quot;asciiStyle&quot;:0,&quot;asciiColor&quot;:1,&quot;asciiRotation&quot;:0,&quot;dither&quot;:0,&quot;ditherSize&quot;:0,&quot;bloom&quot;:0,&quot;bloomRadius&quot;:8,&quot;monoScreen&quot;:0,&quot;monoScreenSize&quot;:0,&quot;monoScreenAngle&quot;:0,&quot;monoScreenSpread&quot;:0,&quot;monoScreenShape&quot;:0,&quot;monoScreenInvert&quot;:0,&quot;scanlines&quot;:0,&quot;scanlineCount&quot;:0,&quot;scanlineSoftness&quot;:0,&quot;chromaticAberration&quot;:0,&quot;chromaticAngle&quot;:0,&quot;crtCurvature&quot;:0,&quot;digitalGlitch&quot;:0,&quot;digitalGlitchColorSplit&quot;:0,&quot;digitalGlitchLineTear&quot;:0,&quot;digitalGlitchPixelate&quot;:0,&quot;digitalGlitchBlockAmount&quot;:0,&quot;digitalGlitchBlockDisplacement&quot;:0,&quot;digitalGlitchBlockOpacity&quot;:0,&quot;digitalGlitchSpeed&quot;:0,&quot;engraving&quot;:0,&quot;engravingSpacing&quot;:0.4117647058823529,&quot;engravingMinThickness&quot;:0.2,&quot;engravingMaxThickness&quot;:0.4571428571428572,&quot;engravingAngle&quot;:0.25,&quot;engravingContrast&quot;:0.4666666666666667,&quot;engravingSharpness&quot;:0.59,&quot;engravingWave&quot;:0.2,&quot;engravingWaveFrequency&quot;:0.2222222222222222,&quot;crosshatch&quot;:0,&quot;crosshatchSpacing&quot;:0.28,&quot;crosshatchThickness&quot;:0.25,&quot;crosshatchAngle&quot;:0.25,&quot;crosshatchContrast&quot;:0.3333333333333333,&quot;crosshatchEdges&quot;:0.5,&quot;crosshatchLineWeight&quot;:0,&quot;crosshatchWave&quot;:0.33,&quot;crosshatchWaveFrequency&quot;:0.2222222222222222,&quot;kuwahara&quot;:0,&quot;kuwaharaRadius&quot;:0.14285714285714285,&quot;kuwaharaSharpness&quot;:0.3125,&quot;kuwaharaSaturation&quot;:0.5},&quot;lut&quot;:null,&quot;colorSpace&quot;:&quot;rec709&quot;}" data-hf-id="hf-jx0h" id="f07-photo" src="../../assets/photos/s7-barn-dusk.webp" alt="The barn and porch at dusk"></div>
+        <div data-hf-id="hf-h423" id="f07-night"></div>
+        <div data-hf-id="hf-no6s" id="f07-lights" data-layout-allow-overflow>
+          <svg data-hf-id="hf-bs5e" id="f07-wire" aria-hidden="true" data-layout-allow-overflow><path data-hf-id="hf-e37i" id="f07-wire-path" data-layout-allow-overflow fill="none" stroke="#2a2220" stroke-width="3" /></svg>
+        </div>
+        <div data-hf-id="hf-ys10" id="f07-copy">
+          <h2 data-hf-id="hf-i8w2" id="f07-head">Stay the night.</h2>
+          <span data-hf-id="hf-6tya" id="f07-facts" class="kicker">Sleeps up to 15 · 5 bedrooms + a cottage</span>
+        </div>
+        <div data-hf-id="hf-03ek" id="f07-cards">
+          <div data-hf-id="hf-xm0g" class="polaroid" id="f07-k1"><span data-hf-id="hf-xo63" class="photo"><img data-hf-id="hf-e7kk" src="../../assets/photos/s7-bedroom.webp" alt="A guest bedroom with an iron bed"></span><span data-hf-id="hf-begl" class="note">sweet dreams</span></div>
+          <div data-hf-id="hf-8hi3" class="polaroid" id="f07-k2"><span data-hf-id="hf-2km3" class="photo"><img data-hf-id="hf-jm4x" src="../../assets/photos/s7-living-room.webp" alt="The barn living room with a stone fireplace"></span><span data-hf-id="hf-x4vy" class="note">the morning after</span></div>
+          <div data-hf-id="hf-4je2" class="polaroid" id="f07-k3"><span data-hf-id="hf-26b2" class="photo"><img data-hf-id="hf-jomw" src="../../assets/photos/s7-fire-pit.webp" alt="Adirondack chairs around the fire pit"></span><span data-hf-id="hf-t99n" class="note">one more s'more</span></div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const root = document.getElementById("f07");
+          const W = root.clientWidth || 1920;
+          // Two swags of string lights hung from the corners to a centre post.
+          const TOP = 70;
+          const SAG = W > 1500 ? 150 : 120;
+          const PER_SWAG = W > 1500 ? 12 : 8;
+          const swagY = (u) => TOP + SAG * (1 - u * u);
+          const bulbs = [];
+          let d = "";
+          [[-20, W / 2], [W / 2, W + 20]].forEach(([x0, x1]) => {
+            const mid = (x0 + x1) / 2;
+            const half = (x1 - x0) / 2;
+            for (let s = 0; s <= 40; s += 1) {
+              const x = x0 + ((x1 - x0) * s) / 40;
+              d += `${s === 0 ? "M" : "L"} ${x.toFixed(1)} ${swagY((x - mid) / half).toFixed(1)} `;
+            }
+            for (let i = 1; i <= PER_SWAG; i += 1) {
+              const x = x0 + ((x1 - x0) * i) / (PER_SWAG + 1);
+              bulbs.push([x, swagY((x - mid) / half)]);
+            }
+          });
+          document.getElementById("f07-wire-path").setAttribute("d", d);
+          const host = document.getElementById("f07-lights");
+          const halos = bulbs.map(([x, y]) => {
+            const b = document.createElement("span");
+            b.className = "f07-bulb";
+            b.setAttribute("data-layout-allow-overflow", "");
+            b.style.left = `${x.toFixed(1)}px`;
+            b.style.top = `${y.toFixed(1)}px`;
+            const h = document.createElement("span");
+            h.className = "f07-halo";
+            h.setAttribute("data-layout-allow-overflow", "");
+            b.appendChild(h);
+            host.appendChild(b);
+            return { b, h };
+          });
+
+          const tl = gsap.timeline({ paused: true });
+          tl.fromTo("#f07-cam", { scale: 1.0 }, { scale: 1.1, duration: 8.4, ease: "sine.inOut" }, 0);
+          // Click: the strands light up in a quick wave from both ends toward the centre.
+          halos.forEach(({ b, h }, i) => {
+            const fromEdge = i < halos.length / 2 ? i : halos.length - 1 - i;
+            const at = 0.12 + fromEdge * 0.035;
+            tl.fromTo(b, { backgroundColor: "#6b5a48" }, { backgroundColor: "#fff1cf", duration: 0.08, ease: "none" }, at);
+            tl.fromTo(h, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.25, ease: "power2.out" }, at);
+          });
+          // One bulb is a little dramatic about it.
+          const diva = halos[Math.floor(halos.length * 0.3)].h;
+          tl.to(diva, { opacity: 0.2, duration: 0.06, ease: "none", yoyo: true, repeat: 3 }, 0.9);
+          tl.fromTo("#f07-night", { opacity: 1 }, { opacity: 0.75, duration: 0.6, ease: "power2.out" }, 0.2);
+          // "Stay the night." lands on the spoken words.
+          tl.fromTo("#f07-head", { opacity: 0, y: 70, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.5)" }, 4.6);
+          tl.fromTo("#f07-facts", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.2);
+          // spring-pop-entrance: the lodging postcards rise, staggered.
+          ["#f07-k1", "#f07-k2", "#f07-k3"].forEach((sel, i) => {
+            const rot = [-4, 3, -2][i];
+            tl.fromTo(sel, { y: 520, rotation: rot * 5, opacity: 0 }, { y: 0, rotation: rot, opacity: 1, duration: 0.7, ease: "back.out(1.4)" }, 5.0 + i * 0.18);
+          });
+          tl.to("#f07-copy, #f07-cards", { opacity: 0, duration: 0.5, ease: "power2.in" }, 7.9);
+          window.__timelines["f07"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

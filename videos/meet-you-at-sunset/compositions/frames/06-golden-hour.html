@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <template>
+      <link rel="stylesheet" href="../../assets/brand.css">
+      <style>
+        #f06 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          background: var(--ink);
+          container-type: size;
+        }
+        #f06-cam { position: absolute; inset: 0; transform-origin: 30% 40%; }
+        #f06-photo {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: 50% 45%;
+        }
+        #f06-bloom {
+          position: absolute;
+          left: 2%;
+          top: 18%;
+          width: 900px;
+          height: 900px;
+          margin: -450px 0 0 -150px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(253, 219, 154, 0.55) 0%, rgba(230, 163, 90, 0.22) 40%, rgba(230, 163, 90, 0) 70%);
+          mix-blend-mode: screen;
+        }
+        #f06-scrim {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(110% 80% at 15% 100%, rgba(43, 30, 20, 0.8) 0%, rgba(43, 30, 20, 0.35) 45%, rgba(43, 30, 20, 0) 75%);
+        }
+        #f06-copy {
+          position: absolute;
+          left: 120px;
+          bottom: 110px;
+          width: 1100px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          color: var(--cream);
+          text-shadow: 0 2px 20px rgba(43, 30, 20, 0.5);
+        }
+        #f06-head {
+          margin: 0;
+          font-family: var(--serif);
+          font-weight: 700;
+          font-size: 128px;
+          line-height: 0.98;
+        }
+        #f06-head .ln { display: block; }
+        #f06-head em { font-style: italic; font-weight: 400; color: #ffe3b0; }
+        #f06-wink {
+          display: block;
+          font-family: var(--serif);
+          font-style: italic;
+          font-size: 58px;
+          line-height: 1.1;
+        }
+        #f06-card {
+          position: absolute;
+          right: 110px;
+          top: 150px;
+          width: 430px;
+          height: 640px;
+          padding: 14px 14px 56px;
+        }
+        #f06-card .note { font-size: 28px; bottom: 10px; }
+        @container (max-aspect-ratio: 1/1) {
+          #f06-photo { object-position: 40% 50%; }
+          #f06-copy { left: 80px; bottom: 470px; width: 920px; }
+          #f06-head { font-size: 120px; }
+          #f06-card { right: 80px; top: 330px; width: 400px; height: 600px; }
+        }
+      </style>
+
+      <div data-hf-id="hf-b1wf" id="f06" data-composition-id="f06">
+        <div data-hf-id="hf-09jh" id="f06-cam"><img data-color-grading="{&quot;preset&quot;:&quot;warm-daylight&quot;,&quot;intensity&quot;:0.85,&quot;adjust&quot;:{&quot;exposure&quot;:0.06,&quot;contrast&quot;:0.07,&quot;highlights&quot;:-0.06,&quot;shadows&quot;:0.08,&quot;whites&quot;:0,&quot;blacks&quot;:0,&quot;temperature&quot;:0.18,&quot;tint&quot;:0,&quot;vibrance&quot;:0,&quot;saturation&quot;:0.08},&quot;details&quot;:{&quot;vignette&quot;:0,&quot;vignetteMidpoint&quot;:0.5,&quot;vignetteRoundness&quot;:0,&quot;vignetteFeather&quot;:0.65,&quot;grain&quot;:0,&quot;grainSize&quot;:0.25,&quot;grainRoughness&quot;:0.5},&quot;effects&quot;:{&quot;blur&quot;:0,&quot;pixelate&quot;:0,&quot;chromaBleed&quot;:0,&quot;tapeDamage&quot;:0,&quot;tapeTracking&quot;:0,&quot;tapeNoise&quot;:1,&quot;tapeSpeed&quot;:0.5,&quot;filmArtifacts&quot;:0,&quot;halftone&quot;:0,&quot;halftoneSize&quot;:0,&quot;twoInkPrint&quot;:0,&quot;twoInkPrintSize&quot;:0,&quot;ascii&quot;:0,&quot;asciiSize&quot;:0.06578947368421052,&quot;asciiInvert&quot;:0,&quot;asciiStyle&quot;:0,&quot;asciiColor&quot;:1,&quot;asciiRotation&quot;:0,&quot;dither&quot;:0,&quot;ditherSize&quot;:0,&quot;bloom&quot;:0,&quot;bloomRadius&quot;:8,&quot;monoScreen&quot;:0,&quot;monoScreenSize&quot;:0,&quot;monoScreenAngle&quot;:0,&quot;monoScreenSpread&quot;:0,&quot;monoScreenShape&quot;:0,&quot;monoScreenInvert&quot;:0,&quot;scanlines&quot;:0,&quot;scanlineCount&quot;:0,&quot;scanlineSoftness&quot;:0,&quot;chromaticAberration&quot;:0,&quot;chromaticAngle&quot;:0,&quot;crtCurvature&quot;:0,&quot;digitalGlitch&quot;:0,&quot;digitalGlitchColorSplit&quot;:0,&quot;digitalGlitchLineTear&quot;:0,&quot;digitalGlitchPixelate&quot;:0,&quot;digitalGlitchBlockAmount&quot;:0,&quot;digitalGlitchBlockDisplacement&quot;:0,&quot;digitalGlitchBlockOpacity&quot;:0,&quot;digitalGlitchSpeed&quot;:0,&quot;engraving&quot;:0,&quot;engravingSpacing&quot;:0.4117647058823529,&quot;engravingMinThickness&quot;:0.2,&quot;engravingMaxThickness&quot;:0.4571428571428572,&quot;engravingAngle&quot;:0.25,&quot;engravingContrast&quot;:0.4666666666666667,&quot;engravingSharpness&quot;:0.59,&quot;engravingWave&quot;:0.2,&quot;engravingWaveFrequency&quot;:0.2222222222222222,&quot;crosshatch&quot;:0,&quot;crosshatchSpacing&quot;:0.28,&quot;crosshatchThickness&quot;:0.25,&quot;crosshatchAngle&quot;:0.25,&quot;crosshatchContrast&quot;:0.3333333333333333,&quot;crosshatchEdges&quot;:0.5,&quot;crosshatchLineWeight&quot;:0,&quot;crosshatchWave&quot;:0.33,&quot;crosshatchWaveFrequency&quot;:0.2222222222222222,&quot;kuwahara&quot;:0,&quot;kuwaharaRadius&quot;:0.14285714285714285,&quot;kuwaharaSharpness&quot;:0.3125,&quot;kuwaharaSaturation&quot;:0.5},&quot;lut&quot;:null,&quot;colorSpace&quot;:&quot;rec709&quot;}" data-hf-id="hf-ngwl" id="f06-photo" src="../../assets/photos/s6-porch-sunset.webp" alt="Reception tables under string lights on the porch at sunset"></div>
+        <div data-hf-id="hf-lwyp" id="f06-bloom"></div>
+        <div data-hf-id="hf-nawa" id="f06-scrim"></div>
+        <div data-hf-id="hf-7jel" class="polaroid" id="f06-card"><span data-hf-id="hf-xo63" class="photo"><img data-hf-id="hf-yt06" src="../../assets/photos/s6-table-sunset.webp" alt="A set table on the porch with the sun going down over the mountains"></span><span data-hf-id="hf-cgg8" class="note">best seat in the house</span></div>
+        <div data-hf-id="hf-cqdb" id="f06-copy">
+          <h2 data-hf-id="hf-msfj" id="f06-head"><span data-hf-id="hf-x77v" class="ln" id="f06-l1">And then the sky</span><span data-hf-id="hf-67yy" class="ln" id="f06-l2"><em data-hf-id="hf-4wag">shows off.</em></span></h2>
+          <span data-hf-id="hf-9q0d" id="f06-wink">It does that here.</span>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          // multi-phase-camera: a slow, warm push across the porch.
+          tl.fromTo("#f06-cam", { scale: 1.12, x: 40 }, { scale: 1.02, x: -20, duration: 6.0, ease: "sine.inOut" }, 0);
+          // ambient-glow-bloom: the low sun blooms and breathes, peak opacity kept gentle.
+          tl.fromTo("#f06-bloom", { opacity: 0, scale: 0.6 }, { opacity: 0.85, scale: 1, duration: 1.6, ease: "power2.out" }, 0.2);
+          tl.to("#f06-bloom", { scale: 1.12, opacity: 0.6, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 1.8);
+          tl.fromTo("#f06-l1", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.7, ease: "power4.out" }, 1.05);
+          tl.fromTo("#f06-l2", { opacity: 0, y: 60, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.6)" }, 1.75);
+          tl.fromTo("#f06-wink", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }, 3.05);
+          tl.fromTo("#f06-card", { x: 520, rotation: 16, opacity: 0 }, { x: 0, rotation: 4, opacity: 1, duration: 0.8, ease: "back.out(1.3)" }, 3.6);
+          window.__timelines["f06"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>
