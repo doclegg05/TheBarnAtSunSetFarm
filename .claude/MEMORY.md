@@ -24,10 +24,10 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 - [ ] Update address to 86 Harper Ln on The Knot, WeddingWire, and Facebook (NAP consistency)
 - [ ] Test directions buttons on a phone from the live site
 - [ ] Original un-optimized photos still sit untracked in the MAIN repo working tree at `photos/gallery/weddings/` (Barn.1, Wedding.13-17, Wedding_Design\*.jpg, etc.) — safe to delete (PR #16 merged)
-- [ ] Testimonials section: component exists at components/Testimonials.tsx, unused — wire up when real couple quotes available
+- [ ] Testimonials: "Love Notes" section is wired in (after Pricing) but hidden until lib/testimonials.ts has entries — owner collects real quotes with written permission (TESTIMONIALS.md); never invent or reword quotes
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [ ] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env (calendar shows "temporarily offline" notice without them)
-- [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
+- [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx
 - [ ] Owner: create GA4 property and set VITE_GA_MEASUREMENT_ID in Netlify, then redeploy (steps in GOOGLE_ANALYTICS_SETUP.md)
 
 ## Key Decisions Log

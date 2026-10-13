@@ -5,6 +5,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
+import Testimonials from './components/Testimonials';
 import BookingCalendar from './components/BookingCalendar';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -41,6 +42,10 @@ const HomePage: React.FC = () => (
       </FadeInSection>
       <FadeInSection>
         <Pricing />
+      </FadeInSection>
+
+      <FadeInSection>
+        <Testimonials />
       </FadeInSection>
 
       <FadeInSection>
