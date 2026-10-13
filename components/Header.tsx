@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 type NavLink = {
@@ -19,6 +19,16 @@ const Header: React.FC = () => {
     location.pathname
   );
 
+  useEffect(() => {
+    if (location.pathname !== '/' || !location.hash) return;
+    // Old availability links should still lead visitors to a useful next step.
+    if (location.hash === '#calendar') {
+      navigate('/#contact', { replace: true });
+      return;
+    }
+    document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  }, [location.pathname, location.hash, navigate]);
+
   const navLinks: NavLink[] = [
     { title: 'Home', id: 'home', type: 'scroll' },
     { title: 'About', id: 'about', type: 'scroll' },
@@ -26,7 +36,6 @@ const Header: React.FC = () => {
     { title: 'Virtual Tour', id: 'virtual-tour', type: 'route' },
     { title: 'Gallery', id: 'gallery', type: 'route' },
 
-    { title: 'Availability', id: 'calendar', type: 'scroll' },
     // Badge images use deliberately generic filenames: names like "the-knot-logo.webp"
     // match ad-blocker filter patterns and get stripped from the page for some visitors.
     {
@@ -64,14 +73,7 @@ const Header: React.FC = () => {
     } else {
       // Scroll type
       if (location.pathname !== '/') {
-        navigate('/');
-        // Wait for navigation to complete before scrolling
-        setTimeout(() => {
-          const element = document.getElementById(link.id);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
+        navigate(`/#${link.id}`);
       } else {
         const element = document.getElementById(link.id);
         if (element) {
@@ -90,8 +92,8 @@ const Header: React.FC = () => {
       <span
         className={
           isMobile
-            ? 'rounded bg-white/95 px-3 py-2'
-            : 'rounded bg-white/95 px-2 py-1 shadow-sm'
+            ? 'rounded-sm bg-white/95 px-3 py-2'
+            : 'rounded-sm bg-white/95 px-2 py-1 shadow-xs'
         }
       >
         <img
@@ -106,14 +108,16 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`absolute top-0 left-0 z-20 w-full text-white transition-all duration-300 ${isInteriorPage ? 'bg-[#4a4a4a] shadow-md' : 'bg-gradient-to-b from-black/45 via-black/15 to-transparent'}`}
+      className={`absolute top-0 left-0 z-20 w-full text-white transition-all duration-300 ${isInteriorPage ? 'bg-brand-charcoal shadow-md' : 'bg-linear-to-b from-black/45 via-black/15 to-transparent'}`}
     >
-      <div className="mx-auto flex max-w-[92rem] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:gap-8">
+      <div className="mx-auto flex max-w-368 items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:gap-8">
         <button
           type="button"
-          className="min-w-0 shrink cursor-pointer text-left text-2xl font-bold leading-tight tracking-wide transition-colors duration-300 hover:text-[#EAD1DC] sm:text-3xl xl:shrink-0 xl:text-4xl"
+          className="min-w-0 shrink cursor-pointer text-left text-2xl font-bold leading-tight tracking-wide transition-colors duration-300 hover:text-brand-pink sm:text-3xl xl:shrink-0 xl:text-4xl"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
-          onClick={() => navigate('/')}
+          onClick={() =>
+            handleNavigation({ title: 'Home', id: 'home', type: 'scroll' })
+          }
           aria-label="Go to home page"
         >
           The Barn at Sunset Farm
@@ -127,7 +131,7 @@ const Header: React.FC = () => {
               type="button"
               key={link.id}
               onClick={() => handleNavigation(link)}
-              className="flex h-10 shrink-0 items-center whitespace-nowrap border-b-2 border-transparent text-[15px] font-medium transition-colors duration-300 hover:border-[#EAD1DC] hover:text-[#EAD1DC]"
+              className="flex h-10 shrink-0 items-center whitespace-nowrap border-b-2 border-transparent text-[15px] font-medium transition-colors duration-300 hover:border-brand-pink hover:text-brand-pink"
               aria-label={
                 link.type === 'external' ? `Open ${link.title}` : undefined
               }
@@ -140,7 +144,7 @@ const Header: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="rounded-full border border-white/60 bg-black/10 p-2 text-white shadow-sm transition-colors duration-300 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/70"
+            className="rounded-full border border-white/60 bg-black/10 p-2 text-white shadow-xs transition-colors duration-300 hover:bg-white/10 focus:outline-hidden focus:ring-2 focus:ring-white/70"
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMenuOpen}
           >
@@ -166,7 +170,7 @@ const Header: React.FC = () => {
         </div>
       </div>
       {isMenuOpen && (
-        <div className="absolute left-0 top-full z-30 w-full bg-[#4a4a4a]/95 shadow-xl xl:hidden">
+        <div className="absolute left-0 top-full z-30 w-full bg-brand-charcoal/95 shadow-xl xl:hidden">
           <nav
             className="mx-auto grid max-w-2xl grid-cols-1 gap-2 px-4 py-5 sm:grid-cols-2"
             aria-label="Mobile navigation"
@@ -176,7 +180,7 @@ const Header: React.FC = () => {
                 type="button"
                 key={link.id}
                 onClick={() => handleNavigation(link)}
-                className="flex min-h-12 w-full items-center justify-center rounded border border-white/10 px-3 text-base font-medium text-white transition-colors duration-300 hover:bg-white/10 hover:text-[#EAD1DC]"
+                className="flex min-h-12 w-full items-center justify-center rounded-sm border border-white/10 px-3 text-base font-medium text-white transition-colors duration-300 hover:bg-white/10 hover:text-brand-pink"
                 aria-label={
                   link.type === 'external' ? `Open ${link.title}` : undefined
                 }
