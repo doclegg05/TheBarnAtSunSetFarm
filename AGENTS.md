@@ -1,6 +1,6 @@
 # The Barn at Sunset Farm — Agent Briefing
 
-Marketing and booking site for an event venue. React + Vite + TypeScript,
+Marketing site for an event venue. React + Vite + TypeScript,
 originally generated from Google AI Studio and since developed by hand.
 
 ## THIS REPO IS PUBLIC
@@ -12,8 +12,9 @@ git history.
 **Known issue:** a real `VITE_GOOGLE_API_KEY` was committed in `b25e9dd` and
 removed from the working tree in `3e59ee4`. It is **still present in git
 history** and therefore still public. Deleting a secret from the tree does not
-remove it from history. Treat that key as compromised until Britt confirms it
-has been rotated.
+remove it from history. `GOOGLE_CALENDAR_SETUP.md` records that the venue's
+Google Calendar API credential was revoked on 2026-10-05 and that the venue's
+Google Cloud project had no active API keys afterwards.
 
 Note also that any `VITE_`-prefixed variable is inlined into the client bundle
 by Vite, so it reaches every visitor's browser by design. A Google key used
@@ -21,8 +22,8 @@ this way must be restricted (HTTP referrer / API restrictions in Google Cloud),
 never treated as a secret.
 
 Before any commit here: no keys, no personal data, no client contact details,
-no unreleased pricing. `.env` and `.env.local` are gitignored — keep it that
-way, and add new secrets to `.env.example` as empty placeholders only.
+no prices. `.env` and `.env.local` are gitignored. Keep it that way, and add
+new secrets to `.env.example` as empty placeholders only.
 
 ## Run it
 
@@ -33,19 +34,18 @@ npm run build      # production build
 npm run preview    # serve the build
 ```
 
-Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` there. Never
-commit that file.
+The site needs no environment variables (see `.env.example`). If one is ever
+added, set it in `.env.local` and never commit that file.
 
 ## Before you call it done
 
 ```bash
-npm run typecheck
-npm run lint
-npm run test
+scripts/quality.sh
 ```
 
-All three exist and are cheap — run them rather than asserting the change works.
-`npm run format` is available for formatting.
+It runs the typecheck, the tests, lint and the production build. CI runs the
+same script after a gitleaks scan. Run it rather than asserting the change
+works. `npm run format` is available for formatting.
 
 ## Layout
 
@@ -53,13 +53,30 @@ All three exist and are cheap — run them rather than asserting the change work
 |---|---|
 | `App.tsx`, `index.tsx` | entry |
 | `components/` | UI |
-| `contexts/`, `hooks/`, `lib/` | state, shared logic |
+| `hooks/`, `lib/` | shared logic (`lib/venueLocation.ts` holds the venue coordinates) |
 | `event_manager_info/` | venue/business reference material |
-| `GOOGLE_CALENDAR_SETUP.md` | calendar integration setup |
+| `GOOGLE_CALENDAR_SETUP.md` | record of the retired availability calendar |
 
 ## Rules
 
 - Public repo — assume anything you write here will be read by strangers.
-- Booking and calendar behaviour affects real customers. Do not change
-  availability logic, pricing, or contact routing without Britt asking.
+- The contact form reaches real customers. Do not change contact routing
+  (Formspree) without Britt asking.
+- Never show prices on the site. Pricing is quoted directly, and
+  `tests/noPublicPricing.test.tsx` guards the home page.
 - Workspace rules: `/Users/brittlegg/MacDev/AGENTS.md`.
+
+## Definition of done
+
+- The quality gate passes (the same steps `scripts/quality.sh` runs).
+  - Check: `npm run typecheck && npm test -- --run && npm run lint && npm run build`
+    Expected: exit code 0.
+- No secrets in staged changes. This repo is public.
+  - Check: `git diff --cached | grep -nE 'AIza[0-9A-Za-z_-]{35}|sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|BEGIN [A-Z ]*PRIVATE KEY'`
+    Expected: no output.
+- No `.env` file is staged.
+  - Check: `git diff --cached --name-only | grep -E '(^|/)\.env' | grep -v '\.example$'`
+    Expected: no output.
+- No prices appear on the site.
+  - Check: `git grep -nE '\$[0-9]' -- components/ App.tsx index.html`
+    Expected: no output.
