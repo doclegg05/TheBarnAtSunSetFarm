@@ -16,12 +16,12 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 - **Date**: 2026-10-13 (promo video session, worktree `claude/venue-promotional-video-86ae5b`)
 - **What we worked on**: Built a 47s promo video "Meet You at Sunset" with HyperFrames: one wedding day told by the clock (3:00 PM to 8:30 PM), brand fonts/palette/logo from the brand canvas (claude.ai/artifact/FNV5VF5DMynAVCvmnjJEMe), ElevenLabs narration (stock voice Jessica), music and SFX. Two cuts: `videos/meet-you-at-sunset/` (16:9, website) and `videos/meet-you-at-sunset-vertical/` (9:16, Reels/TikTok; its `compositions/` and `assets/` are symlinks to the 16:9 project). `*-social.mp4` copies are normalized to -14 LUFS.
 - **What we decided**: Britt picked concept "Meet You at Sunset" from five pitches. Surrounding-area photos (lake, gorge) left out (look like stock, rights unknown); AI "journey" clip left out (barn differs from the real one).
-- **Where we left off**: Renders done and verified (narration transcribes word for word from the final mix). Nothing committed; renders are gitignored. Price removed from the video close card and from the site's Pricing section on Britt's instruction (no public pricing); both cuts re-rendered; 48/48 tests pass. Next: Britt reviews; then optionally place the 16:9 on the site (public/videos + poster) and commit the video projects.
+- **Where we left off**: PR #27 open (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/27): price removed, Pricing renamed to Packages (#packages anchor), guard test tests/noPublicPricing.test.tsx, and the two video projects. Renders are gitignored and were shared in-session. Next: CI result, Britt reviews the renders, then merge. Expect a Pricing.tsx conflict with codex/remove-availability-calendar.
 
 ## Open Items
 
 - [x] Removed "Starting at $3,800" from components/Pricing.tsx (2026-10-13); tests/noPublicPricing.test.tsx guards the home page. Rule lives in auto-memory `no-public-pricing`. Expect a merge conflict with codex/remove-availability-calendar, which also edits Pricing.tsx
-- [ ] Review promo video renders (videos/meet-you-at-sunset/renders/, videos/meet-you-at-sunset-vertical/renders/); decide on site placement and whether to commit the video projects
+- [ ] Review promo video renders and merge PR #27; decide whether to put the 16:9 cut on the site (public/videos + poster)
 - [ ] Owner: report unclaimed duplicate Google listing "86 Harper Ln" (maps.google.com/?cid=4489418448821586540) as duplicate of the main listing (cid 15081211618553277720, now also at 86 Harper Ln); afterwards verify removal and that Alan Nethery's review transferred
 - [ ] Update address to 86 Harper Ln on The Knot, WeddingWire, and Facebook (NAP consistency)
 - [ ] Test directions buttons on a phone from the live site
