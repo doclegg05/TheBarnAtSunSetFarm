@@ -22,7 +22,7 @@ const Header: React.FC = () => {
   const navLinks: NavLink[] = [
     { title: 'Home', id: 'home', type: 'scroll' },
     { title: 'About', id: 'about', type: 'scroll' },
-    { title: 'Pricing', id: 'pricing', type: 'scroll' },
+    { title: 'Packages', id: 'packages', type: 'scroll' },
     { title: 'Virtual Tour', id: 'virtual-tour', type: 'route' },
     { title: 'Gallery', id: 'gallery', type: 'route' },
 

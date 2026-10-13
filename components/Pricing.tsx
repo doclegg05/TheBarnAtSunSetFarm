@@ -34,11 +34,11 @@ const Pricing: React.FC = () => {
   ];
 
   return (
-    <section id="pricing" className="py-20 md:py-32 bg-[#FDF8F5]">
+    <section id="packages" className="py-20 md:py-32 bg-[#FDF8F5]">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">
-            Packages & Pricing
+            Packages
           </h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
         </div>
