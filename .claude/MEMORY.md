@@ -16,12 +16,12 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 - **Date**: 2026-10-13 (promo video session, worktree `claude/venue-promotional-video-86ae5b`)
 - **What we worked on**: Built a 47s promo video "Meet You at Sunset" with HyperFrames: one wedding day told by the clock (3:00 PM to 8:30 PM), brand fonts/palette/logo from the brand canvas (claude.ai/artifact/FNV5VF5DMynAVCvmnjJEMe), ElevenLabs narration (stock voice Jessica), music and SFX. Two cuts: `videos/meet-you-at-sunset/` (16:9, website) and `videos/meet-you-at-sunset-vertical/` (9:16, Reels/TikTok; its `compositions/` and `assets/` are symlinks to the 16:9 project). `*-social.mp4` copies are normalized to -14 LUFS.
 - **What we decided**: Britt picked concept "Meet You at Sunset" from five pitches. Surrounding-area photos (lake, gorge) left out (look like stock, rights unknown); AI "journey" clip left out (barn differs from the real one).
-- **Where we left off**: PR #27 open (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/27): price removed, Pricing renamed to Packages (#packages anchor), guard test tests/noPublicPricing.test.tsx, and the two video projects. Renders are gitignored and were shared in-session. Next: CI result, Britt reviews the renders, then merge. Expect a Pricing.tsx conflict with codex/remove-availability-calendar.
+- **Where we left off**: PR #25 (calendar removal, Tailwind 4) merged into main by Britt on 2026-10-13; it had already been live since 2026-10-05 via a published deploy preview (gotcha in auto-memory `netlify-production-source`). PR #27 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/27) merged main back in, resolved the Pricing.tsx conflict, and added the #pricing to #packages redirect. Next: CI on #27, Britt reviews the video renders, then merge #27.
 
 ## Open Items
 
-- [x] Removed "Starting at $3,800" from components/Pricing.tsx (2026-10-13); tests/noPublicPricing.test.tsx guards the home page. Rule lives in auto-memory `no-public-pricing`. Expect a merge conflict with codex/remove-availability-calendar, which also edits Pricing.tsx
-- [ ] Review promo video renders and merge PR #27; decide whether to put the 16:9 cut on the site (public/videos + poster)
+- [x] Removed "Starting at $3,800" from components/Pricing.tsx (2026-10-13); tests/noPublicPricing.test.tsx guards the home page. Rule lives in auto-memory `no-public-pricing`. The Pricing.tsx conflict with #25 is resolved in #27
+- [ ] Review promo video renders and merge PR #27 (check Netlify currentDeploy first; see auto-memory `netlify-production-source`); decide whether to put the 16:9 cut on the site (public/videos + poster)
 - [ ] Owner: report unclaimed duplicate Google listing "86 Harper Ln" (maps.google.com/?cid=4489418448821586540) as duplicate of the main listing (cid 15081211618553277720, now also at 86 Harper Ln); afterwards verify removal and that Alan Nethery's review transferred
 - [ ] Update address to 86 Harper Ln on The Knot, WeddingWire, and Facebook (NAP consistency)
 - [ ] Test directions buttons on a phone from the live site
