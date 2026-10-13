@@ -28,6 +28,7 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [ ] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env (calendar shows "temporarily offline" notice without them)
 - [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx
+- [ ] Owner: answer the 10 hidden FAQ questions in lib/faq.ts (answer: null = hidden): deposit/payments, cancellation, rain plan, alcohol, caterer kitchen, setup/cleanup times, end time/music, decoration rules, lodging check-in/out, pets. Never guess policies
 - [ ] Owner: create GA4 property and set VITE_GA_MEASUREMENT_ID in Netlify, then redeploy (steps in GOOGLE_ANALYTICS_SETUP.md)
 
 ## Key Decisions Log
