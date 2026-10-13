@@ -11,6 +11,12 @@ type NavLink = {
   logoClass?: string;
 };
 
+// Homepage anchors that no longer exist, mapped to where those visitors belong.
+const RETIRED_ANCHORS: Readonly<Record<string, string>> = {
+  '#calendar': '#contact', // availability calendar removed; inquire instead
+  '#pricing': '#packages', // section renamed when pricing stopped being advertised
+};
+
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -21,9 +27,10 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     if (location.pathname !== '/' || !location.hash) return;
-    // Old availability links should still lead visitors to a useful next step.
-    if (location.hash === '#calendar') {
-      navigate('/#contact', { replace: true });
+    // Old links to removed or renamed sections still lead somewhere useful.
+    const renamedTo = RETIRED_ANCHORS[location.hash];
+    if (renamedTo) {
+      navigate(`/${renamedTo}`, { replace: true });
       return;
     }
     document.getElementById(location.hash.slice(1))?.scrollIntoView();
