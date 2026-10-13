@@ -41,11 +41,6 @@ const Pricing: React.FC = () => {
             Packages & Pricing
           </h2>
           <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
-          <div className="mt-8">
-            <h3 className="text-3xl font-bold text-[#D4AF37]">
-              Starting at $3,800
-            </h3>
-          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
