@@ -13,13 +13,15 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 
 ## Last Session
 
-- **Date**: 2026-07-20 (maps session)
-- **What we worked on**: Fixed inaccurate Google Maps directions. Root causes: site published "19 Boulder Trail" (geocodes into Rivers Edge development — venue's own Knot materials warn against it; real address is 86 Harper Ln) and JSON-LD geo was 38.1695,-80.8123 (~7 km off). Added `lib/venueLocation.ts` (single source of truth: barn pin 38.1900676,-80.8911541 from the venue's 86 Harper Ln Google listing), coordinate-pinned embed + Google/Apple directions buttons + "Finding Us" gravel-road guidance on Contact, corrected JSON-LD (geo/streetAddress/hasMap), 7 new tests (44 total pass).
-- **What we decided**: All map links/embeds must be coordinate-based, never street-address queries; venue address displayed as 86 Harper Ln.
-- **Where we left off**: PR #18 merged + deployed. Owner fixed their Google Business listing (address → 86 Harper Ln, pin dragged to 38.1904268,-80.8917911 — verified live). Website coords synced to that official pin. Next: owner reports the unclaimed duplicate listing (cid 4489418448821586540) via Suggest an edit → Close or remove → Duplicate; then re-verify removal + review transfer in a few days.
+- **Date**: 2026-10-13 (promo video session, worktree `claude/venue-promotional-video-86ae5b`)
+- **What we worked on**: Built a 47s promo video "Meet You at Sunset" with HyperFrames: one wedding day told by the clock (3:00 PM to 8:30 PM), brand fonts/palette/logo from the brand canvas (claude.ai/artifact/FNV5VF5DMynAVCvmnjJEMe), ElevenLabs narration (stock voice Jessica), music and SFX. Two cuts: `videos/meet-you-at-sunset/` (16:9, website) and `videos/meet-you-at-sunset-vertical/` (9:16, Reels/TikTok; its `compositions/` and `assets/` are symlinks to the 16:9 project). `*-social.mp4` copies are normalized to -14 LUFS.
+- **What we decided**: Britt picked concept "Meet You at Sunset" from five pitches. Surrounding-area photos (lake, gorge) left out (look like stock, rights unknown); AI "journey" clip left out (barn differs from the real one).
+- **Where we left off**: PR #25 (calendar removal, Tailwind 4) merged into main by Britt on 2026-10-13; it had already been live since 2026-10-05 via a published deploy preview (gotcha in auto-memory `netlify-production-source`). PR #27 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/27) merged main back in, resolved the Pricing.tsx conflict, and added the #pricing to #packages redirect. Next: CI on #27, Britt reviews the video renders, then merge #27.
 
 ## Open Items
 
+- [x] Removed "Starting at $3,800" from components/Pricing.tsx (2026-10-13); tests/noPublicPricing.test.tsx guards the home page. Rule lives in auto-memory `no-public-pricing`. The Pricing.tsx conflict with #25 is resolved in #27
+- [ ] Review promo video renders and merge PR #27 (check Netlify currentDeploy first; see auto-memory `netlify-production-source`); decide whether to put the 16:9 cut on the site (public/videos + poster)
 - [ ] Owner: report unclaimed duplicate Google listing "86 Harper Ln" (maps.google.com/?cid=4489418448821586540) as duplicate of the main listing (cid 15081211618553277720, now also at 86 Harper Ln); afterwards verify removal and that Alan Nethery's review transferred
 - [ ] Update address to 86 Harper Ln on The Knot, WeddingWire, and Facebook (NAP consistency)
 - [ ] Test directions buttons on a phone from the live site
@@ -37,9 +39,11 @@ Site is on `main` (PRs #14–#18 merged; #18 = GPS directions fix, deployed and 
 | 2026-06-10 | Keep scroll fade-in but guard it | Visible-on-mount check + reduced-motion + threshold 0 prevents invisible content           |
 | 2026-06-10 | Keep original header per user    | User prefers the original nav with The Knot/WeddingWire logo links; sticky header reverted |
 | 2026-07-20 | Maps by GPS coords, never address | "19 Boulder Trail" misgeocodes into Rivers Edge; real address 86 Harper Ln unmapped — lib/venueLocation.ts is the single source of truth |
+| 2026-10-13 | Promo video built in HyperFrames, scenes shared by 16:9 and 9:16 roots via symlinked sibling project | A HyperFrames project allows one root composition; one scene set keeps both cuts in sync |
 
 ## Architecture Notes
 
+- Promo video: rebuild roots and re-carve music with `videos/meet-you-at-sunset/scripts/build.sh`; regenerate audio with `scripts/gen_audio.py`. ElevenLabs key location and the cloned-voice rule live in auto-memory (`elevenlabs-account`).
 - Single-page app: HomePage sections (Hero/About/Pricing/Calendar/FAQ/Contact) + /gallery + /virtual-tour routes
 - BookingContext carries calendar date selection → contact form prefill
 - Brand palette: cream #FDF8F5, blush #EAD1DC, sage #A2B29F, charcoal #4a4a4a, gold #D4AF37; Cormorant Garamond headings / Raleway body

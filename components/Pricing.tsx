@@ -34,18 +34,13 @@ const Pricing: React.FC = () => {
   ];
 
   return (
-    <section id="pricing" className="py-20 md:py-32 bg-brand-cream">
+    <section id="packages" className="py-20 md:py-32 bg-brand-cream">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-brand-charcoal">
-            Packages & Pricing
+            Packages
           </h2>
           <div className="mt-4 w-24 h-1 bg-brand-pink mx-auto"></div>
-          <div className="mt-8">
-            <h3 className="text-3xl font-bold text-brand-gold">
-              Starting at $3,800
-            </h3>
-          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">

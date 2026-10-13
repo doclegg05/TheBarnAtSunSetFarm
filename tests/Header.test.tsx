@@ -15,6 +15,7 @@ const renderPage = (path: string) =>
             <>
               <Header />
               <section id="home" />
+              <section id="packages" />
               <section id="contact">Inquiry form</section>
             </>
           }
@@ -53,6 +54,13 @@ describe('Header inquiry navigation', () => {
     renderPage('/#calendar');
     expect(scroll.mock.instances.at(-1)).toBe(
       document.getElementById('contact')
+    );
+  });
+
+  it('sends an old pricing anchor to the packages section', () => {
+    renderPage('/#pricing');
+    expect(scroll.mock.instances.at(-1)).toBe(
+      document.getElementById('packages')
     );
   });
 

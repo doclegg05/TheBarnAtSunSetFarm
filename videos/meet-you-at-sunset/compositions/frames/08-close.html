@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <link rel="stylesheet" href="../../assets/brand.css" />
+      <style>
+        #f08 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          container-type: size;
+        }
+        #f08-all { position: absolute; inset: 0; }
+        #f08-sky {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: 50% 80%;
+        }
+        #f08-wash {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(52% 62% at 50% 46%, rgba(253, 248, 245, 0.9) 0%, rgba(253, 248, 245, 0.72) 55%, rgba(253, 248, 245, 0) 100%);
+        }
+        #f08-col {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 90px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          color: var(--ink);
+        }
+        #f08-logo { display: block; width: 330px; height: 215px; overflow: visible; }
+        #f08-pre {
+          display: block;
+          margin-top: 16px;
+          font-family: var(--serif);
+          font-style: italic;
+          font-size: 56px;
+          line-height: 1;
+        }
+        #f08-name {
+          display: block;
+          margin: 2px 0 0;
+          font-family: var(--serif);
+          font-weight: 700;
+          font-size: 124px;
+          line-height: 1;
+          letter-spacing: 0.005em;
+        }
+        #f08-rule { display: block; width: 76px; height: 4px; margin-top: 18px; background: var(--cedar); }
+        #f08-place { display: block; margin-top: 16px; font-size: 22px; color: var(--charcoal); }
+        #f08-tag {
+          display: block;
+          margin-top: 26px;
+          font-family: var(--serif);
+          font-style: italic;
+          font-size: 54px;
+          line-height: 1.1;
+          color: var(--charcoal);
+        }
+        #f08-facts {
+          display: block;
+          margin-top: 18px;
+          font-family: var(--sans);
+          font-weight: 600;
+          font-size: 26px;
+          letter-spacing: 0.04em;
+          color: var(--charcoal);
+        }
+        #f08-cta {
+          display: block;
+          margin-top: 30px;
+          padding: 20px 44px;
+          border-radius: 12px;
+          background: var(--sage-deep);
+          color: #ffffff;
+          font-family: var(--sans);
+          font-weight: 600;
+          font-size: 30px;
+          box-shadow: 0 12px 28px rgba(43, 43, 45, 0.22);
+        }
+        @container (max-aspect-ratio: 1/1) {
+          #f08-sky { object-position: 50% 100%; }
+          #f08-col { top: 330px; }
+          #f08-logo { width: 420px; height: 274px; }
+          #f08-name { font-size: 132px; }
+          #f08-facts { max-width: 880px; font-size: 28px; line-height: 1.5; }
+          #f08-wash { background: radial-gradient(80% 50% at 50% 42%, rgba(253, 248, 245, 0.92) 0%, rgba(253, 248, 245, 0.72) 60%, rgba(253, 248, 245, 0) 100%); }
+        }
+      </style>
+
+      <div id="f08" data-composition-id="f08">
+        <div id="f08-all">
+          <img id="f08-sky" src="../../assets/art/golden-hour-sky.webp" alt="" />
+          <div id="f08-wash"></div>
+          <div id="f08-col">
+            <svg id="f08-logo" viewBox="8 48 184 120" role="img" aria-label="The Barn at Sunset Farm logo mark">
+              <defs>
+                <mask id="f08-sunmask" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200">
+                  <rect x="0" y="0" width="200" height="157" fill="#fff"></rect>
+                  <rect x="0" y="104" width="200" height="4.5" fill="#000"></rect>
+                  <rect x="0" y="117" width="200" height="4.5" fill="#000"></rect>
+                  <rect x="0" y="130" width="200" height="4.5" fill="#000"></rect>
+                  <path d="M64 114 L100 58 L136 114 L130 114 L130 160 L70 160 L70 114 Z M67 120 L16 140 L20 140 L20 160 L67 160 Z M133 120 L184 140 L180 140 L180 160 L133 160 Z" fill="#000" stroke="#000" stroke-width="7" stroke-linejoin="round"></path>
+                </mask>
+              </defs>
+              <circle id="f08-sun" cx="100" cy="154" r="78" fill="#E6A35A" mask="url(#f08-sunmask)"></circle>
+              <g id="f08-barn">
+                <path fill-rule="evenodd" fill="#4A4A4A" d="M64 114 L100 58 L136 114 L130 114 L130 160 L70 160 L70 114 Z M86 127 H114 V160 H86 Z M92 88 H108 V107 H92 Z"></path>
+                <path fill="#4A4A4A" d="M67 120 L16 140 L20 140 L20 160 L67 160 Z M133 120 L184 140 L180 140 L180 160 L133 160 Z"></path>
+                <rect x="86" y="127" width="28" height="33" fill="#B8692F"></rect>
+                <rect x="92" y="88" width="16" height="19" fill="#B8692F"></rect>
+                <path d="M100 127 V160 M86 127 L100 160 M100 127 L86 160 M114 127 L100 160 M100 127 L114 160 M100 88 V107" stroke="#4A4A4A" stroke-width="2.2" fill="none"></path>
+              </g>
+              <rect id="f08-ground" x="10" y="160" width="180" height="4.5" rx="2.25" fill="#4A4A4A"></rect>
+            </svg>
+            <span id="f08-pre">The Barn at</span>
+            <span id="f08-name">Sunset Farm</span>
+            <span id="f08-rule"></span>
+            <span id="f08-place" class="kicker">Mount Nebo · West Virginia</span>
+            <span id="f08-tag">Your forever starts here.</span>
+            <span id="f08-facts">Up to 200 guests · Overnight lodging on site</span>
+            <span id="f08-cta">Check available dates at thebarnatsunsetfarm.com</span>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          // Crossfade in over the dusk scene.
+          tl.fromTo("#f08-all", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power1.out" }, 0);
+          tl.fromTo("#f08-sky", { scale: 1.08 }, { scale: 1.0, duration: 7.5, ease: "sine.out" }, 0);
+          // The logo builds: ground line, barn rises, then the sun sets behind it.
+          tl.fromTo("#f08-ground", { scaleX: 0, transformOrigin: "50% 50%" }, { scaleX: 1, duration: 0.6, ease: "expo.out" }, 0.5);
+          tl.fromTo("#f08-barn", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "back.out(1.6)" }, 0.7);
+          tl.fromTo("#f08-sun", { attr: { cy: 92, fill: "#fddb9a" } }, { attr: { cy: 154, fill: "#e6a35a" }, duration: 2.0, ease: "power2.inOut" }, 0.8);
+          // waterfall-entry: the name, phrase by phrase, under the spoken name.
+          tl.fromTo("#f08-pre", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 2.4);
+          tl.fromTo("#f08-name", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.7, ease: "power4.out" }, 2.7);
+          tl.fromTo("#f08-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "expo.out" }, 3.2);
+          tl.fromTo("#f08-place", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.out" }, 3.3);
+          tl.fromTo("#f08-tag", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 3.8);
+          tl.fromTo("#f08-facts", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 4.4);
+          // spring-pop-entrance: the call to action.
+          tl.fromTo("#f08-cta", { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(2)" }, 4.9);
+          tl.to("#f08-cta", { scale: 1.04, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 6.0);
+          window.__timelines["f08"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>
