@@ -9,18 +9,19 @@
 
 ## Current Status
 
-Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index-CD87pMC_.css` compared against a local build on 2026-10-13). On 2026-10-13 #25 (calendar removed, Tailwind 4, sharp 0.35.5) and #27 (no public price, Pricing section renamed Packages, promo video source) merged. 0 open Dependabot alerts; `npm audit` finds 0. Canonical barn pin: **38.1904268, -80.8917911** (owner-placed official Google listing pin, 2026-07-20); lib/venueLocation.ts is the single source of truth. Photo workflow is drop-in folders (`photos/gallery/*`, `photos/carousel/`) + `node optimize_images.js`; see photos/README.md.
+Venue scheduler part 1 of 3 (engine and calendar feeds, no visitor-facing change) is in PR #29 on branch `feat/scheduler-engine`, worktree `TheBarnAtSunSetFarm-scheduler`. Parts 2 (database, sync, email, booking functions) and 3 (screens, rollout) follow after #29 merges.
+
+Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index-CD87pMC_.css` compared against a local build on 2026-10-13; #29's build keeps the same bundle name). On 2026-10-13 #25 (calendar removed, Tailwind 4, sharp 0.35.5) and #27 (no public price, Pricing section renamed Packages, promo video source) merged. 0 open Dependabot alerts; `npm audit` finds 0. Canonical barn pin: **38.1904268, -80.8917911** (owner-placed official Google listing pin, 2026-07-20); lib/venueLocation.ts is the single source of truth. Photo workflow is drop-in folders (`photos/gallery/*`, `photos/carousel/`) + `node optimize_images.js`; see photos/README.md.
 
 ## Last Session
 
-- **Date**: 2026-10-13 (two sessions: promo video in worktree `claude/venue-promotional-video-86ae5b`, Dependabot triage in worktree `modest-nobel-416987`)
+- **Date**: 2026-10-14 (venue scheduler part 1, worktree `TheBarnAtSunSetFarm-scheduler`, branch `feat/scheduler-engine`)
 - **What we worked on**:
-  - Dependabot: triaged the 25 open alerts (13 high, 11 moderate, 1 low). The 5 runtime alerts were all react-router and needed RSC or SSR mode or link targets built from user input; this SPA has none of those. The other 20 were dev-only (vitest, jsdom's undici, eslint's js-yaml and brace-expansion, the PostCSS build chain, and sharp in `optimize_images.js`). `npm audit fix` without `--force` cleared 22 on a branch from main; the 3 sharp alerts needed 0.35.x.
-  - Promo video: built a 47s promo video "Meet You at Sunset" with HyperFrames: one wedding day told by the clock (3:00 PM to 8:30 PM), brand fonts/palette/logo from the brand canvas (claude.ai/artifact/FNV5VF5DMynAVCvmnjJEMe), ElevenLabs narration (stock voice Jessica), music and SFX. Two cuts: `videos/meet-you-at-sunset/` (16:9, website) and `videos/meet-you-at-sunset-vertical/` (9:16, Reels/TikTok; its `compositions/` and `assets/` are symlinks to the 16:9 project). `*-social.mp4` copies are normalized to -14 LUFS.
-- **What we decided**:
-  - Dependabot: no separate dependency PR. #25's lockfile already cleared all 25 alerts, so a lockfile PR from main would only have conflicted with it. Once #25 merged, the 22-alert commit rebased to empty and was dropped.
-  - Promo video: Britt picked concept "Meet You at Sunset" from five pitches. Surrounding-area photos (lake, gorge) left out (look like stock, rights unknown); AI "journey" clip left out (barn differs from the real one).
-- **Where we left off**: #25 (calendar removal, Tailwind 4) and then #27 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/27) merged into main on 2026-10-13. #25 had been live since 2026-10-05 through a published deploy preview (gotcha in auto-memory `netlify-production-source`); production now matches main at 68e4d3b. `CI=true scripts/quality.sh` on 68e4d3b exits 0 with 25 tests passing. Next: review the promo renders and decide on the 16:9 cut for the site.
+  - Built `lib/scheduling/` (open showing and call times with a reason code for every hidden time; event conflicts; showing clashes; blocked lodging nights per space) and `lib/ical/` (reads Airbnb and VRBO feeds into stays; writes the Barn and Cabin blocking feeds). Pure functions: no network, no database.
+  - Every test was written first and watched fail. `scripts/quality.sh` exits 0 with 102 tests; CI now also requires 80 percent coverage on each of `lib/scheduling` and `lib/ical`.
+  - A whole-branch review found one bug, fixed in 756b171: a feed entry with `DURATION` and no `DTEND` was read as one night.
+- **What we decided**: see the 2026-10-14 rows in the Key Decisions Log. The rules C1 to C11 and decisions D1 to D13 live in the private design spec named in Architecture Notes.
+- **Where we left off**: #29 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/29) is open with Auto-fix on; Britt approves the merge. Next: write the part 2 plan after #29 merges. The spec's "Part 2 inputs from the part 1 review" section lists what it must cover.
 
 ## Open Items
 
@@ -34,6 +35,8 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [x] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env. Obsolete: #25 removed the calendar, and per #25 the Calendar API credential was revoked in Google Cloud on 2026-10-05
 - [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
+- [ ] Merge #29 (scheduler part 1), then write the part 2 plan
+- [ ] Phase 1 of the scheduler: after the owner's test import of our feeds, fetch the Airbnb and VRBO exports and check whether our blocked dates come back as entries (risk R9 in the spec), before part 2's alert emails go live
 
 ## Key Decisions Log
 
@@ -45,6 +48,9 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 | 2026-07-20 | Maps by GPS coords, never address | "19 Boulder Trail" misgeocodes into Rivers Edge; real address 86 Harper Ln unmapped — lib/venueLocation.ts is the single source of truth |
 | 2026-10-13 | Promo video built in HyperFrames, scenes shared by 16:9 and 9:16 roots via symlinked sibling project | A HyperFrames project allows one root composition; one scene set keeps both cuts in sync |
 | 2026-10-13 | Tailwind v4 via `@tailwindcss/postcss` (#25), replacing the 2026-06-10 v3 decision | Tailwind 3's dependency chain (braces, postcss-selector-parser) carried npm advisories with no v3 fix; #25 migrated the renamed and opacity utilities |
+| 2026-10-14 | Every event day's lodging night is blocked, the last day included; the Barn needs one guest-free setup day before and one cleanup day after each event (C9 to C11) | Britt's rule: a guest who checks out Sunday allows a Tuesday wedding at the earliest, and after a Saturday wedding the next Barn guest arrives Monday |
+| 2026-10-14 | A second event on the same day is refused; an overlapping setup or cleanup day only warns (D13, built in part 2) | Two weddings cannot share a day, but a tight turnaround is the manager's call |
+| 2026-10-14 | Scheduler tests run against a throwaway database in CI; no staging Supabase project (D11) | Test bookings never touch real data; deploy previews keep booking switched off |
 
 ## Architecture Notes
 
