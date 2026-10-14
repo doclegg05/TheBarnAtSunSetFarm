@@ -1,9 +1,6 @@
 import { addDays, type IsoDate } from './time';
 import type { SpaceSlug, VenueEvent } from './types';
 
-/** C3 and C5: every event blocks lodging in both spaces. */
-export const SPACES_BLOCKED_BY_EVENTS: readonly SpaceSlug[] = ['barn', 'cabin'];
-
 /** C10: guest-free days the Barn needs before an event's first day, for setup. */
 export const BARN_SETUP_DAYS = 1;
 
