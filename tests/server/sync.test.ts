@@ -325,6 +325,47 @@ describe('runSync: when email fails or is off', () => {
   });
 });
 
+describe('runSync: secrets stay out of messages', () => {
+  it('never puts a feed link or feed text into an email, a log line or a stored error', async () => {
+    const CANARY = 'CANARY-7f3a';
+    const link = `https://www.airbnb.com/calendar/ical/9.ics?s=${CANARY}`;
+    await db.sql(`update lodging_feed_secrets set url = $1 where feed_id = 1`, [
+      link,
+    ]);
+    feeds[link] = calendar([
+      `uid-${CANARY}`,
+      '2026-11-06',
+      '2026-11-08',
+    ]).replace('SUMMARY:Reserved', `SUMMARY:${CANARY}`);
+    await db.sql(
+      `insert into appointments (type_id, starts_at, ends_at, blocked_until, manage_token_hash)
+       values (1, '2026-11-07T15:00:00Z', '2026-11-07T16:00:00Z', '2026-11-07T16:30:00Z', 'h1')`
+    );
+    await db.sql(
+      `insert into events (title, first_day, last_day, created_by)
+       values ('Wedding', '2026-11-09', '2026-11-09', 't')`
+    );
+    await runSync(deps());
+    feeds[link] = new Error(`fetch failed for ${link}`);
+    await runSync(deps(NOW + 3 * HOUR));
+    email = 'off';
+    await runSync(deps(NOW + 4 * HOUR));
+    expect(sent.map((m) => m.subject)).toEqual([
+      'Move a showing: a Barn guest booked Fri, Nov 6',
+      'Guest booked into Wedding',
+      'Airbnb Barn calendar has not synced since Wed, Oct 14 at 8:00 AM',
+      // No run between 8:00 and 11:00, so the Cabin calendar was 3 hours stale too.
+      'Airbnb Cabin calendar has not synced since Wed, Oct 14 at 8:00 AM',
+    ]);
+    const everything = [
+      ...sent.flatMap((m) => [m.to, m.subject, m.text, m.idempotencyKey]),
+      ...logged,
+      String(await lastError(1)),
+    ].join('\n');
+    expect(everything).not.toContain(CANARY);
+  });
+});
+
 describe('runSync: alerts', () => {
   it('C6: emails once about a showing a new Barn stay now covers', async () => {
     await db.sql(
