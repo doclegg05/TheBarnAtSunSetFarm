@@ -13,6 +13,7 @@ import { freshDb, type TestDb } from './testDb';
 
 const NOW = at('2026-10-14', '08:00');
 const HOUR = 3_600_000;
+const QUARTER_HOUR = 15 * 60_000;
 const BARN_LINK = 'https://www.airbnb.com/calendar/ical/barn.ics?s=made-up';
 const CABIN_LINK = 'https://www.airbnb.com/calendar/ical/cabin.ics?s=made-up';
 
@@ -175,16 +176,35 @@ describe('runSync: a feed that suddenly loses its stays', () => {
     feeds[BARN_LINK] = four;
     await runSync(deps());
     feeds[BARN_LINK] = calendar();
-    expect((await runSync(deps(NOW + HOUR))).feeds[0].outcome).toBe('held');
+    expect((await runSync(deps(NOW + QUARTER_HOUR))).feeds[0].outcome).toBe(
+      'held'
+    );
     expect(await stayUids()).toEqual(['a', 'b', 'c', 'cabin-1', 'd']);
     expect(sent).toEqual([]);
-    expect((await runSync(deps(NOW + 2 * HOUR))).feeds[0].outcome).toBe(
+    expect((await runSync(deps(NOW + 2 * QUARTER_HOUR))).feeds[0].outcome).toBe(
       'updated'
     );
     expect(await stayUids()).toEqual(['cabin-1']);
     expect(sent.map((m) => m.subject)).toEqual([
       'Airbnb Barn calendar dropped to 0 upcoming stays',
     ]);
+  });
+
+  it('treats a hold older than 45 minutes as a new sighting', async () => {
+    feeds[BARN_LINK] = four;
+    await runSync(deps());
+    feeds[BARN_LINK] = calendar();
+    await runSync(deps(NOW + QUARTER_HOUR));
+    feeds[BARN_LINK] = new FeedFetchError('The feed could not be reached');
+    await runSync(deps(NOW + 2 * QUARTER_HOUR));
+    feeds[BARN_LINK] = calendar();
+    const threeDays = NOW + 72 * HOUR;
+    expect((await runSync(deps(threeDays))).feeds[0].outcome).toBe('held');
+    expect(await stayUids()).toEqual(['a', 'b', 'c', 'cabin-1', 'd']);
+    expect(
+      (await runSync(deps(threeDays + QUARTER_HOUR))).feeds[0].outcome
+    ).toBe('updated');
+    expect(await stayUids()).toEqual(['cabin-1']);
   });
 
   it('clears the hold when the stays come back on the next sync', async () => {

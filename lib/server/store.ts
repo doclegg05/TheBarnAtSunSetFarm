@@ -25,7 +25,8 @@ export interface FeedConfig {
   source: FeedSource;
   /** Secret. Never log it or put it in an error message or email. */
   url: string;
-  dropSeen: boolean;
+  /** When a sync first saw this feed lose most future stays; null when not held. */
+  dropSeenMs: number | null;
 }
 
 export interface FeedHealth {
@@ -71,7 +72,7 @@ export async function loadConfiguredFeeds(rpc: Rpc): Promise<FeedConfig[]> {
     space: space(row, 'space'),
     source: source(row, 'source'),
     url: text(row, 'url'),
-    dropSeen: bool(row, 'drop_seen'),
+    dropSeenMs: msOrNull(row, 'drop_seen_ms'),
   }));
 }
 

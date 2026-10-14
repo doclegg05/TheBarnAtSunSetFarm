@@ -46,7 +46,7 @@ describe('lodging feeds', () => {
         space: 'barn',
         source: 'airbnb',
         url: FEED_LINK,
-        dropSeen: false,
+        dropSeenMs: null,
       },
     ]);
   });
@@ -113,12 +113,12 @@ describe('lodging feeds', () => {
       `select last_error from lodging_feeds where id = 1`
     );
     expect(String(error.last_error)).toHaveLength(200);
-    expect((await loadConfiguredFeeds(db.rpc))[0].dropSeen).toBe(true);
+    expect((await loadConfiguredFeeds(db.rpc))[0].dropSeenMs).toBe(LATER);
 
     await replaceFeedStays(db.rpc, 1, [], LATER + 1);
     const [healthy] = await loadFeedHealth(db.rpc);
     expect(healthy).toMatchObject({ lastErrorMs: null, outageAlerted: false });
-    expect((await loadConfiguredFeeds(db.rpc))[0].dropSeen).toBe(false);
+    expect((await loadConfiguredFeeds(db.rpc))[0].dropSeenMs).toBeNull();
   });
 });
 

@@ -192,9 +192,9 @@ alter table rate_limits enable row level security;
 -- milliseconds (float8) and dates as YYYY-MM-DD text, so every caller sees the same shapes.
 
 create function sched_configured_feeds()
-returns table (id int, space text, source text, url text, drop_seen boolean)
+returns table (id int, space text, source text, url text, drop_seen_ms float8)
 language sql stable as $$
-  select f.id::int, s.slug, f.source, x.url, f.drop_seen_at is not null
+  select f.id::int, s.slug, f.source, x.url, (extract(epoch from f.drop_seen_at) * 1000)::float8
     from lodging_feeds f
     join spaces s on s.id = f.space_id
     join lodging_feed_secrets x on x.feed_id = f.id

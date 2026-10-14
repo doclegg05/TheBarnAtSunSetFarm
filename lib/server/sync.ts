@@ -39,6 +39,8 @@ import {
 
 /** The spec's outage alert: a feed failing for over 2 hours. */
 export const OUTAGE_AFTER_MS = 2 * 60 * 60 * 1000;
+/** A held drop is confirmed only by a sync within this window; after it, a drop counts as new. */
+export const DROP_CONFIRM_WINDOW_MS = 45 * 60 * 1000;
 const MAX_UID_LENGTH = 255;
 
 export interface SyncDeps {
@@ -111,7 +113,10 @@ async function updateFeed(
   const before = await countFutureStays(deps.rpc, feed.id, today);
   const after = stays.filter((stay) => stay.checkOut >= today).length;
   const dropped = isBigDrop(before, after);
-  if (dropped && !feed.dropSeen) {
+  const confirming =
+    feed.dropSeenMs !== null &&
+    deps.nowMs - feed.dropSeenMs <= DROP_CONFIRM_WINDOW_MS;
+  if (dropped && !confirming) {
     await markDropSeen(deps.rpc, feed.id, deps.nowMs);
     return { id: feed.id, outcome: 'held', emails: 0 };
   }
@@ -122,7 +127,7 @@ async function updateFeed(
       feedDropAlert(feed, before, after),
       'drop',
       feed.id,
-      before,
+      feed.dropSeenMs ?? 0,
       after
     );
     if (!told) return { id: feed.id, outcome: 'held', emails: 0 };
