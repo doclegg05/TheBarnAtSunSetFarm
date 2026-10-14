@@ -8,8 +8,11 @@ export interface EmailMessage {
   idempotencyKey: string;
 }
 
+/** 'skipped' means nothing went out, so the caller must not record the alert as sent. */
+export type SendResult = 'sent' | 'skipped';
+
 export interface Mailer {
-  send(message: EmailMessage): Promise<void>;
+  send(message: EmailMessage): Promise<SendResult>;
 }
 
 export class EmailError extends Error {
@@ -46,15 +49,20 @@ export function resendMailer(config: ResendConfig): Mailer {
         signal: AbortSignal.timeout(8000),
       });
       if (!response.ok) throw new EmailError(response.status);
+      return 'sent';
     },
   };
 }
 
-/** For a deploy with no email settings: one log line per message, never the text. */
+/**
+ * For a deploy with no email settings. Logs one fixed line per message: subjects
+ * can name a couple, so nothing from the message is logged.
+ */
 export function logOnlyMailer(log: (line: string) => void): Mailer {
   return {
-    async send(message) {
-      log(`Email not sent (no email settings): ${message.subject}`);
+    async send() {
+      log('Email not sent (no email settings)');
+      return 'skipped';
     },
   };
 }

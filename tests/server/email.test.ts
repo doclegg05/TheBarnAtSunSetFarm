@@ -21,11 +21,12 @@ describe('resendMailer', () => {
       calls.push({ url: String(url), init: init ?? {} });
       return new Response('{"id":"x"}', { status: 200 });
     };
-    await resendMailer({
+    const result = await resendMailer({
       apiKey: 're_made_up',
       from: 'Venue <hi@example.test>',
       fetch,
     }).send(MESSAGE);
+    expect(result).toBe('sent');
     expect(calls[0].url).toBe('https://api.resend.com/emails');
     const headers = new Headers(calls[0].init.headers);
     expect(headers.get('authorization')).toBe('Bearer re_made_up');
@@ -50,10 +51,12 @@ describe('resendMailer', () => {
 });
 
 describe('logOnlyMailer', () => {
-  it('logs the subject only, never the text or the address', async () => {
+  it('reports the email as skipped and logs nothing from it, since subjects can name a couple', async () => {
     const lines: string[] = [];
-    await logOnlyMailer((line) => lines.push(line)).send(MESSAGE);
-    expect(lines).toEqual(['Email not sent (no email settings): Test subject']);
+    expect(await logOnlyMailer((line) => lines.push(line)).send(MESSAGE)).toBe(
+      'skipped'
+    );
+    expect(lines).toEqual(['Email not sent (no email settings)']);
   });
 });
 

@@ -16,7 +16,7 @@ import {
   showingClashAlert,
   type AlertText,
 } from './alerts';
-import { idempotencyKey, type Mailer } from './email';
+import { EmailError, idempotencyKey, type Mailer } from './email';
 import { FeedFetchError } from './fetchFeed';
 import { RpcError, type Rpc } from './rpc';
 import {
@@ -115,16 +115,20 @@ async function updateFeed(
     await markDropSeen(deps.rpc, feed.id, deps.nowMs);
     return { id: feed.id, outcome: 'held', emails: 0 };
   }
+  if (dropped) {
+    // The email goes out before any stay is deleted; until it does, the old stays stand.
+    const told = await trySend(
+      deps,
+      feedDropAlert(feed, before, after),
+      'drop',
+      feed.id,
+      before,
+      after
+    );
+    if (!told) return { id: feed.id, outcome: 'held', emails: 0 };
+  }
   await replaceFeedStays(deps.rpc, feed.id, stays, deps.nowMs);
-  if (!dropped) return { id: feed.id, outcome: 'updated', emails: 0 };
-  await send(
-    deps,
-    feedDropAlert(feed, before, after),
-    'drop',
-    feed.id,
-    deps.nowMs
-  );
-  return { id: feed.id, outcome: 'updated', emails: 1 };
+  return { id: feed.id, outcome: 'updated', emails: dropped ? 1 : 0 };
 }
 
 /**
@@ -180,17 +184,15 @@ async function alertOutages(deps: SyncDeps): Promise<number> {
   const down = (await loadFeedHealth(deps.rpc)).filter((feed) =>
     isOutage(feed, deps.nowMs)
   );
+  let sent = 0;
   for (const feed of down) {
-    await send(
-      deps,
-      feedOutageAlert(feed),
-      'outage',
-      feed.id,
-      feed.lastSuccessMs ?? 'never'
-    );
+    const key = feed.lastSuccessMs ?? feed.failingSinceMs ?? 'never';
+    if (!(await trySend(deps, feedOutageAlert(feed), 'outage', feed.id, key)))
+      continue;
     await markOutageAlerted(deps.rpc, feed.id, deps.nowMs);
+    sent += 1;
   }
-  return down.length;
+  return sent;
 }
 
 async function alertConflicts(deps: SyncDeps): Promise<number> {
@@ -208,7 +210,15 @@ async function alertConflicts(deps: SyncDeps): Promise<number> {
       (s) => s.space === 'barn' && dayInRange(showingDay, s.checkIn, s.checkOut)
     );
     if (stay === undefined) continue;
-    await send(deps, showingClashAlert(showing, stay), 'clash', showing.id);
+    if (
+      !(await trySend(
+        deps,
+        showingClashAlert(showing, stay),
+        'clash',
+        showing.id
+      ))
+    )
+      continue;
     await markClashAlerted(deps.rpc, showing.id, deps.nowMs);
     sent += 1;
   }
@@ -221,27 +231,43 @@ async function alertConflicts(deps: SyncDeps): Promise<number> {
       checkOut: stay.checkOut,
     };
     if (await hasEventStayAlert(deps.rpc, key)) continue;
-    await send(
+    const told = await trySend(
       deps,
       eventStayAlert(event, stay),
       'event-stay',
       ...Object.values(key)
     );
+    if (!told) continue;
     await recordEventStayAlert(deps.rpc, key, deps.nowMs);
     sent += 1;
   }
   return sent;
 }
 
-function send(
+/**
+ * True only when the email went out. A failure is logged with fixed text and
+ * reported as false, so the caller leaves the alert unmarked and the next run
+ * tries again. Email trouble never stops a sync.
+ */
+async function trySend(
   deps: SyncDeps,
   alert: AlertText,
   ...keyParts: (string | number)[]
-): Promise<void> {
-  return deps.mailer.send({
-    to: deps.alertTo,
-    subject: alert.subject,
-    text: alert.text,
-    idempotencyKey: idempotencyKey(...keyParts),
-  });
+): Promise<boolean> {
+  try {
+    const result = await deps.mailer.send({
+      to: deps.alertTo,
+      subject: alert.subject,
+      text: alert.text,
+      idempotencyKey: idempotencyKey(...keyParts),
+    });
+    return result === 'sent';
+  } catch (error) {
+    deps.log(
+      error instanceof EmailError
+        ? error.message
+        : 'An alert email could not be sent'
+    );
+    return false;
+  }
 }

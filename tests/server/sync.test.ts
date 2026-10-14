@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { EmailMessage, Mailer } from '../../lib/server/email';
+import {
+  EmailError,
+  type EmailMessage,
+  type Mailer,
+} from '../../lib/server/email';
 import { FeedFetchError } from '../../lib/server/fetchFeed';
 import { RpcError, type Rpc, type RpcName } from '../../lib/server/rpc';
 import { isBigDrop, runSync, type SyncDeps } from '../../lib/server/sync';
@@ -35,10 +39,15 @@ function calendar(...stays: [string, string, string][]): string {
 let db: TestDb;
 let sent: EmailMessage[];
 let logged: string[];
+/** ok: delivered; down: the email service fails; off: no email settings. */
+let email: 'ok' | 'down' | 'off';
 let feeds: Record<string, string | Error>;
 const mailer: Mailer = {
   send: async (message) => {
+    if (email === 'down') throw new EmailError(503);
+    if (email === 'off') return 'skipped';
     sent.push(message);
+    return 'sent';
   },
 };
 
@@ -86,6 +95,7 @@ beforeEach(async () => {
   db = await freshDb();
   sent = [];
   logged = [];
+  email = 'ok';
   feeds = {
     [BARN_LINK]: calendar(['barn-1', '2026-11-06', '2026-11-08']),
     [CABIN_LINK]: calendar(['cabin-1', '2026-11-19', '2026-11-21']),
@@ -228,6 +238,69 @@ describe('runSync: outages', () => {
     await runSync(deps(NOW + 135 * 60_000));
     expect(sent.map((m) => m.subject)).toEqual([
       'VRBO Barn calendar has never synced',
+    ]);
+  });
+});
+
+describe('runSync: when email fails or is off', () => {
+  const QUARTER = 15 * 60_000;
+
+  it('keeps syncing every feed while the email service fails, and sends the alert later', async () => {
+    await runSync(deps());
+    feeds[BARN_LINK] = new FeedFetchError('The feed could not be reached');
+    feeds[CABIN_LINK] = calendar(
+      ['cabin-1', '2026-11-19', '2026-11-21'],
+      ['cabin-new', '2026-12-01', '2026-12-03']
+    );
+    email = 'down';
+    await runSync(deps(NOW + 3 * HOUR));
+    expect(await stayUids()).toEqual(['barn-1', 'cabin-1', 'cabin-new']);
+    expect(logged).toContain('The email service answered with status 503');
+    email = 'ok';
+    await runSync(deps(NOW + 3 * HOUR + QUARTER));
+    await runSync(deps(NOW + 3 * HOUR + 2 * QUARTER));
+    expect(sent.map((m) => m.subject)).toEqual([
+      'Airbnb Barn calendar has not synced since Wed, Oct 14 at 8:00 AM',
+    ]);
+  });
+
+  it('does not count an alert as sent while email is off', async () => {
+    await db.sql(
+      `insert into appointments (type_id, starts_at, ends_at, blocked_until, manage_token_hash)
+       values (1, '2026-11-07T15:00:00Z', '2026-11-07T16:00:00Z', '2026-11-07T16:30:00Z', 'h1')`
+    );
+    email = 'off';
+    await runSync(deps());
+    expect(sent).toEqual([]);
+    email = 'ok';
+    await runSync(deps(NOW + QUARTER));
+    expect(sent.map((m) => m.subject)).toEqual([
+      'Move a showing: a Barn guest booked Fri, Nov 6',
+    ]);
+  });
+
+  it('keeps a confirmed drop on hold until its email goes out', async () => {
+    feeds[BARN_LINK] = calendar(
+      ['a', '2026-11-06', '2026-11-08'],
+      ['b', '2026-11-13', '2026-11-15'],
+      ['c', '2026-11-20', '2026-11-22'],
+      ['d', '2026-11-27', '2026-11-29']
+    );
+    await runSync(deps());
+    feeds[BARN_LINK] = calendar();
+    await runSync(deps(NOW + QUARTER));
+    email = 'down';
+    expect((await runSync(deps(NOW + 2 * QUARTER))).feeds[0].outcome).toBe(
+      'held'
+    );
+    expect(await stayUids()).toEqual(['a', 'b', 'c', 'cabin-1', 'd']);
+    email = 'ok';
+    expect((await runSync(deps(NOW + 3 * QUARTER))).feeds[0].outcome).toBe(
+      'updated'
+    );
+    expect(await stayUids()).toEqual(['cabin-1']);
+    expect(sent.map((m) => m.subject)).toEqual([
+      'Airbnb Barn calendar dropped to 0 upcoming stays',
     ]);
   });
 });
