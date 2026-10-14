@@ -34,6 +34,8 @@ create table lodging_feeds (
   last_success_at timestamptz,
   last_error text check (char_length(last_error) <= 200),
   last_error_at timestamptz,
+  -- The first failure since the last success, so an outage is timed from when it began.
+  failing_since timestamptz,
   outage_alerted_at timestamptz,
   -- When a sync first saw this feed lose all or most future stays; the next sync confirms or clears it.
   drop_seen_at timestamptz,
@@ -200,11 +202,15 @@ language sql stable as $$
 $$;
 
 create function sched_feed_health()
-returns table (id int, space text, source text, last_success_ms float8, last_error_ms float8, outage_alerted boolean)
+returns table (
+  id int, space text, source text, last_success_ms float8, last_error_ms float8,
+  failing_since_ms float8, outage_alerted boolean
+)
 language sql stable as $$
   select f.id::int, s.slug, f.source,
          (extract(epoch from f.last_success_at) * 1000)::float8,
          (extract(epoch from f.last_error_at) * 1000)::float8,
+         (extract(epoch from f.failing_since) * 1000)::float8,
          f.outage_alerted_at is not null
     from lodging_feeds f
     join spaces s on s.id = f.space_id
@@ -231,7 +237,7 @@ language sql as $$
    where f.id = p_feed_id;
   update lodging_feeds
      set last_success_at = to_timestamp(p_now_ms / 1000), last_error = null, last_error_at = null,
-         outage_alerted_at = null, drop_seen_at = null
+         failing_since = null, outage_alerted_at = null, drop_seen_at = null
    where id = p_feed_id;
 $$;
 
@@ -239,7 +245,8 @@ create function sched_record_feed_failure(p_feed_id int, p_message text, p_now_m
 returns void
 language sql as $$
   update lodging_feeds
-     set last_error = left(p_message, 200), last_error_at = to_timestamp(p_now_ms / 1000)
+     set last_error = left(p_message, 200), last_error_at = to_timestamp(p_now_ms / 1000),
+         failing_since = coalesce(failing_since, to_timestamp(p_now_ms / 1000))
    where id = p_feed_id;
 $$;
 

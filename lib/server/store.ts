@@ -34,6 +34,8 @@ export interface FeedHealth {
   source: FeedSource;
   lastSuccessMs: number | null;
   lastErrorMs: number | null;
+  /** The first failure since the last success. */
+  failingSinceMs: number | null;
   outageAlerted: boolean;
 }
 
@@ -81,6 +83,7 @@ export async function loadFeedHealth(rpc: Rpc): Promise<FeedHealth[]> {
     source: source(row, 'source'),
     lastSuccessMs: msOrNull(row, 'last_success_ms'),
     lastErrorMs: msOrNull(row, 'last_error_ms'),
+    failingSinceMs: msOrNull(row, 'failing_since_ms'),
     outageAlerted: bool(row, 'outage_alerted'),
   }));
 }

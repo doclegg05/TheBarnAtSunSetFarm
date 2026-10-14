@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { EmailMessage, Mailer } from '../../lib/server/email';
 import { FeedFetchError } from '../../lib/server/fetchFeed';
+import { RpcError, type Rpc, type RpcName } from '../../lib/server/rpc';
 import { isBigDrop, runSync, type SyncDeps } from '../../lib/server/sync';
 import { at } from '../scheduling/helpers';
 import { freshDb, type TestDb } from './testDb';
@@ -33,6 +34,7 @@ function calendar(...stays: [string, string, string][]): string {
 
 let db: TestDb;
 let sent: EmailMessage[];
+let logged: string[];
 let feeds: Record<string, string | Error>;
 const mailer: Mailer = {
   send: async (message) => {
@@ -40,12 +42,13 @@ const mailer: Mailer = {
   },
 };
 
-function deps(nowMs = NOW): SyncDeps {
+function deps(nowMs = NOW, rpc: Rpc = db.rpc): SyncDeps {
   return {
-    rpc: db.rpc,
+    rpc,
     mailer,
     alertTo: 'manager@example.test',
     nowMs,
+    log: (line) => logged.push(line),
     fetchFeed: async (link) => {
       const answer = feeds[link];
       if (answer === undefined || answer instanceof Error) {
@@ -53,6 +56,16 @@ function deps(nowMs = NOW): SyncDeps {
       }
       return answer;
     },
+  };
+}
+
+/** The test database, except that one function keeps failing like a Supabase outage. */
+function failing(fn: RpcName): Rpc {
+  return {
+    call: (name, args) =>
+      name === fn
+        ? Promise.reject(new RpcError('http-504'))
+        : db.rpc.call(name, args),
   };
 }
 
@@ -72,6 +85,7 @@ async function lastError(feedId: number): Promise<unknown> {
 beforeEach(async () => {
   db = await freshDb();
   sent = [];
+  logged = [];
   feeds = {
     [BARN_LINK]: calendar(['barn-1', '2026-11-06', '2026-11-08']),
     [CABIN_LINK]: calendar(['cabin-1', '2026-11-19', '2026-11-21']),
@@ -185,6 +199,36 @@ describe('runSync: a feed that suddenly loses its stays', () => {
     [4, 1, true],
   ])('isBigDrop(%i, %i) is %s', (before, after, expected) => {
     expect(isBigDrop(before, after)).toBe(expected);
+  });
+});
+
+describe('runSync: outages', () => {
+  it('alerts when a feed has not synced for over 2 hours, even with no error stored', async () => {
+    await runSync(deps());
+    const broken = failing('sched_count_future_stays');
+    for (const hours of [1, 2, 3, 4]) {
+      await runSync(deps(NOW + hours * HOUR, broken));
+    }
+    expect(sent.map((m) => m.subject).sort()).toEqual([
+      'Airbnb Barn calendar has not synced since Wed, Oct 14 at 8:00 AM',
+      'Airbnb Cabin calendar has not synced since Wed, Oct 14 at 8:00 AM',
+    ]);
+    expect(await lastError(1)).toBe('A database call failed');
+  });
+
+  it('waits 2 hours before reporting a new link that keeps failing', async () => {
+    await db.sql(
+      `insert into lodging_feed_secrets (feed_id, url) values (2, $1)`,
+      ['https://www.vrbo.com/icalendar/made-up.ics']
+    );
+    for (const minutes of [0, 15, 30, 90]) {
+      await runSync(deps(NOW + minutes * 60_000));
+    }
+    expect(sent).toEqual([]);
+    await runSync(deps(NOW + 135 * 60_000));
+    expect(sent.map((m) => m.subject)).toEqual([
+      'VRBO Barn calendar has never synced',
+    ]);
   });
 });
 

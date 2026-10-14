@@ -44,6 +44,7 @@ export async function scheduledSync(
     fetchFeed: (link) =>
       fetchFeedText(link, { timeoutMs: FEED_TIMEOUT_MS, fetch: input.fetch }),
     nowMs: input.nowMs,
+    log: input.log,
   });
   const feeds = report.feeds
     .map((feed) => `feed ${feed.id} ${feed.outcome}`)

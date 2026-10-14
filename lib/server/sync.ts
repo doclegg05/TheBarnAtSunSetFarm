@@ -18,7 +18,7 @@ import {
 } from './alerts';
 import { idempotencyKey, type Mailer } from './email';
 import { FeedFetchError } from './fetchFeed';
-import type { Rpc } from './rpc';
+import { RpcError, type Rpc } from './rpc';
 import {
   countFutureStays,
   hasEventStayAlert,
@@ -49,9 +49,17 @@ export interface SyncDeps {
   /** Downloads a feed link; see fetchFeedText. */
   fetchFeed: (link: string) => Promise<string>;
   nowMs: number;
+  /** One line per problem; never a link, feed text or email address. */
+  log: (line: string) => void;
 }
 
 export type FeedOutcome = 'updated' | 'held' | 'failed';
+
+interface FeedResult {
+  id: number;
+  outcome: FeedOutcome;
+  emails: number;
+}
 
 export interface SyncReport {
   feeds: { id: number; outcome: FeedOutcome }[];
@@ -76,22 +84,29 @@ export async function runSync(deps: SyncDeps): Promise<SyncReport> {
   };
 }
 
-async function syncFeed(
-  deps: SyncDeps,
-  feed: FeedConfig
-): Promise<{ id: number; outcome: FeedOutcome; emails: number }> {
-  let stays: ParsedStay[];
+async function syncFeed(deps: SyncDeps, feed: FeedConfig): Promise<FeedResult> {
   try {
-    stays = checkUids(parseLodgingFeed(await deps.fetchFeed(feed.url)).stays);
+    return await updateFeed(deps, feed);
   } catch (error) {
     await recordFeedFailure(
       deps.rpc,
       feed.id,
       failureMessage(error),
       deps.nowMs
+    ).catch(() =>
+      deps.log(`Lodging sync: could not record the failure of feed ${feed.id}`)
     );
     return { id: feed.id, outcome: 'failed', emails: 0 };
   }
+}
+
+async function updateFeed(
+  deps: SyncDeps,
+  feed: FeedConfig
+): Promise<FeedResult> {
+  const stays = checkUids(
+    parseLodgingFeed(await deps.fetchFeed(feed.url)).stays
+  );
   const today = venueDay(deps.nowMs);
   const before = await countFutureStays(deps.rpc, feed.id, today);
   const after = stays.filter((stay) => stay.checkOut >= today).length;
@@ -146,16 +161,19 @@ function failureMessage(error: unknown): string {
   if (error instanceof FeedFetchError || error instanceof FeedParseError) {
     return error.message;
   }
+  if (error instanceof RpcError) return 'A database call failed';
   return 'The sync failed unexpectedly';
 }
 
+/**
+ * An outage is timed from the last success, whether or not an error was stored,
+ * because a run can die before it records one. A link that has never synced is
+ * timed from its first failure.
+ */
 export function isOutage(feed: FeedHealth, nowMs: number): boolean {
-  if (feed.outageAlerted || feed.lastErrorMs === null) return false;
-  if (feed.lastSuccessMs === null) return true;
-  return (
-    feed.lastErrorMs > feed.lastSuccessMs &&
-    nowMs - feed.lastSuccessMs > OUTAGE_AFTER_MS
-  );
+  if (feed.outageAlerted) return false;
+  const since = feed.lastSuccessMs ?? feed.failingSinceMs;
+  return since !== null && nowMs - since > OUTAGE_AFTER_MS;
 }
 
 async function alertOutages(deps: SyncDeps): Promise<number> {
