@@ -20,8 +20,11 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
   - Built `lib/scheduling/` (open showing and call times with a reason code for every hidden time; event conflicts; showing clashes; blocked lodging nights per space) and `lib/ical/` (reads Airbnb and VRBO feeds into stays; writes the Barn and Cabin blocking feeds). Pure functions: no network, no database.
   - Every test was written first and watched fail. `scripts/quality.sh` exits 0 with 102 tests; CI now also requires 80 percent coverage on each of `lib/scheduling` and `lib/ical`.
   - A whole-branch review found one bug, fixed in 756b171: a feed entry with `DURATION` and no `DTEND` was read as one night.
+  - Separate sessions the same day, research only, no code: teardowns of the vendor dashboard (WeddingPro) and of The Knot's couple tools (wedding website, guest list and RSVP, registry), the latter in a throwaway account with a made-up wedding. Nothing was published or sent. Notes, evidence logs and build specs live outside this public repo in `../TheBarnAtSunSetFarm-weddingpro-teardown/` and `../TheBarnAtSunSetFarm-knot-teardown/`.
 - **What we decided**: see the 2026-10-14 rows in the Key Decisions Log. The rules C1 to C11 and decisions D1 to D13 live in the private design spec named in Architecture Notes.
+  - Teardowns: the couple tools (wedding page, guest list, RSVP, registry links) get built into this site, not a separate site builder. The Knot build spec's design choices (booked couples only, links-only registry, private by default, a staff headcount view) are proposals awaiting Britt's approval.
 - **Where we left off**: #29 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/29) is open with Auto-fix on; Britt approves the merge. Next: write the part 2 plan after #29 merges. The spec's "Part 2 inputs from the part 1 review" section lists what it must cover.
+  - Teardowns: Britt reviews the Knot build spec. Two screenshots would close its last build-relevant gaps: the guest-import screen after pasting a sheet, and the account's email-preferences list. Britt decides whether to clear the marketplace listing's pricing fields, which feed a price estimate couples see there, and deletes the throwaway couple account when done with it.
 
 ## Open Items
 
@@ -46,11 +49,14 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 | 2026-06-10 | Keep scroll fade-in but guard it | Visible-on-mount check + reduced-motion + threshold 0 prevents invisible content           |
 | 2026-06-10 | Keep original header per user    | User prefers the original nav with The Knot/WeddingWire logo links; sticky header reverted |
 | 2026-07-20 | Maps by GPS coords, never address | "19 Boulder Trail" misgeocodes into Rivers Edge; real address 86 Harper Ln unmapped — lib/venueLocation.ts is the single source of truth |
+| 2026-07-20 | SPA fallback via public/\_redirects | One-line fix; Vite copies it to dist/ automatically, no netlify.toml needed |
+| 2026-07-20 | New photos continue the existing lowercase filename families and numbering; never reuse low numbers | The case-insensitive filesystem overwrites files during optimize |
 | 2026-10-13 | Promo video built in HyperFrames, scenes shared by 16:9 and 9:16 roots via symlinked sibling project | A HyperFrames project allows one root composition; one scene set keeps both cuts in sync |
 | 2026-10-13 | Tailwind v4 via `@tailwindcss/postcss` (#25), replacing the 2026-06-10 v3 decision | Tailwind 3's dependency chain (braces, postcss-selector-parser) carried npm advisories with no v3 fix; #25 migrated the renamed and opacity utilities |
 | 2026-10-14 | Every event day's lodging night is blocked, the last day included; the Barn needs one guest-free setup day before and one cleanup day after each event (C9 to C11) | Britt's rule: a guest who checks out Sunday allows a Tuesday wedding at the earliest, and after a Saturday wedding the next Barn guest arrives Monday |
 | 2026-10-14 | A second event on the same day is refused; an overlapping setup or cleanup day only warns (D13, built in part 2) | Two weddings cannot share a day, but a tight turnaround is the manager's call |
 | 2026-10-14 | Scheduler tests run against a throwaway database in CI; no staging Supabase project (D11) | Test bookings never touch real data; deploy previews keep booking switched off |
+| 2026-10-14 | Couple tools get built into this site, not a separate site builder | The site already ranks on Google and converts visitors into inquiries |
 
 ## Architecture Notes
 
@@ -61,6 +67,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - Brand palette: cream #FDF8F5, blush #EAD1DC, sage #A2B29F, charcoal #4a4a4a, gold #D4AF37; Cormorant Garamond headings / Raleway body
 - Contact form posts to Formspree (id: mdkjokdw)
 - Venue scheduler (in progress): the design spec lives in Britt's private workspace repo at `docs/specs/2026-10-13-barn-venue-scheduler-design.md`. The engine is in `lib/scheduling/`, calendar feeds in `lib/ical/`.
+- Planned couple tools (wedding page, guest list, RSVP, registry links) are specced in a teardown kept outside this public repo, in the sibling folder `../TheBarnAtSunSetFarm-knot-teardown/`; the decision and its constraints live in Claude's auto-memory (`barn-couple-tools-port`). Guest data never goes in this repo.
 
 ## Known Issues
 
