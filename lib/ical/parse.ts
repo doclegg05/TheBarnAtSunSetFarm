@@ -51,7 +51,7 @@ function toStay(vevent: IcalComponent): ParsedStay | null {
   const checkIn = start ? dateOf(start) : null;
   if (!start || checkIn === null) return null;
   const end = vevent.getFirstProperty('dtend');
-  const checkOut = end ? dateOf(end) : defaultCheckOut(start, checkIn);
+  const checkOut = end ? dateOf(end) : defaultCheckOut(vevent, start, checkIn);
   if (checkOut === null || checkOut < checkIn) return null;
   const uid = vevent.getFirstPropertyValue('uid');
   return {
@@ -61,9 +61,22 @@ function toStay(vevent: IcalComponent): ParsedStay | null {
   };
 }
 
-/** No DTEND: an all-day entry covers one night, a timed entry ends the same date. */
-function defaultCheckOut(start: IcalProperty, checkIn: IsoDate): IsoDate {
+/**
+ * No DTEND: the start plus DURATION when one is given. Otherwise an all-day
+ * entry covers one night and a timed entry ends the same date.
+ */
+function defaultCheckOut(
+  vevent: IcalComponent,
+  start: IcalProperty,
+  checkIn: IsoDate
+): IsoDate | null {
   const value = start.getFirstValue();
+  const duration = vevent.getFirstPropertyValue('duration');
+  if (value instanceof ICAL.Time && duration instanceof ICAL.Duration) {
+    const endTime = value.clone();
+    endTime.addDuration(duration);
+    return venueDateOf(start, endTime);
+  }
   return value instanceof ICAL.Time && value.isDate
     ? addDays(checkIn, 1)
     : checkIn;
@@ -74,7 +87,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
 /** The venue date a DTSTART or DTEND value falls on. */
 function dateOf(property: IcalProperty): IsoDate | null {
   const value = property.getFirstValue();
-  if (!(value instanceof ICAL.Time)) return null;
+  return value instanceof ICAL.Time ? venueDateOf(property, value) : null;
+}
+
+/** The venue date of a time from a DTSTART or DTEND property, read in that property's zone. */
+function venueDateOf(property: IcalProperty, value: IcalTime): IsoDate | null {
   if (value.isDate) {
     return toIsoDate(`${value.year}-${pad(value.month)}-${pad(value.day)}`);
   }

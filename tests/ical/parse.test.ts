@@ -147,6 +147,37 @@ describe('parseLodgingFeed', () => {
     ]);
   });
 
+  it('uses DURATION for the check-out date when an entry has no DTEND', () => {
+    const lasting = wrap(
+      [
+        'BEGIN:VEVENT',
+        'DTSTART;VALUE=DATE:20261020',
+        'DURATION:P3D',
+        'UID:sample-duration-13',
+        'END:VEVENT',
+      ],
+      [
+        'BEGIN:VEVENT',
+        'DTSTART:20261023T190000Z',
+        'DURATION:PT44H',
+        'UID:sample-duration-14',
+        'END:VEVENT',
+      ]
+    );
+    expect(parseLodgingFeed(lasting).stays).toEqual([
+      {
+        uid: 'sample-duration-13',
+        checkIn: '2026-10-20',
+        checkOut: '2026-10-23',
+      },
+      {
+        uid: 'sample-duration-14',
+        checkIn: '2026-10-23',
+        checkOut: '2026-10-25',
+      },
+    ]);
+  });
+
   it('uses the dates as an id when an entry has no UID', () => {
     const anonymous = wrap([
       'BEGIN:VEVENT',
