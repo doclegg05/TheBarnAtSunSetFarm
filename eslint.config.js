@@ -6,7 +6,15 @@ import tseslint from 'typescript-eslint';
 import prettier from 'eslint-plugin-prettier/recommended';
 
 export default tseslint.config(
-  { ignores: ['.claude/**', 'dist/**', 'node_modules/**', 'adws/**'] },
+  {
+    ignores: [
+      '.claude/**',
+      'dist/**',
+      'node_modules/**',
+      'adws/**',
+      'coverage/**',
+    ],
+  },
   {
     extends: [
       js.configs.recommended,
