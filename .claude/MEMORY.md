@@ -54,6 +54,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - Tailwind 4 needs Safari 16.4+, Chrome 111+ or Firefox 128+ (browser floor noted in #25)
 - Brand palette: cream #FDF8F5, blush #EAD1DC, sage #A2B29F, charcoal #4a4a4a, gold #D4AF37; Cormorant Garamond headings / Raleway body
 - Contact form posts to Formspree (id: mdkjokdw)
+- Venue scheduler (in progress): the design spec lives in Britt's private workspace repo at `docs/specs/2026-10-13-barn-venue-scheduler-design.md`. The engine is in `lib/scheduling/`, calendar feeds in `lib/ical/`.
 
 ## Known Issues
 
