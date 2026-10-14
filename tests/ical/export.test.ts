@@ -5,13 +5,16 @@ import { parseLodgingFeed } from '../../lib/ical/parse';
 import { at, d } from '../scheduling/helpers';
 
 const NOW = at('2026-10-13', '08:00');
+/** Event ids are database UUIDs. These two are made up. */
+const ID_1 = '0d6f3c2a-5b1e-4c8d-9a7f-1e2b3c4d5e01';
+const ID_2 = '0d6f3c2a-5b1e-4c8d-9a7f-1e2b3c4d5e02';
 const weekend = {
-  id: 'evt-1',
+  id: ID_1,
   firstDay: d('2026-11-06'),
   lastDay: d('2026-11-08'),
 };
 const oneDay = {
-  id: 'evt-2',
+  id: ID_2,
   firstDay: d('2026-12-05'),
   lastDay: d('2026-12-05'),
 };
@@ -49,10 +52,10 @@ describe('buildBlockingFeed', () => {
 
   it('C3 and C5: the Barn and Cabin feeds both carry the event, each with its own UID', () => {
     expect(buildBlockingFeed('barn', [weekend], NOW)).toContain(
-      'UID:evt-1-barn@'
+      `UID:${ID_1}-barn@`
     );
     expect(buildBlockingFeed('cabin', [weekend], NOW)).toContain(
-      'UID:evt-1-cabin@'
+      `UID:${ID_1}-cabin@`
     );
   });
 
@@ -71,7 +74,7 @@ describe('buildBlockingFeed', () => {
     const a = buildBlockingFeed('cabin', [oneDay, weekend], NOW);
     const b = buildBlockingFeed('cabin', [weekend, oneDay], NOW);
     expect(a).toBe(b);
-    expect(a.indexOf('evt-1')).toBeLessThan(a.indexOf('evt-2'));
+    expect(a.indexOf(ID_1)).toBeLessThan(a.indexOf(ID_2));
   });
 
   it('stamps entries with the build time in UTC', () => {
@@ -92,6 +95,29 @@ describe('buildBlockingFeed', () => {
       { checkIn: '2026-11-04', checkOut: '2026-11-10' },
       { checkIn: '2026-12-03', checkOut: '2026-12-07' },
     ]);
+  });
+});
+
+describe('buildBlockingFeed refuses input it cannot publish safely', () => {
+  it('rejects an id that is not a UUID, so no text can be injected into the public feed', () => {
+    const injected = {
+      ...weekend,
+      id: 'x\r\nSUMMARY:Smith wedding\r\nX-INJECTED:1',
+    };
+    expect(() => buildBlockingFeed('barn', [injected], NOW)).toThrow();
+  });
+
+  it('rejects an event whose last day is before its first day', () => {
+    const backwards = {
+      ...oneDay,
+      firstDay: d('2026-11-09'),
+      lastDay: d('2026-11-07'),
+    };
+    expect(() => buildBlockingFeed('cabin', [backwards], NOW)).toThrow();
+  });
+
+  it('rejects a build time that is not a real instant', () => {
+    expect(() => buildBlockingFeed('barn', [weekend], Number.NaN)).toThrow();
   });
 });
 

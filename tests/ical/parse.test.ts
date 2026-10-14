@@ -51,7 +51,6 @@ describe('parseLodgingFeed', () => {
           checkOut: '2026-11-03',
         },
       ],
-      skipped: 0,
     });
   });
 
@@ -190,34 +189,8 @@ describe('parseLodgingFeed', () => {
     );
   });
 
-  it('skips entries with no start or with an end before the start', () => {
-    const messy = wrap(
-      ['BEGIN:VEVENT', 'UID:sample-nostart-10', 'END:VEVENT'],
-      [
-        'BEGIN:VEVENT',
-        'DTSTART;VALUE=DATE:20261025',
-        'DTEND;VALUE=DATE:20261023',
-        'UID:sample-backwards-11',
-        'END:VEVENT',
-      ],
-      [
-        'BEGIN:VEVENT',
-        'DTSTART;VALUE=DATE:20261101',
-        'DTEND;VALUE=DATE:20261102',
-        'UID:sample-ok-12',
-        'END:VEVENT',
-      ]
-    );
-    expect(parseLodgingFeed(messy)).toEqual({
-      stays: [
-        { uid: 'sample-ok-12', checkIn: '2026-11-01', checkOut: '2026-11-02' },
-      ],
-      skipped: 2,
-    });
-  });
-
   it('returns no stays for an empty calendar', () => {
-    expect(parseLodgingFeed(wrap())).toEqual({ stays: [], skipped: 0 });
+    expect(parseLodgingFeed(wrap())).toEqual({ stays: [] });
   });
 
   it('tolerates a byte-order mark', () => {
@@ -230,5 +203,102 @@ describe('parseLodgingFeed', () => {
     ['an empty response', ''],
   ])('rejects %s with FeedParseError', (_label, body) => {
     expect(() => parseLodgingFeed(body)).toThrow(FeedParseError);
+  });
+});
+
+/** One otherwise good entry plus the lines under test. */
+const entryWith = (...lines: string[]) =>
+  wrap(['BEGIN:VEVENT', 'UID:sample-hostile', ...lines, 'END:VEVENT']);
+
+describe('parseLodgingFeed fails closed (spec R8: a stay it cannot read must not vanish)', () => {
+  it.each([
+    ['an entry with no start', entryWith('DTEND;VALUE=DATE:20261025')],
+    [
+      'an entry that ends before it starts',
+      entryWith('DTSTART;VALUE=DATE:20261025', 'DTEND;VALUE=DATE:20261023'),
+    ],
+    [
+      'an unreadable end',
+      entryWith('DTSTART;VALUE=DATE:20261023', 'DTEND;VALUE=TEXT:soon'),
+    ],
+    [
+      'an unreadable start date',
+      entryWith('DTSTART;VALUE=DATE:notadate', 'DTEND;VALUE=DATE:20261025'),
+    ],
+    [
+      'an impossible date',
+      entryWith('DTSTART;VALUE=DATE:20261340', 'DTEND;VALUE=DATE:20261342'),
+    ],
+    [
+      'a negative duration',
+      entryWith('DTSTART;VALUE=DATE:20261023', 'DURATION:-P3D'),
+    ],
+    [
+      'an unreadable duration',
+      entryWith('DTSTART;VALUE=DATE:20261023', 'DURATION:soon'),
+    ],
+    [
+      'a duration over 400 days',
+      entryWith('DTSTART;VALUE=DATE:20261023', 'DURATION:P500D'),
+    ],
+    [
+      'a repeating entry (RRULE)',
+      entryWith(
+        'DTSTART;VALUE=DATE:20261023',
+        'DTEND;VALUE=DATE:20261025',
+        'RRULE:FREQ=WEEKLY;COUNT=10'
+      ),
+    ],
+    [
+      'extra dates (RDATE)',
+      entryWith(
+        'DTSTART;VALUE=DATE:20261023',
+        'DTEND;VALUE=DATE:20261025',
+        'RDATE;VALUE=DATE:20261030'
+      ),
+    ],
+    [
+      'an entry nested in another component',
+      wrap([
+        'BEGIN:X-GROUP',
+        'BEGIN:VEVENT',
+        'DTSTART;VALUE=DATE:20261023',
+        'DTEND;VALUE=DATE:20261025',
+        'UID:sample-nested',
+        'END:VEVENT',
+        'END:X-GROUP',
+      ]),
+    ],
+  ])('throws FeedParseError for %s', (_label, body) => {
+    expect(() => parseLodgingFeed(body)).toThrow(FeedParseError);
+  });
+
+  it('rejects a huge duration at once instead of hanging', () => {
+    const started = Date.now();
+    expect(() =>
+      parseLodgingFeed(
+        entryWith('DTSTART;VALUE=DATE:20261023', 'DURATION:P10000000000D')
+      )
+    ).toThrow(FeedParseError);
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
+  it('keeps feed text out of error messages', () => {
+    const leaky =
+      'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDESCRIPTION:Reservation\r\n' +
+      'Phone Number (Last 4 Digits) 9876\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
+    const huge = '<html>' + 'x'.repeat(100_000) + '</html>';
+    for (const body of [leaky, huge]) {
+      let message = '';
+      try {
+        parseLodgingFeed(body);
+      } catch (error) {
+        expect(error).toBeInstanceOf(FeedParseError);
+        message = error instanceof Error ? error.message : String(error);
+      }
+      expect(message).not.toBe('');
+      expect(message).not.toContain('9876');
+      expect(message.length).toBeLessThan(120);
+    }
   });
 });

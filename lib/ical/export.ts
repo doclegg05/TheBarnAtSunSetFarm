@@ -5,12 +5,15 @@ import type { SpaceSlug } from '../scheduling/types';
 
 /** What a blocking feed may know about an event. No title or notes, so they cannot leak. */
 export interface FeedEvent {
+  /** The event's database UUID. Anything else is refused. */
   id: string;
   firstDay: IsoDate;
   lastDay: IsoDate;
 }
 
 const CRLF = '\r\n';
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SPACE_NAMES: Record<SpaceSlug, string> = {
   barn: 'The Barn',
   cabin: 'The Cabin',
@@ -22,6 +25,7 @@ export function buildBlockingFeed(
   events: readonly FeedEvent[],
   nowMs: number
 ): string {
+  assertPublishable(events, nowMs);
   const stamp = DateTime.fromMillis(nowMs, { zone: 'utc' }).toFormat(
     "yyyyMMdd'T'HHmmss'Z'"
   );
@@ -49,6 +53,25 @@ export function buildBlockingFeed(
     'END:VCALENDAR',
   ];
   return lines.map(fold).join(CRLF) + CRLF;
+}
+
+/**
+ * The feed is public. Refuse an id that could carry private text or extra
+ * lines into it, and any entry Airbnb or VRBO could drop as malformed.
+ * Messages name the problem, never the value.
+ */
+function assertPublishable(events: readonly FeedEvent[], nowMs: number): void {
+  if (!Number.isFinite(nowMs)) {
+    throw new Error('Feed build time must be a real instant');
+  }
+  for (const event of events) {
+    if (!UUID_PATTERN.test(event.id)) {
+      throw new Error('Feed event ids must be UUIDs');
+    }
+    if (event.lastDay < event.firstDay) {
+      throw new Error('A feed event cannot end before it starts');
+    }
+  }
 }
 
 function byDateThenId(a: FeedEvent, b: FeedEvent): number {
