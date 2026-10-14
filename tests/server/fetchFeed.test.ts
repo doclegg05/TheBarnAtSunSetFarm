@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { inspect } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import {
   FeedFetchError,
@@ -108,6 +109,45 @@ describe('fetchFeedText', () => {
     await expect(
       fetchFeedText(LINK, { timeoutMs: 1000, fetch })
     ).rejects.toThrow('larger than 2 MB');
+  });
+
+  it('refuses a malformed redirect address without carrying the link in the error', async () => {
+    const { fetch } = answers(
+      () =>
+        new Response(null, {
+          status: 302,
+          headers: { location: 'https://[bad' },
+        })
+    );
+    const error = await fetchFeedText(LINK, { timeoutMs: 1000, fetch }).catch(
+      (e: unknown) => e
+    );
+    expect(error).toBeInstanceOf(FeedFetchError);
+    expect(String(error)).toContain('unusable address');
+    expect(inspect(error)).not.toContain('made-up');
+  });
+
+  it('gives up with its own error when the body stops arriving', async () => {
+    const stall = async (_url: string | URL | Request, init?: RequestInit) =>
+      new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('BEGIN:VCALENDAR\r\n'));
+            init?.signal?.addEventListener('abort', () =>
+              controller.error(
+                new DOMException('The operation timed out.', 'TimeoutError')
+              )
+            );
+          },
+        }),
+        { status: 200 }
+      );
+    const error = await fetchFeedText(LINK, {
+      timeoutMs: 50,
+      fetch: stall,
+    }).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(FeedFetchError);
+    expect(String(error)).toContain('took too long');
   });
 
   it('gives up when the host does not answer in time, without naming the link', async () => {

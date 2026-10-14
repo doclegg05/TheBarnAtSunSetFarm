@@ -44,18 +44,17 @@ export async function fetchFeedText(
     }
     const response = await request(send, next, signal);
     if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get('location');
-      if (location === null)
-        throw new FeedFetchError('The feed redirected nowhere');
-      next = new URL(location, next).toString();
+      await discard(response);
+      next = redirectTarget(response.headers.get('location'), next);
       continue;
     }
     if (response.status !== 200) {
+      await discard(response);
       throw new FeedFetchError(
         `The feed answered with status ${response.status}`
       );
     }
-    const text = await readCapped(response);
+    const text = await readCapped(response, signal);
     if (!text.trimStart().startsWith('BEGIN:VCALENDAR')) {
       throw new FeedFetchError('The feed did not return a calendar');
     }
@@ -84,19 +83,55 @@ async function request(
   }
 }
 
-/** Reads the body, stopping as soon as it passes MAX_FEED_BYTES. */
-async function readCapped(response: Response): Promise<string> {
+/** Resolves a redirect. Node's URL errors quote the base, which is the secret link, so they are replaced. */
+function redirectTarget(location: string | null, current: string): string {
+  if (location === null)
+    throw new FeedFetchError('The feed redirected nowhere');
+  try {
+    return new URL(location, current).toString();
+  } catch {
+    throw new FeedFetchError('The feed redirected to an unusable address');
+  }
+}
+
+/** Frees a body we will not read. */
+async function discard(response: Response): Promise<void> {
+  try {
+    await response.body?.cancel();
+  } catch {
+    // The body was already closed; there is nothing left to free.
+  }
+}
+
+/** Reads the body, stopping as soon as it passes MAX_FEED_BYTES. Only throws FeedFetchError. */
+async function readCapped(
+  response: Response,
+  signal: AbortSignal
+): Promise<string> {
   const reader = response.body?.getReader();
   if (reader === undefined) return '';
   const chunks: Uint8Array[] = [];
   let total = 0;
-  for (let part = await reader.read(); !part.done; part = await reader.read()) {
-    total += part.value.byteLength;
-    if (total > MAX_FEED_BYTES) {
-      await reader.cancel();
-      throw new FeedFetchError('The feed is larger than 2 MB');
+  try {
+    for (
+      let part = await reader.read();
+      !part.done;
+      part = await reader.read()
+    ) {
+      total += part.value.byteLength;
+      if (total > MAX_FEED_BYTES) {
+        await reader.cancel();
+        throw new FeedFetchError('The feed is larger than 2 MB');
+      }
+      chunks.push(part.value);
     }
-    chunks.push(part.value);
+  } catch (error) {
+    if (error instanceof FeedFetchError) throw error;
+    throw new FeedFetchError(
+      signal.aborted
+        ? 'The feed took too long to answer'
+        : 'The feed could not be read'
+    );
   }
   return Buffer.concat(chunks).toString('utf8');
 }
