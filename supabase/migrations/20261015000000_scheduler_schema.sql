@@ -147,7 +147,8 @@ create table admins (
 
 create table settings (
   key text primary key check (key in ('export_code_barn', 'export_code_cabin')),
-  value text not null check (char_length(value) >= 32)
+  -- The same characters and lengths the feed route accepts (lib/server/feedRoute.ts).
+  value text not null check (value ~ '^[A-Za-z0-9_-]{32,128}$')
 );
 
 create table rate_limits (

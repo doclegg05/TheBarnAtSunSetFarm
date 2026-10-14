@@ -99,6 +99,10 @@ describe('schema: values that would break the engine are refused', () => {
       `insert into settings (key, value) values ('export_code_barn', 'short')`,
     ],
     [
+      'an export code the feed links cannot carry',
+      `insert into settings (key, value) values ('export_code_barn', 'a+b/${'x'.repeat(40)}=')`,
+    ],
+    [
       'an admin email with capitals',
       `insert into admins (email) values ('Manager@Example.test')`,
     ],
