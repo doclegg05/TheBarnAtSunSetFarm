@@ -1,5 +1,5 @@
 import type { Candidate } from './slots';
-import type { IsoDate } from './time';
+import { dayInRange, type IsoDate } from './time';
 import type { AvailabilityInput, HiddenReason } from './types';
 
 const MINUTE_MS = 60_000;
@@ -26,6 +26,19 @@ export function hiddenReason(
   if (candidate.startMs < nowMs + type.noticeMin * MINUTE_MS) return 'too-soon';
   if (day > lastBookableDay) return 'out-of-window';
   if (candidate.endMs > candidate.windowEndMs) return 'too-short';
+  if (
+    type.needsBarnFree &&
+    input.events.some((event) => dayInRange(day, event.firstDay, event.lastDay))
+  )
+    return 'event-day';
+  if (
+    type.needsBarnFree &&
+    input.stays.some(
+      (stay) =>
+        stay.space === 'barn' && dayInRange(day, stay.checkIn, stay.checkOut)
+    )
+  )
+    return 'barn-occupied';
   const occupiedUntil = candidate.endMs + type.gapAfterMin * MINUTE_MS;
   if (
     input.blocks.some((block) =>
