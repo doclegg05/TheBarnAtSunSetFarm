@@ -9,21 +9,20 @@
 
 ## Current Status
 
-Venue scheduler part 1 of 3 (engine and calendar feeds, no visitor-facing change) is in PR #29 on branch `feat/scheduler-engine`, worktree `TheBarnAtSunSetFarm-scheduler`. Parts 2 (database, sync, email, booking functions) and 3 (screens, rollout) follow after #29 merges.
+Venue scheduler part 1 (engine, feeds) merged in #29. Part 2a (schema, database calls, lodging sync, blocking feeds) is on branch `feat/scheduler-server` (the PR is opened after Britt's yes). It runs nothing until the Netlify settings exist. Parts 2b (admin API), 2c (visitor booking) and 3 (screens) follow.
 
 Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index-CD87pMC_.css` compared against a local build on 2026-10-13; #29's build keeps the same bundle name). On 2026-10-13 #25 (calendar removed, Tailwind 4, sharp 0.35.5) and #27 (no public price, Pricing section renamed Packages, promo video source) merged. 0 open Dependabot alerts; `npm audit` finds 0. Canonical barn pin: **38.1904268, -80.8917911** (owner-placed official Google listing pin, 2026-07-20); lib/venueLocation.ts is the single source of truth. Photo workflow is drop-in folders (`photos/gallery/*`, `photos/carousel/`) + `node optimize_images.js`; see photos/README.md.
 
 ## Last Session
 
-- **Date**: 2026-10-14 (venue scheduler part 1, worktree `TheBarnAtSunSetFarm-scheduler`, branch `feat/scheduler-engine`)
+- **Date**: 2026-10-14 (venue scheduler part 2a, branch `feat/scheduler-server`)
 - **What we worked on**:
-  - Built `lib/scheduling/` (open showing and call times with a reason code for every hidden time; event conflicts; showing clashes; blocked lodging nights per space) and `lib/ical/` (reads Airbnb and VRBO feeds into stays; writes the Barn and Cabin blocking feeds). Pure functions: no network, no database.
-  - Every test was written first and watched fail. `scripts/quality.sh` exits 0 with 102 tests; CI now also requires 80 percent coverage on each of `lib/scheduling` and `lib/ical`.
-  - A whole-branch review found one bug, fixed in 756b171: a feed entry with `DURATION` and no `DTEND` was read as one night.
+  - Part 1 (#29) merged and deployed; production matches `main`. A security review of #29 led to fail-closed feed parsing (839e028).
+  - Part 2a: the Supabase schema (`supabase/migrations/`), `lib/server/` (database calls through Supabase's REST API, a feed fetcher limited to Airbnb and VRBO hosts, the 15-minute lodging sync with alert emails through Resend, the Barn and Cabin blocking feeds) and two Netlify functions (`sync-lodging`, `feeds`). D13 is in the engine and the database. 215 tests pass; CI gates `lib/server` at 80 percent coverage too.
   - Separate sessions the same day, research only, no code: teardowns of the vendor dashboard (WeddingPro) and of The Knot's couple tools (wedding website, guest list and RSVP, registry), the latter in a throwaway account with a made-up wedding. Nothing was published or sent. Notes, evidence logs and build specs live outside this public repo in `../TheBarnAtSunSetFarm-weddingpro-teardown/` and `../TheBarnAtSunSetFarm-knot-teardown/`.
 - **What we decided**: see the 2026-10-14 rows in the Key Decisions Log. The rules C1 to C11 and decisions D1 to D13 live in the private design spec named in Architecture Notes.
   - Teardowns: the couple tools (wedding page, guest list, RSVP, registry links) get built into this site, not a separate site builder. The Knot build spec's design choices (booked couples only, links-only registry, private by default, a staff headcount view) are proposals awaiting Britt's approval.
-- **Where we left off**: #29 (https://github.com/doclegg05/TheBarnAtSunSetFarm/pull/29) is open with Auto-fix on; Britt approves the merge. Next: write the part 2 plan after #29 merges. The spec's "Part 2 inputs from the part 1 review" section lists what it must cover.
+- **Where we left off**: part 2a is built on `feat/scheduler-server`; after the whole-branch and security reviews it waits for Britt's yes to push and open the PR. The production migration is not applied. Next: part 2b (admin API).
   - Teardowns: Britt reviews the Knot build spec. Two screenshots would close its last build-relevant gaps: the guest-import screen after pasting a sheet, and the account's email-preferences list. Britt decides whether to clear the marketplace listing's pricing fields, which feed a price estimate couples see there, and deletes the throwaway couple account when done with it.
 
 ## Open Items
@@ -38,7 +37,8 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [x] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env. Obsolete: #25 removed the calendar, and per #25 the Calendar API credential was revoked in Google Cloud on 2026-10-05
 - [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
-- [ ] Merge #29 (scheduler part 1), then write the part 2 plan
+- [x] Merge #29 (scheduler part 1), then write the part 2 plan (merged 2026-10-14; plans for 2b and 2c are written as each part starts)
+- [ ] After 2a merges: apply the migration to the Barn's Supabase project (Britt's yes first), then set SUPABASE_URL, SUPABASE_SECRET_KEY, EMAIL_API_KEY, EMAIL_FROM and ALERT_EMAIL in Netlify
 - [ ] Phase 1 of the scheduler: after the owner's test import of our feeds, fetch the Airbnb and VRBO exports and check whether our blocked dates come back as entries (risk R9 in the spec), before part 2's alert emails go live
 
 ## Key Decisions Log
@@ -57,6 +57,9 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 | 2026-10-14 | A second event on the same day is refused; an overlapping setup or cleanup day only warns (D13, built in part 2) | Two weddings cannot share a day, but a tight turnaround is the manager's call |
 | 2026-10-14 | Scheduler tests run against a throwaway database in CI; no staging Supabase project (D11) | Test bookings never touch real data; deploy previews keep booking switched off |
 | 2026-10-14 | Couple tools get built into this site, not a separate site builder | The site already ranks on Google and converts visitors into inquiries |
+| 2026-10-14 | Server code calls `sched_*` SQL functions through Supabase's REST API with the secret key; no direct database connection (D14) | Supabase warns postgres.js can hang or mix up results on its shared pooler; each API call is one transaction and keeps the free project awake |
+| 2026-10-14 | A feed that suddenly loses all or most of its future stays is held for one sync, then accepted with an email (D15) | A provider glitch cannot wipe stays and open showings over a guest; a real cancellation waits at most 15 minutes |
+| 2026-10-14 | D13 is also an exclusion constraint on `events` | Two same-day saves cannot both succeed, even if they race |
 
 ## Architecture Notes
 
