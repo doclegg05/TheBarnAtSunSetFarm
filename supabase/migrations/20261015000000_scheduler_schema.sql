@@ -14,6 +14,10 @@ begin
       execute format('create role %I nologin', role_name);
     end if;
   end loop;
+  -- Like Supabase's service_role, which the secret key runs as.
+  if not exists (select 1 from pg_roles where rolname = 'service_role' and rolbypassrls) then
+    alter role service_role bypassrls;
+  end if;
 end
 $$;
 
@@ -327,3 +331,12 @@ revoke all on all functions in schema public from public, anon, authenticated;
 grant select, insert, update, delete on all tables in schema public to service_role;
 grant usage on all sequences in schema public to service_role;
 grant execute on all functions in schema public to service_role;
+
+-- Supabase hands every new table, sequence and function in public to the browser roles,
+-- and Postgres lets everyone run new functions. Take that back for later migrations too,
+-- so a forgotten revoke cannot expose a table or function. Each migration still ends with
+-- the explicit revoke and grant block above.
+alter default privileges for role postgres in schema public revoke all on tables from anon, authenticated;
+alter default privileges for role postgres in schema public revoke all on sequences from anon, authenticated;
+alter default privileges for role postgres in schema public revoke all on functions from anon, authenticated;
+alter default privileges for role postgres revoke execute on functions from public;

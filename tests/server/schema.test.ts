@@ -146,6 +146,25 @@ describe('schema: browsers get nothing', () => {
     expect(rows.every((row) => row.allowed === true)).toBe(true);
   });
 
+  it('gives a table or function that a later migration adds no browser privileges', async () => {
+    await sql(`create table later_table (id int)`);
+    await sql(
+      `create function later_function() returns int language sql as 'select 1'`
+    );
+    const [later] = await sql(
+      `select has_table_privilege('anon', 'later_table', 'select,insert,update,delete') as anon_table,
+              has_table_privilege('authenticated', 'later_table', 'select,insert,update,delete') as auth_table,
+              has_function_privilege('anon', 'later_function()', 'execute') as anon_function,
+              has_function_privilege('authenticated', 'later_function()', 'execute') as auth_function`
+    );
+    expect(later).toEqual({
+      anon_table: false,
+      auth_table: false,
+      anon_function: false,
+      auth_function: false,
+    });
+  });
+
   it('shows a browser role no rows even if a table grant slips back in', async () => {
     await sql(`grant select on all tables in schema public to anon`);
     await sql(`set role anon`);
