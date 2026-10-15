@@ -96,11 +96,11 @@ describe('schema: values that would break the engine are refused', () => {
     ],
     [
       'a short export code',
-      `insert into settings (key, value) values ('export_code_barn', 'short')`,
+      `insert into sched_settings (key, value) values ('export_code_barn', 'short')`,
     ],
     [
       'an export code the feed links cannot carry',
-      `insert into settings (key, value) values ('export_code_barn', 'a+b/${'x'.repeat(40)}=')`,
+      `insert into sched_settings (key, value) values ('export_code_barn', 'a+b/${'x'.repeat(40)}=')`,
     ],
     [
       'an admin email with capitals',
@@ -207,5 +207,38 @@ describe('schema: seed rows', () => {
         needs_barn_free: t.needsBarnFree,
       }))
     );
+  });
+});
+
+describe('schema: leaves the platform its table names', () => {
+  it('keeps public.settings and public.rate_limits free for the platform tables', async () => {
+    expect(
+      await pgCode(sql(`create table public.settings (key text primary key)`))
+    ).toBe('no error');
+    expect(
+      await pgCode(
+        sql(
+          `create table public.rate_limits (id bigint generated always as identity primary key)`
+        )
+      )
+    ).toBe('no error');
+  });
+
+  it('names every constraint on its own settings and rate limits after the sched_ table', async () => {
+    // PGlite runs Postgres 18, which also lists NOT NULL constraints (contype n).
+    // Production runs Postgres 17, which does not, so they are left out here.
+    const names = await sql(
+      `select conname from pg_constraint
+        where conrelid in ('sched_settings'::regclass, 'sched_rate_limits'::regclass)
+          and contype <> 'n'
+        order by 1`
+    );
+    expect(names.map((row) => row.conname)).toEqual([
+      'sched_rate_limits_count_check',
+      'sched_rate_limits_pkey',
+      'sched_settings_key_check',
+      'sched_settings_pkey',
+      'sched_settings_value_check',
+    ]);
   });
 });

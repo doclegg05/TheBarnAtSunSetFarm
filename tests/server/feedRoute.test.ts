@@ -14,7 +14,7 @@ let db: TestDb;
 beforeEach(async () => {
   db = await freshDb();
   await db.sql(
-    `insert into settings (key, value) values ('export_code_barn', $1)`,
+    `insert into sched_settings (key, value) values ('export_code_barn', $1)`,
     [CODE]
   );
   await db.sql(

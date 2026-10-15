@@ -189,7 +189,7 @@ describe('events, showings and alerts', () => {
   it('reads the export code for a space, or null when none is set', async () => {
     expect(await getExportCode(db.rpc, 'barn')).toBeNull();
     await db.sql(
-      `insert into settings (key, value) values ('export_code_barn', $1)`,
+      `insert into sched_settings (key, value) values ('export_code_barn', $1)`,
       ['k'.repeat(40)]
     );
     expect(await getExportCode(db.rpc, 'barn')).toBe('k'.repeat(40));
