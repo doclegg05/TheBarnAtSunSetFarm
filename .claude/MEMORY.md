@@ -33,7 +33,9 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - [ ] Owner: report unclaimed duplicate Google listing "86 Harper Ln" (maps.google.com/?cid=4489418448821586540) as duplicate of the main listing (cid 15081211618553277720, now also at 86 Harper Ln); afterwards verify removal and that Alan Nethery's review transferred
 - [ ] Update address to 86 Harper Ln on The Knot, WeddingWire, and Facebook (NAP consistency)
 - [ ] Test directions buttons on a phone from the live site
-- [ ] Original un-optimized photos still sit untracked in the MAIN repo working tree at `photos/gallery/weddings/` (Barn.1, Wedding.13-17, Wedding_Design\*.jpg, etc.) — safe to delete (PR #16 merged)
+- [x] PR #16 (18 wedding photos) merged 2026-07-20. The un-optimized originals were then deleted from the main checkout's `photos/gallery/weddings/`; none were left untracked on 2026-10-13
+- [x] PR #17 (SPA fallback in `public/_redirects`) merged 2026-07-20. A direct load of /gallery returns 200 instead of Netlify's 404 (rechecked live 2026-10-13)
+- [x] Netlify deploys from `main` (confirmed 2026-07-20). Exception: a deploy preview was published to production on 2026-10-05; see Known Issues
 - [ ] Testimonials section: component exists at components/Testimonials.tsx, unused — wire up when real couple quotes available
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [x] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env. Obsolete: #25 removed the calendar, and per #25 the Calendar API credential was revoked in Google Cloud on 2026-10-05
@@ -54,7 +56,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 | 2026-06-10 | Keep original header per user    | User prefers the original nav with The Knot/WeddingWire logo links; sticky header reverted |
 | 2026-07-20 | Maps by GPS coords, never address | "19 Boulder Trail" misgeocodes into Rivers Edge; real address 86 Harper Ln unmapped — lib/venueLocation.ts is the single source of truth |
 | 2026-07-20 | SPA fallback via public/\_redirects | One-line fix; Vite copies it to dist/ automatically, no netlify.toml needed |
-| 2026-07-20 | New photos continue the existing lowercase filename families and numbering; never reuse low numbers | The case-insensitive filesystem overwrites files during optimize |
+| 2026-07-20 | New photos continue the existing lowercase filename families and numbering; never reuse low numbers | macOS's case-insensitive filesystem let `optimize_images.js` overwrite files whose names differed only by case |
 | 2026-10-13 | Promo video built in HyperFrames, scenes shared by 16:9 and 9:16 roots via symlinked sibling project | A HyperFrames project allows one root composition; one scene set keeps both cuts in sync |
 | 2026-10-13 | Tailwind v4 via `@tailwindcss/postcss` (#25), replacing the 2026-06-10 v3 decision | Tailwind 3's dependency chain (braces, postcss-selector-parser) carried npm advisories with no v3 fix; #25 migrated the renamed and opacity utilities |
 | 2026-10-14 | Every event day's lodging night is blocked, the last day included; the Barn needs one guest-free setup day before and one cleanup day after each event (C9 to C11) | Britt's rule: a guest who checks out Sunday allows a Tuesday wedding at the earliest, and after a Saturday wedding the next Barn guest arrives Monday |
@@ -74,8 +76,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - Tailwind 4 needs Safari 16.4+, Chrome 111+ or Firefox 128+ (browser floor noted in #25)
 - Brand palette: cream #FDF8F5, blush #EAD1DC, sage #A2B29F, charcoal #4a4a4a, gold #D4AF37; Cormorant Garamond headings / Raleway body
 - Contact form posts to Formspree (id: mdkjokdw)
-- Venue scheduler (in progress): the design spec lives in Britt's private workspace repo at `docs/specs/2026-10-13-barn-venue-scheduler-design.md`. The engine is in `lib/scheduling/`, calendar feeds in `lib/ical/`.
-- Planned couple tools (wedding page, guest list, RSVP, registry links) are specced in a teardown kept outside this public repo, in the sibling folder `../TheBarnAtSunSetFarm-knot-teardown/`; the decision and its constraints live in Claude's auto-memory (`barn-couple-tools-port`). Guest data never goes in this repo.
+- Nav logos use generic filenames (`public/nav-img-1.webp`, `nav-img-2.webp`) because a Safari content filter on the dev Mac blocked brand-named logo files on localhost
 
 ## Known Issues
 
