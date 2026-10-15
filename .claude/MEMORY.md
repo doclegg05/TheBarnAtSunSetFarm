@@ -9,20 +9,21 @@
 
 ## Current Status
 
-Venue scheduler part 1 (engine, feeds) merged in #29. Part 2a (schema, database calls, lodging sync, blocking feeds) is on branch `feat/scheduler-server` (the PR is opened after Britt's yes). It runs nothing until the Netlify settings exist. Parts 2b (admin API), 2c (visitor booking) and 3 (screens) follow.
+Venue scheduler part 1 (engine, feeds) merged in #29. Part 2a (schema, database calls, lodging sync, blocking feeds) merged in #31 on 2026-10-15 and is live; its migration ran on the production database at merge. It runs nothing until the Netlify settings exist: the feeds answer 404 and the sync logs that it skipped. Branch `fix/scheduler-table-names` renames the scheduler's `settings` and `rate_limits` to `sched_settings` and `sched_rate_limits` (D18). Parts 2b (admin API), 2c (visitor booking) and 3 (screens) follow.
 
 Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index-CD87pMC_.css` compared against a local build on 2026-10-13; #29's build keeps the same bundle name). On 2026-10-13 #25 (calendar removed, Tailwind 4, sharp 0.35.5) and #27 (no public price, Pricing section renamed Packages, promo video source) merged. 0 open Dependabot alerts; `npm audit` finds 0. Canonical barn pin: **38.1904268, -80.8917911** (owner-placed official Google listing pin, 2026-07-20); lib/venueLocation.ts is the single source of truth. Photo workflow is drop-in folders (`photos/gallery/*`, `photos/carousel/`) + `node optimize_images.js`; see photos/README.md.
 
 ## Last Session
 
-- **Date**: 2026-10-14 (venue scheduler part 2a, branch `feat/scheduler-server`)
+- **Date**: 2026-10-15 (venue scheduler part 2a merged; branch `fix/scheduler-table-names`)
 - **What we worked on**:
+  - 2026-10-15: #31 merged (11312bc) and deployed; the deploy preview and production feeds both answer 404 until the database settings exist. Supabase's GitHub link applied the 2a migration to production 35 seconds after the merge; it matches the merged file, and the Supabase advisors report only the known `search_path` warning (deferred minor F126) and info notes. The platform's `feat/foundation-db` also creates `public.settings` and `public.rate_limits`, so the scheduler's two tables are renamed in migration `20261015000050`, tested in PGlite and dry-run on production inside a rolled-back transaction.
   - Part 1 (#29) merged and deployed; production matches `main`. A security review of #29 led to fail-closed feed parsing (839e028).
   - Part 2a: the Supabase schema (`supabase/migrations/`), `lib/server/` (database calls through Supabase's REST API, a feed fetcher limited to Airbnb and VRBO hosts, the 15-minute lodging sync with alert emails through Resend, the Barn and Cabin blocking feeds) and two Netlify functions (`sync-lodging`, `feeds`). D13 is in the engine and the database. 215 tests pass; CI gates `lib/server` at 80 percent coverage too.
   - Separate sessions the same day, research only, no code: teardowns of the vendor dashboard (WeddingPro) and of The Knot's couple tools (wedding website, guest list and RSVP, registry), the latter in a throwaway account with a made-up wedding. Nothing was published or sent. Notes, evidence logs and build specs live outside this public repo in `../TheBarnAtSunSetFarm-weddingpro-teardown/` and `../TheBarnAtSunSetFarm-knot-teardown/`.
 - **What we decided**: see the 2026-10-14 rows in the Key Decisions Log. The rules C1 to C11 and decisions D1 to D13 live in the private design spec named in Architecture Notes.
   - Teardowns: the couple tools (wedding page, guest list, RSVP, registry links) get built into this site, not a separate site builder. The Knot build spec's design choices (booked couples only, links-only registry, private by default, a staff headcount view) are proposals awaiting Britt's approval.
-- **Where we left off**: part 2a is built on `feat/scheduler-server`; after the whole-branch and security reviews it waits for Britt's yes to push and open the PR. The production migration is not applied. Next: part 2b (admin API).
+- **Where we left off**: the table rename waits for Britt's yes to push, open the PR and merge; merging it renames the tables in production. Then Britt sets the five Netlify settings and the real-key smoke test runs. Next: part 2b (admin API).
   - Teardowns: Britt reviews the Knot build spec. Two screenshots would close its last build-relevant gaps: the guest-import screen after pasting a sheet, and the account's email-preferences list. Britt decides whether to clear the marketplace listing's pricing fields, which feed a price estimate couples see there, and deletes the throwaway couple account when done with it.
 
 ## Open Items
@@ -38,7 +39,10 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - [x] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env. Obsolete: #25 removed the calendar, and per #25 the Calendar API credential was revoked in Google Cloud on 2026-10-05
 - [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
 - [x] Merge #29 (scheduler part 1), then write the part 2 plan (merged 2026-10-14; plans for 2b and 2c are written as each part starts)
-- [ ] After 2a merges: apply the migration to the Barn's Supabase project (Britt's yes first), then set SUPABASE_URL, SUPABASE_SECRET_KEY, EMAIL_API_KEY, EMAIL_FROM and ALERT_EMAIL in Netlify
+- [x] Apply the 2a migration to the Barn's Supabase project (ran automatically when #31 merged, 2026-10-15)
+- [ ] Merge the table rename (`fix/scheduler-table-names`, migration `20261015000050`) with Britt's yes
+- [ ] Set SUPABASE_URL, SUPABASE_SECRET_KEY, EMAIL_API_KEY, EMAIL_FROM and ALERT_EMAIL in Netlify, then run the real-key smoke test
+- [ ] Platform (`feat/foundation-db`): `20261014000000_inquiries.sql` is numbered below the applied `20261015000000`; renumber it before that branch merges, or Supabase may skip or refuse it
 - [ ] Phase 1 of the scheduler: after the owner's test import of our feeds, fetch the Airbnb and VRBO exports and check whether our blocked dates come back as entries (risk R9 in the spec), before part 2's alert emails go live
 
 ## Key Decisions Log
@@ -60,6 +64,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 | 2026-10-14 | Server code calls `sched_*` SQL functions through Supabase's REST API with the secret key; no direct database connection (D14) | Supabase warns postgres.js can hang or mix up results on its shared pooler; each API call is one transaction and keeps the free project awake |
 | 2026-10-14 | A feed that suddenly loses all or most of its future stays is held for one sync, then accepted with an email (D15) | A provider glitch cannot wipe stays and open showings over a guest; a real cancellation waits at most 15 minutes |
 | 2026-10-14 | D13 is also an exclusion constraint on `events` | Two same-day saves cannot both succeed, even if they race |
+| 2026-10-15 | The scheduler's `settings` and `rate_limits` become `sched_settings` and `sched_rate_limits` (D18) | The platform's `feat/foundation-db` owns the plain names for its general settings and rate limits; both scheduler tables were still empty |
 
 ## Architecture Notes
 
@@ -77,3 +82,5 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - Full-page screenshot bots still capture below-fold sections mid-fade (scroll-reveal limitation; human UX unaffected)
 - Carousel auto-advances with no pause control (WCAG 2.2.2 nit)
 - Netlify can publish a deploy preview straight to production, so the live site may not match `main`. Compare the live `index-*.js` name with a local `npm run build` of main before assuming. Detail in auto-memory `netlify-production-source`
+- Merging a PR to `main` runs its new `supabase/migrations/` files on the production database (Supabase's GitHub link), so Britt's yes for a migration comes before the merge. Detail in auto-memory `supabase-migrations-apply-on-merge`
+- PGlite runs Postgres 18; production runs Postgres 17. Postgres 18 also lists NOT NULL constraints in `pg_constraint`, so catalog tests filter `contype <> 'n'`
