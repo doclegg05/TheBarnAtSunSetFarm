@@ -26,6 +26,9 @@ jobs:
       - name: Test
         run: npm test -- --run
 
+      - name: Coverage (scheduler engine and calendar feeds)
+        run: npm run test:coverage
+
       - name: Lint
         run: npm run lint
 

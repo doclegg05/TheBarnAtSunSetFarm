@@ -4,13 +4,13 @@ import EventCoordination from './EventCoordination';
 
 const About: React.FC = () => {
   return (
-    <section id="about" className="py-20 md:py-32 bg-[#FDF8F5]">
+    <section id="about" className="py-20 md:py-32 bg-brand-cream">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">
+          <h2 className="text-4xl md:text-5xl font-bold text-brand-charcoal">
             A Venue As Unique As Your Love
           </h2>
-          <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
+          <div className="mt-4 w-24 h-1 bg-brand-pink mx-auto"></div>
           <p className="mt-6 text-lg max-w-3xl mx-auto text-gray-600">
             Located just minutes from Summersville, WV and the New River Gorge,
             The Barn at Sunset Farm offers an affordable, rustic venue for
@@ -38,7 +38,7 @@ const About: React.FC = () => {
             />
           </div>
           <div className="text-left">
-            <h3 className="text-3xl font-semibold mb-4 text-[#4a4a4a]">
+            <h3 className="text-3xl font-semibold mb-4 text-brand-charcoal">
               The Main Barn
             </h3>
             <p className="text-gray-600 mb-4">
@@ -63,7 +63,7 @@ const About: React.FC = () => {
         {/* Cottages Section */}
         <div className="grid md:grid-cols-2 gap-12 items-center mt-20">
           <div className="text-left md:order-2">
-            <h3 className="text-3xl font-semibold mb-4 text-[#4a4a4a]">
+            <h3 className="text-3xl font-semibold mb-4 text-brand-charcoal">
               Overnight Lodging Included
             </h3>
             <p className="text-gray-600 mb-4">
@@ -97,7 +97,7 @@ const About: React.FC = () => {
         </div>
 
         {/* Event Coordination Section */}
-        <div className="mt-24 pt-12 border-t border-[#EAD1DC]">
+        <div className="mt-24 pt-12 border-t border-brand-pink">
           <EventCoordination />
         </div>
       </div>

@@ -2,10 +2,51 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "barn-dev",
+      "name": "barn-dev-mac",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "3001", "--strictPort"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3003",
+        "--strictPort"
+      ],
+      "port": 3003,
+      "autoPort": false
+    },
+    {
+      "name": "barn-dev",
+      "runtimeExecutable": "cmd.exe",
+      "runtimeArgs": [
+        "/c",
+        "set PATH=C:\\Program Files\\nodejs;%PATH% && npm run dev -- --port 3001 --strictPort"
+      ],
       "port": 3001,
+      "autoPort": false
+    },
+    {
+      "name": "barn-dev-alt",
+      "runtimeExecutable": "cmd.exe",
+      "runtimeArgs": [
+        "/c",
+        "set PATH=C:\\Program Files\\nodejs;%PATH% && npm run dev -- --port 3002 --strictPort"
+      ],
+      "port": 3002,
+      "autoPort": false
+    },
+    {
+      "name": "barn-dev-mac-alt",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3004",
+        "--strictPort"
+      ],
+      "port": 3004,
       "autoPort": false
     }
   ]

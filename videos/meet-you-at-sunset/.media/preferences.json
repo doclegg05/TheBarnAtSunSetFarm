@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "preferences": {
+    "flow": {
+      "value": "automation",
+      "confirmed_in": [
+        "meet-you-at-sunset"
+      ],
+      "updated_at": "2026-10-13T16:13:47.123Z"
+    },
+    "storyboard": {
+      "value": "no",
+      "confirmed_in": [
+        "meet-you-at-sunset"
+      ],
+      "updated_at": "2026-10-13T16:13:47.152Z"
+    }
+  },
+  "sightings": {}
+}

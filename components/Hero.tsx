@@ -1,36 +1,16 @@
 import React from 'react';
 import Gallery from './Gallery';
-import { Photo } from '../types';
+import { photosFromFolder } from '../lib/photoFolders';
 
-const venuePhotos: Photo[] = [
-  { id: 1, url: '/photos/carousel/Carosel Barn 1.webp', alt: 'Wedding Setup' },
-  { id: 2, url: '/photos/carousel/Carosel Barn 2.webp', alt: 'Scenic View' },
-  {
-    id: 3,
-    url: '/photos/carousel/Carosel Barn 3.webp',
-    alt: 'Celebration Moment',
-  },
-  {
-    id: 4,
-    url: '/photos/carousel/Carosel Barn 4.webp',
-    alt: 'Interior Detail',
-  },
-  {
-    id: 5,
-    url: '/photos/carousel/Carosel Barn 5.webp',
-    alt: 'Event Highlight',
-  },
-  {
-    id: 6,
-    url: '/photos/carousel/Carosel Outdoor Wedding 1.webp',
-    alt: 'Rustic Charm',
-  },
-  {
-    id: 7,
-    url: '/photos/carousel/Carosel Outdoor Wedding 2.webp',
-    alt: 'Evening Atmosphere',
-  },
-];
+// The homepage carousel shows every image in photos/carousel — add or
+// remove files there and it updates automatically.
+const venuePhotos = photosFromFolder(
+  import.meta.glob('/photos/carousel/*', {
+    eager: true,
+    query: '?url',
+    import: 'default',
+  })
+);
 
 const scrollToSection = (id: string) => {
   const element = document.getElementById(id);
@@ -88,7 +68,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* Overlay for text readability */}
-      <div className="absolute inset-0 bg-black bg-opacity-30 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
 
       {/* Hero Content - Parallax (slower) */}
       <div
@@ -116,14 +96,14 @@ const Hero: React.FC = () => {
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-4 pointer-events-auto">
           <button
-            onClick={() => scrollToSection('calendar')}
-            className="bg-[#A2B29F] text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-[#8c9a89] active:scale-95 transition-all duration-200"
+            onClick={() => scrollToSection('contact')}
+            className="bg-brand-sage text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-[#8c9a89] active:scale-95 transition-all duration-200"
           >
-            Check Available Dates
+            Inquire About Your Event
           </button>
           <button
             onClick={() => scrollToSection('contact')}
-            className="bg-white/15 backdrop-blur-sm border border-white/70 text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-white/30 active:scale-95 transition-all duration-200"
+            className="bg-white/15 backdrop-blur-xs border border-white/70 text-white py-3 px-8 rounded-lg text-lg font-semibold shadow-lg hover:bg-white/30 active:scale-95 transition-all duration-200"
           >
             Schedule a Tour
           </button>

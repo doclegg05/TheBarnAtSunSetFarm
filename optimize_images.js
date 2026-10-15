@@ -7,7 +7,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ROOT_DIR = __dirname;
-const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
+// Folders that hold site images: static assets in public/, and the
+// drop-in gallery/carousel folders in photos/.
+const IMAGE_DIRS = [
+  path.join(ROOT_DIR, 'public'),
+  path.join(ROOT_DIR, 'photos'),
+];
 const SRC_DIR = path.join(ROOT_DIR); // To scan for code references
 const MAX_WIDTH = 1600;
 const QUALITY = 80;
@@ -47,7 +52,12 @@ async function getFiles(dir, extensions) {
 
 async function optimizeImages() {
   console.log('Scanning for images...');
-  const images = await getFiles(PUBLIC_DIR, IMAGE_EXTENSIONS);
+  const images = [];
+  for (const dir of IMAGE_DIRS) {
+    if (fs.existsSync(dir)) {
+      images.push(...(await getFiles(dir, IMAGE_EXTENSIONS)));
+    }
+  }
 
   console.log(`Found ${images.length} images.`);
 

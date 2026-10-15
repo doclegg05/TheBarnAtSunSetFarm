@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+coverage
 *.local
 
 # Editor directories and files
@@ -26,3 +27,6 @@ dist-ssr
 # Environment Variables
 .env
 .env.local
+
+# Removed website photos kept as local backups (not part of the site)
+Photo Archive/

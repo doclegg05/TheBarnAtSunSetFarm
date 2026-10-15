@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <link rel="stylesheet" href="../../assets/brand.css" />
+      <style>
+        #f05 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          background: var(--cream);
+          container-type: size;
+        }
+        #f05-meadow {
+          position: absolute;
+          left: -40px;
+          right: -40px;
+          bottom: -150px;
+          width: calc(100% + 80px);
+          height: auto;
+          opacity: 0.9;
+        }
+        #f05-count {
+          position: absolute;
+          left: 130px;
+          top: 230px;
+          width: 760px;
+          display: flex;
+          flex-direction: column;
+          color: var(--ink);
+        }
+        #f05-kicker { display: block; color: var(--sage-deep); }
+        #f05-numwrap {
+          display: block;
+          width: 640px;
+          height: 330px;
+        }
+        #f05-num {
+          display: inline-block;
+          font-family: var(--serif);
+          font-weight: 700;
+          font-size: 360px;
+          line-height: 330px;
+          letter-spacing: -0.02em;
+          font-variant-numeric: lining-nums tabular-nums;
+          transform-origin: 0% 80%;
+          color: var(--ink);
+        }
+        #f05-label {
+          display: block;
+          margin-top: 6px;
+          font-family: var(--serif);
+          font-style: italic;
+          font-size: 68px;
+          line-height: 1.05;
+          color: var(--charcoal);
+        }
+        #f05-label em { font-style: italic; color: var(--cedar); }
+        #f05-c1 { left: 900px; top: 140px; width: 400px; height: 520px; padding: 14px 14px 56px; }
+        #f05-c2 { left: 1260px; top: 110px; width: 560px; height: 470px; padding: 14px 14px 56px; }
+        #f05-c3 { left: 1330px; top: 612px; width: 380px; height: 420px; padding: 14px 14px 56px; }
+        #f05-c1 .note, #f05-c2 .note, #f05-c3 .note { font-size: 28px; bottom: 10px; }
+        @container (max-aspect-ratio: 1/1) {
+          #f05-count { left: 80px; top: 300px; }
+          #f05-c1 { left: 60px; top: 880px; width: 380px; height: 500px; }
+          #f05-c2 { left: 440px; top: 820px; width: 560px; height: 450px; }
+          #f05-c3 { left: 540px; top: 1200px; width: 360px; height: 400px; }
+          #f05-meadow { bottom: -60px; }
+        }
+      </style>
+
+      <div id="f05" data-composition-id="f05">
+        <img id="f05-meadow" src="../../assets/art/meadow-edge.webp" alt="" />
+        <div id="f05-count">
+          <span id="f05-kicker" class="kicker">Dinner for up to</span>
+          <span id="f05-numwrap"><span id="f05-num">0</span></span>
+          <span id="f05-label">of your <em>favorite</em> people.</span>
+        </div>
+        <div class="polaroid" id="f05-c1"><span class="photo"><img src="../../assets/photos/s5-porch-tables.webp" alt="Long dinner tables set along the covered porch" /></span><span class="note">the porch</span></div>
+        <div class="polaroid" id="f05-c2"><span class="photo"><img src="../../assets/photos/s5-great-room.webp" alt="Round reception tables in the barn's great room" /></span><span class="note">the great room</span></div>
+        <div class="polaroid" id="f05-c3"><span class="photo"><img src="../../assets/photos/s5-cake.webp" alt="A white wedding cake with white roses" /></span><span class="note">the cake (obviously)</span></div>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          const num = document.getElementById("f05-num");
+          tl.fromTo("#f05-meadow", { y: 160, opacity: 0 }, { y: 0, opacity: 0.9, duration: 1.0, ease: "power3.out" }, 0);
+          tl.fromTo("#f05-kicker", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.25);
+          // counting-dynamic-scale: 0 to 200, landing on the spoken "hundred".
+          const state = { value: 0 };
+          tl.fromTo(
+            state,
+            { value: 0 },
+            { value: 200, duration: 1.25, ease: "power2.out", onUpdate: () => { num.textContent = String(Math.round(state.value)); } },
+            0.55,
+          );
+          tl.fromTo("#f05-num", { scale: 0.45 }, { scale: 1, duration: 1.25, ease: "power2.out" }, 0.55);
+          tl.to("#f05-num", { color: "#b8692f", duration: 0.2, ease: "power1.out" }, 1.8);
+          tl.to("#f05-num", { color: "#2b2b2d", duration: 0.6, ease: "power1.inOut" }, 2.1);
+          tl.fromTo("#f05-label", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }, 2.2);
+          // spring-pop-entrance: three dinner photos pop in, staggered.
+          tl.fromTo("#f05-c1", { scale: 0.3, rotation: -14, opacity: 0 }, { scale: 1, rotation: -4, opacity: 1, duration: 0.6, ease: "back.out(1.7)" }, 0.4);
+          tl.fromTo("#f05-c2", { scale: 0.3, rotation: 12, opacity: 0 }, { scale: 1, rotation: 3, opacity: 1, duration: 0.6, ease: "back.out(1.7)" }, 0.75);
+          tl.fromTo("#f05-c3", { scale: 0.3, rotation: -10, opacity: 0 }, { scale: 1, rotation: -2, opacity: 1, duration: 0.6, ease: "back.out(1.7)" }, 2.6);
+          // Cheers: the cake card clinks on the glass sound.
+          tl.to("#f05-c3", { rotation: 4, duration: 0.12, ease: "power1.out", yoyo: true, repeat: 1 }, 3.25);
+          window.__timelines["f05"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

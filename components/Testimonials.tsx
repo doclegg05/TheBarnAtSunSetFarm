@@ -16,12 +16,12 @@ const Testimonials: React.FC = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2
-            className="text-4xl md:text-5xl font-bold text-[#4a4a4a]"
+            className="text-4xl md:text-5xl font-bold text-brand-charcoal"
             style={{ fontFamily: "'Cormorant Garamond', serif" }}
           >
             Love Notes
           </h2>
-          <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
+          <div className="mt-4 w-24 h-1 bg-brand-pink mx-auto"></div>
           <p
             className="mt-6 text-lg max-w-2xl mx-auto text-gray-600"
             style={{ fontFamily: "'Raleway', sans-serif" }}
@@ -34,9 +34,9 @@ const Testimonials: React.FC = () => {
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.id}
-              className="bg-[#FDF8F5] p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100"
+              className="bg-brand-cream p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100"
             >
-              <div className="mb-4 text-[#D4AF37]">
+              <div className="mb-4 text-brand-gold">
                 {/* 5 Stars SVG */}
                 <div className="flex space-x-1">
                   {[...Array(5)].map((_, i) => (
@@ -64,7 +64,7 @@ const Testimonials: React.FC = () => {
               </p>
               <div className="border-t border-gray-200 pt-4">
                 <h4
-                  className="font-bold text-[#4a4a4a] text-lg"
+                  className="font-bold text-brand-charcoal text-lg"
                   style={{ fontFamily: "'Cormorant Garamond', serif" }}
                 >
                   {testimonial.name}
