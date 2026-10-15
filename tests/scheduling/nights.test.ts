@@ -5,7 +5,6 @@ import {
   BARN_SETUP_DAYS,
   blockedNights,
   nightsOverlap,
-  SPACES_BLOCKED_BY_EVENTS,
 } from '../../lib/scheduling/nights';
 import { d } from './helpers';
 
@@ -38,10 +37,6 @@ describe('blockedNights', () => {
     });
     expect(BARN_SETUP_DAYS).toBe(1);
     expect(BARN_CLEANUP_DAYS).toBe(1);
-  });
-
-  it('C3 and C5: events block lodging in both the Barn and the Cabin', () => {
-    expect(SPACES_BLOCKED_BY_EVENTS).toEqual(['barn', 'cabin']);
   });
 
   it('compares night ranges as half-open', () => {

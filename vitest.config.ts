@@ -9,7 +9,7 @@ export default defineConfig({
     testTimeout: 20_000,
     coverage: {
       provider: 'v8',
-      include: ['lib/scheduling/**', 'lib/ical/**'],
+      include: ['lib/scheduling/**', 'lib/ical/**', 'lib/server/**'],
       // Each folder must reach 80 percent on its own, so one cannot carry the other.
       thresholds: {
         'lib/scheduling/**': {
@@ -19,6 +19,12 @@ export default defineConfig({
           statements: 80,
         },
         'lib/ical/**': {
+          lines: 80,
+          functions: 80,
+          branches: 80,
+          statements: 80,
+        },
+        'lib/server/**': {
           lines: 80,
           functions: 80,
           branches: 80,

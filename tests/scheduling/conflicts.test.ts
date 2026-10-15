@@ -37,7 +37,7 @@ describe('checkEventConflicts', () => {
       checkIn: d('2026-11-03'),
       checkOut: d('2026-11-06'),
     };
-    const result = checkEventConflicts(event, [stay], []);
+    const result = checkEventConflicts(event, [stay], [], []);
     expect(result.refused).toBe(true);
     expect(result.barnStays).toEqual([stay]);
   });
@@ -48,7 +48,7 @@ describe('checkEventConflicts', () => {
       checkIn: d('2026-11-07'),
       checkOut: d('2026-11-09'),
     };
-    const result = checkEventConflicts(event, [stay], []);
+    const result = checkEventConflicts(event, [stay], [], []);
     expect(result.refused).toBe(false);
     expect(result.cabinStays).toEqual([stay]);
   });
@@ -61,8 +61,10 @@ describe('checkEventConflicts', () => {
     };
     const monday = { firstDay: d('2026-11-09'), lastDay: d('2026-11-09') };
     const tuesday = { firstDay: d('2026-11-10'), lastDay: d('2026-11-10') };
-    expect(checkEventConflicts(monday, [outSunday], []).refused).toBe(true);
-    expect(checkEventConflicts(tuesday, [outSunday], []).refused).toBe(false);
+    expect(checkEventConflicts(monday, [outSunday], [], []).refused).toBe(true);
+    expect(checkEventConflicts(tuesday, [outSunday], [], []).refused).toBe(
+      false
+    );
   });
 
   it('C11: refuses an event when the next Barn guest arrives before a full cleanup day', () => {
@@ -77,8 +79,12 @@ describe('checkEventConflicts', () => {
       checkIn: d('2026-11-16'),
       checkOut: d('2026-11-18'),
     };
-    expect(checkEventConflicts(saturday, [inSunday], []).refused).toBe(true);
-    expect(checkEventConflicts(saturday, [inMonday], []).refused).toBe(false);
+    expect(checkEventConflicts(saturday, [inSunday], [], []).refused).toBe(
+      true
+    );
+    expect(checkEventConflicts(saturday, [inMonday], [], []).refused).toBe(
+      false
+    );
   });
 
   it('lists showings on the event dates to move, but not calls or other dates', () => {
@@ -88,19 +94,56 @@ describe('checkEventConflicts', () => {
       booking('c1', 'call', '2026-11-07'),
     ];
     expect(
-      checkEventConflicts(event, [], appointments).showingsToMove.map(
+      checkEventConflicts(event, [], appointments, []).showingsToMove.map(
         (a) => a.id
       )
     ).toEqual(['s1']);
   });
 
   it('passes an event with nothing in the way', () => {
-    expect(checkEventConflicts(event, [], [])).toEqual({
+    expect(checkEventConflicts(event, [], [], [])).toEqual({
       refused: false,
       barnStays: [],
+      sameDayEvents: [],
       cabinStays: [],
+      turnaroundEvents: [],
       showingsToMove: [],
     });
+  });
+});
+
+describe('checkEventConflicts: other events (D13)', () => {
+  const saturday = {
+    id: 'saturday',
+    firstDay: d('2026-11-14'),
+    lastDay: d('2026-11-14'),
+  };
+
+  it('D13: refuses a second event that shares a day', () => {
+    const weekend = { firstDay: d('2026-11-14'), lastDay: d('2026-11-15') };
+    const result = checkEventConflicts(weekend, [], [], [saturday]);
+    expect(result.refused).toBe(true);
+    expect(result.sameDayEvents).toEqual([saturday]);
+    expect(result.turnaroundEvents).toEqual([]);
+  });
+
+  it('D13: warns, without refusing, when a setup or cleanup day lands on another event', () => {
+    const friday = { firstDay: d('2026-11-13'), lastDay: d('2026-11-13') };
+    const sunday = { firstDay: d('2026-11-15'), lastDay: d('2026-11-15') };
+    for (const nextDoor of [friday, sunday]) {
+      const result = checkEventConflicts(nextDoor, [], [], [saturday]);
+      expect(result.refused).toBe(false);
+      expect(result.turnaroundEvents).toEqual([saturday]);
+    }
+  });
+
+  it('D13: ignores events two days away and the event being edited', () => {
+    const monday = { firstDay: d('2026-11-16'), lastDay: d('2026-11-16') };
+    const mondayResult = checkEventConflicts(monday, [], [], [saturday]);
+    expect(mondayResult.turnaroundEvents).toEqual([]);
+    const editing = checkEventConflicts(saturday, [], [], [saturday]);
+    expect(editing.refused).toBe(false);
+    expect(editing.sameDayEvents).toEqual([]);
   });
 });
 
@@ -135,7 +178,7 @@ describe('findEventStayConflicts', () => {
       (c) => `${c.stay.space}:${c.stay.checkIn}`
     );
 
-  it('C9: finds stays in either space on any event night, the last day included', () => {
+  it('C3, C5 and C9: finds stays in either space on any event night, the last day included', () => {
     expect(
       conflictsFor([
         { space: 'barn', checkIn: d('2026-11-07'), checkOut: d('2026-11-08') },
