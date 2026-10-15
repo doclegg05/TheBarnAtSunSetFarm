@@ -12,13 +12,13 @@ const FAQ: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-20 md:py-32 bg-[#FDF8F5]">
+    <section id="faq" className="py-20 md:py-32 bg-brand-cream">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-[#4a4a4a]">
+          <h2 className="text-4xl md:text-5xl font-bold text-brand-charcoal">
             Frequently Asked Questions
           </h2>
-          <div className="mt-4 w-24 h-1 bg-[#EAD1DC] mx-auto"></div>
+          <div className="mt-4 w-24 h-1 bg-brand-pink mx-auto"></div>
           <p className="mt-6 text-lg text-gray-600">
             Everything you need to know about hosting your special day at The
             Barn at Sunset Farm.
@@ -79,7 +79,7 @@ const FAQ: React.FC = () => {
           <p className="text-lg text-gray-600 mb-6">Still have questions?</p>
           <a
             href="#contact"
-            className="inline-block bg-[#4a4a4a] text-white py-3 px-8 rounded-lg font-semibold hover:bg-opacity-90 transition-colors duration-300 shadow-lg"
+            className="inline-block bg-brand-charcoal text-white py-3 px-8 rounded-lg font-semibold hover:bg-brand-charcoal/90 transition-colors duration-300 shadow-lg"
           >
             Contact Us
           </a>

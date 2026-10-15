@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <link rel="stylesheet" href="../../assets/brand.css" />
+      <style>
+        #f02 {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          background: var(--paper);
+          container-type: size;
+        }
+        #f02-paper {
+          position: absolute;
+          inset: -40px;
+          width: calc(100% + 80px);
+          height: calc(100% + 80px);
+          object-fit: cover;
+          object-position: 50% 50%;
+        }
+        #f02-board {
+          position: absolute;
+          inset: 0;
+        }
+        #f02-title {
+          position: absolute;
+          left: 120px;
+          bottom: 70px;
+          margin: 0;
+          font-family: var(--serif);
+          font-style: italic;
+          font-weight: 400;
+          font-size: 64px;
+          color: var(--charcoal);
+        }
+        #f02-p1 { left: 150px; top: 250px; width: 540px; height: 480px; }
+        #f02-p2 { left: 650px; top: 120px; width: 400px; height: 560px; }
+        #f02-p3 { left: 980px; top: 420px; width: 600px; height: 490px; }
+        #f02-p4 { left: 1450px; top: 110px; width: 380px; height: 540px; }
+        #f02-p3 .photo img { object-position: 50% 30%; }
+        @container (max-aspect-ratio: 1/1) {
+          #f02-p1 { left: 60px; top: 300px; width: 540px; height: 480px; }
+          #f02-p2 { left: 600px; top: 250px; width: 400px; height: 560px; }
+          #f02-p3 { left: 70px; top: 860px; width: 560px; height: 470px; }
+          #f02-p4 { left: 620px; top: 860px; width: 380px; height: 540px; }
+          #f02-title { left: 80px; bottom: 400px; font-size: 72px; }
+        }
+      </style>
+
+      <div id="f02" data-composition-id="f02">
+        <img id="f02-paper" src="../../assets/art/sage-paper.webp" alt="" />
+        <div id="f02-board">
+          <div class="polaroid" id="f02-p1"><span class="photo"><img src="../../assets/photos/s2-loft-vanity.webp" alt="Vanity mirrors in the loft" /></span><span class="note">the loft</span></div>
+          <div class="polaroid" id="f02-p2"><span class="photo"><img src="../../assets/photos/s2-dresses.webp" alt="Bridesmaid dresses hanging from the barn balcony" /></span><span class="note">the dresses</span></div>
+          <div class="polaroid" id="f02-p3"><span class="photo"><img src="../../assets/photos/s2-bridesmaids.webp" alt="Bride and bridesmaids with bouquets" /></span><span class="note">the crew</span></div>
+          <div class="polaroid" id="f02-p4"><span class="photo"><img src="../../assets/photos/s2-boots.webp" alt="Cowboy boots and a bouquet" /></span><span class="note">found 'em!</span></div>
+        </div>
+        <h2 id="f02-title">Getting ready, upstairs.</h2>
+      </div>
+
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          // spring-pop-entrance: each polaroid is tossed in, overshoots, and settles at a slight angle.
+          const TOSS = [
+            ["#f02-p1", -7, -260, 520, 0.15],
+            ["#f02-p2", 4, 120, -620, 0.55],
+            ["#f02-p3", -3, 380, 560, 0.95],
+            ["#f02-p4", 8, 520, -560, 2.75],
+          ];
+          TOSS.forEach(([sel, rot, dx, dy, at]) => {
+            tl.fromTo(
+              sel,
+              { x: dx, y: dy, rotation: rot * 4, scale: 0.7, opacity: 0 },
+              { x: 0, y: 0, rotation: rot, scale: 1, opacity: 1, duration: 0.7, ease: "back.out(1.5)" },
+              at,
+            );
+          });
+          // The boots note wiggles once, like a punchline.
+          tl.fromTo("#f02-p4 .note", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(3)" }, 3.3);
+          tl.to("#f02-p4", { rotation: 13, duration: 0.14, ease: "power1.inOut", yoyo: true, repeat: 3 }, 3.5);
+          tl.fromTo("#f02-title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.5);
+          // A slow drift across the whole board keeps the frame alive.
+          tl.fromTo("#f02-board", { scale: 1.0, x: 0 }, { scale: 1.04, x: -20, duration: 4.8, ease: "sine.inOut" }, 0);
+          tl.fromTo("#f02-paper", { scale: 1.06 }, { scale: 1.0, duration: 4.8, ease: "sine.inOut" }, 0);
+          window.__timelines["f02"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>
