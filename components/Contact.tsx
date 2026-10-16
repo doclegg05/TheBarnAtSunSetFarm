@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm, ValidationError } from '@formspree/react';
+import { useBooking } from '../contexts/useBooking';
+import { formatDateRangeLabel } from '../lib/bookingDates';
+import { HEARD_ABOUT_OPTIONS, HEARD_ABOUT_OTHER } from '../lib/inquirySources';
+import { trackEvent } from '../lib/analytics';
 import {
   APPLE_MAPS_DIRECTIONS_URL,
   ARRIVAL_INSTRUCTIONS,
@@ -15,12 +19,36 @@ const Contact: React.FC = () => {
     email: '',
     phone: '',
     date: '',
+    heard_about: '',
+    heard_about_other: '',
     message: '',
   });
   const [state, handleSubmit] = useForm('mdkjokdw');
+  const {
+    selectedDateRange: { start, end },
+  } = useBooking();
+
+  const selectedDateLabel = useMemo(
+    () => formatDateRangeLabel(start, end),
+    [start, end]
+  );
+
+  // One GA4 lead per sent inquiry, tagged with its source. Only the fixed
+  // dropdown answer is sent — never names, contact details or free text.
+  useEffect(() => {
+    if (state.succeeded) {
+      trackEvent('generate_lead', { heard_about: formData.heard_about });
+    }
+  }, [state.succeeded, formData.heard_about]);
+
+  const dateValue = isDateEdited
+    ? formData.date
+    : selectedDateLabel || formData.date;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -150,6 +178,53 @@ const Contact: React.FC = () => {
                     className="text-red-500 text-sm mt-1"
                   />
                 </div>
+                <div>
+                  <label
+                    htmlFor="heard_about"
+                    className="block text-lg font-medium text-gray-700"
+                  >
+                    How did you hear about us?
+                  </label>
+                  <select
+                    name="heard_about"
+                    id="heard_about"
+                    required
+                    value={formData.heard_about}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white"
+                  >
+                    <option value="">Please choose one</option>
+                    {HEARD_ABOUT_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <ValidationError
+                    prefix="How did you hear about us"
+                    field="heard_about"
+                    errors={state.errors}
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+                {formData.heard_about === HEARD_ABOUT_OTHER && (
+                  <div>
+                    <label
+                      htmlFor="heard_about_other"
+                      className="block text-lg font-medium text-gray-700"
+                    >
+                      Where did you hear about us?
+                    </label>
+                    <input
+                      type="text"
+                      name="heard_about_other"
+                      id="heard_about_other"
+                      value={formData.heard_about_other}
+                      onChange={handleChange}
+                      className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#A2B29F] focus:border-[#A2B29F] bg-white"
+                    />
+                  </div>
+                )}
                 <div>
                   <label
                     htmlFor="message"

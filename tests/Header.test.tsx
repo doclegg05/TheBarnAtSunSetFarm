@@ -1,72 +1,39 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import Header from '../components/Header';
 
-const scroll = vi.fn();
-const renderPage = (path: string) =>
-  render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/gallery" element={<Header />} />
-        <Route
-          path="/"
-          element={
-            <>
-              <Header />
-              <section id="home" />
-              <section id="packages" />
-              <section id="contact">Inquiry form</section>
-            </>
-          }
-        />
-      </Routes>
-    </MemoryRouter>
-  );
-
-beforeEach(() => {
-  scroll.mockClear();
-  Element.prototype.scrollIntoView = scroll;
-});
 afterEach(() => {
   cleanup();
+  delete window.gtag;
   vi.restoreAllMocks();
 });
 
-describe('Header inquiry navigation', () => {
-  it('removes availability navigation on desktop and mobile', () => {
-    renderPage('/');
-    expect(screen.queryByRole('button', { name: 'Availability' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
-    expect(screen.queryByRole('button', { name: 'Availability' })).toBeNull();
-  });
+describe('Header directory links', () => {
+  it('records a click to The Knot in Google Analytics before opening it', () => {
+    const gtag = vi.fn();
+    window.gtag = gtag;
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
 
-  it('scrolls to contact after returning from an interior page', () => {
-    renderPage('/gallery');
-    fireEvent.click(screen.getByRole('button', { name: 'Contact' }));
-    expect(screen.getByText('Inquiry form')).toBeTruthy();
-    expect(scroll.mock.instances.at(-1)).toBe(
-      document.getElementById('contact')
+    render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>
     );
-  });
+    fireEvent.click(screen.getByRole('button', { name: 'Open The Knot' }));
 
-  it('redirects an old calendar anchor to the inquiry form', () => {
-    renderPage('/#calendar');
-    expect(scroll.mock.instances.at(-1)).toBe(
-      document.getElementById('contact')
+    expect(gtag).toHaveBeenCalledWith(
+      'event',
+      'click',
+      expect.objectContaining({
+        link_domain: 'www.theknot.com',
+        outbound: true,
+      })
     );
-  });
-
-  it('sends an old pricing anchor to the packages section', () => {
-    renderPage('/#pricing');
-    expect(scroll.mock.instances.at(-1)).toBe(
-      document.getElementById('packages')
+    expect(open).toHaveBeenCalledWith(
+      expect.stringContaining('theknot.com'),
+      '_blank',
+      'noopener,noreferrer'
     );
-  });
-
-  it('returns to the top when the site name is clicked on the homepage', () => {
-    renderPage('/');
-    fireEvent.click(screen.getByRole('button', { name: 'Go to home page' }));
-    expect(scroll.mock.instances.at(-1)).toBe(document.getElementById('home'));
   });
 });

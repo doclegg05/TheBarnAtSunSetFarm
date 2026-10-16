@@ -34,16 +34,12 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - [ ] Update address to 86 Harper Ln on The Knot, WeddingWire, and Facebook (NAP consistency)
 - [ ] Test directions buttons on a phone from the live site
 - [ ] Original un-optimized photos still sit untracked in the MAIN repo working tree at `photos/gallery/weddings/` (Barn.1, Wedding.13-17, Wedding_Design\*.jpg, etc.) — safe to delete (PR #16 merged)
-- [ ] Testimonials section: component exists at components/Testimonials.tsx, unused — wire up when real couple quotes available
+- [ ] Testimonials: "Love Notes" section is wired in (after Pricing) but hidden until lib/testimonials.ts has entries — owner collects real quotes with written permission (TESTIMONIALS.md); never invent or reword quotes
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
-- [x] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env. Obsolete: #25 removed the calendar, and per #25 the Calendar API credential was revoked in Google Cloud on 2026-10-05
-- [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
-- [x] Merge #29 (scheduler part 1), then write the part 2 plan (merged 2026-10-14; plans for 2b and 2c are written as each part starts)
-- [x] Apply the 2a migration to the Barn's Supabase project (ran automatically when #31 merged, 2026-10-15)
-- [ ] Merge the table rename (`fix/scheduler-table-names`, migration `20261015000050`) with Britt's yes
-- [ ] Set SUPABASE_URL, SUPABASE_SECRET_KEY, EMAIL_API_KEY, EMAIL_FROM and ALERT_EMAIL in Netlify, then run the real-key smoke test
-- [ ] Platform (`feat/foundation-db`): `20261014000000_inquiries.sql` is numbered below the applied `20261015000000`; renumber it before that branch merges, or Supabase may skip or refuse it
-- [ ] Phase 1 of the scheduler: after the owner's test import of our feeds, fetch the Airbnb and VRBO exports and check whether our blocked dates come back as entries (risk R9 in the spec), before part 2's alert emails go live
+- [ ] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env (calendar shows "temporarily offline" notice without them)
+- [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx
+- [ ] Owner: answer the 10 hidden FAQ questions in lib/faq.ts (answer: null = hidden): deposit/payments, cancellation, rain plan, alcohol, caterer kitchen, setup/cleanup times, end time/music, decoration rules, lodging check-in/out, pets. Never guess policies
+- [ ] Owner: create GA4 property and set VITE_GA_MEASUREMENT_ID in Netlify, then redeploy (steps in GOOGLE_ANALYTICS_SETUP.md)
 
 ## Key Decisions Log
 
@@ -53,18 +49,8 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 | 2026-06-10 | Keep scroll fade-in but guard it | Visible-on-mount check + reduced-motion + threshold 0 prevents invisible content           |
 | 2026-06-10 | Keep original header per user    | User prefers the original nav with The Knot/WeddingWire logo links; sticky header reverted |
 | 2026-07-20 | Maps by GPS coords, never address | "19 Boulder Trail" misgeocodes into Rivers Edge; real address 86 Harper Ln unmapped — lib/venueLocation.ts is the single source of truth |
-| 2026-07-20 | SPA fallback via public/\_redirects | One-line fix; Vite copies it to dist/ automatically, no netlify.toml needed |
-| 2026-07-20 | New photos continue the existing lowercase filename families and numbering; never reuse low numbers | The case-insensitive filesystem overwrites files during optimize |
-| 2026-10-13 | Promo video built in HyperFrames, scenes shared by 16:9 and 9:16 roots via symlinked sibling project | A HyperFrames project allows one root composition; one scene set keeps both cuts in sync |
-| 2026-10-13 | Tailwind v4 via `@tailwindcss/postcss` (#25), replacing the 2026-06-10 v3 decision | Tailwind 3's dependency chain (braces, postcss-selector-parser) carried npm advisories with no v3 fix; #25 migrated the renamed and opacity utilities |
-| 2026-10-14 | Every event day's lodging night is blocked, the last day included; the Barn needs one guest-free setup day before and one cleanup day after each event (C9 to C11) | Britt's rule: a guest who checks out Sunday allows a Tuesday wedding at the earliest, and after a Saturday wedding the next Barn guest arrives Monday |
-| 2026-10-14 | A second event on the same day is refused; an overlapping setup or cleanup day only warns (D13, built in part 2) | Two weddings cannot share a day, but a tight turnaround is the manager's call |
-| 2026-10-14 | Scheduler tests run against a throwaway database in CI; no staging Supabase project (D11) | Test bookings never touch real data; deploy previews keep booking switched off |
-| 2026-10-14 | Couple tools get built into this site, not a separate site builder | The site already ranks on Google and converts visitors into inquiries |
-| 2026-10-14 | Server code calls `sched_*` SQL functions through Supabase's REST API with the secret key; no direct database connection (D14) | Supabase warns postgres.js can hang or mix up results on its shared pooler; each API call is one transaction and keeps the free project awake |
-| 2026-10-14 | A feed that suddenly loses all or most of its future stays is held for one sync, then accepted with an email (D15) | A provider glitch cannot wipe stays and open showings over a guest; a real cancellation waits at most 15 minutes |
-| 2026-10-14 | D13 is also an exclusion constraint on `events` | Two same-day saves cannot both succeed, even if they race |
-| 2026-10-15 | The scheduler's `settings` and `rate_limits` become `sched_settings` and `sched_rate_limits` (D18) | The platform's `feat/foundation-db` owns the plain names for its general settings and rate limits; both scheduler tables were still empty |
+| 2026-10-12 | Contact form asks "How did you hear about us?" | Owner is cancelling paid Knot/WeddingWire plans; `heard_about` (options in lib/inquirySources.ts) measures lead sources before/after. Keep option wording stable |
+| 2026-10-12 | GA4 via lib/analytics.ts, live domain only | Loads only when VITE_GA_MEASUREMENT_ID is set AND hostname is thebarnatsunsetfarm.com (previews/dev never send data). Page views come from GA enhanced measurement history events — never send page_view by hand. Events: generate_lead {heard_about}, click {link_url, link_domain, outbound} for header directory links. /privacy page discloses GA (required by GA terms) |
 
 ## Architecture Notes
 

@@ -1,33 +1,14 @@
 import React, { useState } from 'react';
 import ChevronDownIcon from './icons/ChevronDownIcon';
+import { publishedFaqCategories } from '../lib/faq';
 
-const faqs = [
-  {
-    question: 'What is the venue capacity?',
-    answer:
-      'We can comfortably accommodate up to 200 guests for both the ceremony and reception, ensuring an intimate and enjoyable experience for everyone.',
-  },
-  {
-    question: 'Can we bring our own vendors?',
-    answer:
-      'We have a curated list of preferred vendors we love and trust, but you are welcome to bring your own licensed and insured professionals for catering, photography, and florals.',
-  },
-  {
-    question: 'Is there parking on-site?',
-    answer: 'Yes, we have ample parking available for all your guests.',
-  },
-  {
-    question: 'Do you require event insurance?',
-    answer:
-      'Yes, we require a standard event insurance policy for the day of your wedding. This protects both you and the venue and is a standard practice in the industry.',
-  },
-];
+const categories = publishedFaqCategories();
 
 const FAQ: React.FC = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
 
-  const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
+  const toggleFAQ = (id: string) => {
+    setOpenId(openId === id ? null : id);
   };
 
   return (
@@ -44,31 +25,51 @@ const FAQ: React.FC = () => {
           </p>
         </div>
 
-        <div className="space-y-4">
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300"
-            >
-              <button
-                onClick={() => toggleFAQ(index)}
-                className="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-hidden hover:bg-gray-50"
-              >
-                <span className="text-lg font-semibold text-brand-charcoal">
-                  {faq.question}
-                </span>
-                <ChevronDownIcon
-                  className={`w-6 h-6 text-brand-sage transition-transform duration-300 ${openIndex === index ? 'transform rotate-180' : ''}`}
-                />
-              </button>
-              <div
-                className={`px-6 text-gray-600 transition-all duration-300 ease-in-out overflow-hidden ${
-                  openIndex === index
-                    ? 'max-h-48 py-5 border-t border-gray-100 opacity-100'
-                    : 'max-h-0 py-0 opacity-0'
-                }`}
-              >
-                <p>{faq.answer}</p>
+        <div className="space-y-12">
+          {categories.map((category, categoryIndex) => (
+            <div key={category.title}>
+              <h3 className="text-2xl font-semibold text-[#4a4a4a] mb-4 pb-2 border-b-2 border-[#EAD1DC]">
+                {category.title}
+              </h3>
+              <div className="space-y-4">
+                {category.items.map((faq, itemIndex) => {
+                  const id = `faq-${categoryIndex}-${itemIndex}`;
+                  const isOpen = openId === id;
+                  return (
+                    <div
+                      key={faq.question}
+                      className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300"
+                    >
+                      <button
+                        type="button"
+                        id={`${id}-question`}
+                        onClick={() => toggleFAQ(id)}
+                        aria-expanded={isOpen}
+                        aria-controls={`${id}-answer`}
+                        className="w-full px-6 py-5 text-left flex justify-between items-center gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A2B29F] hover:bg-gray-50"
+                      >
+                        <span className="text-lg font-semibold text-[#4a4a4a]">
+                          {faq.question}
+                        </span>
+                        <ChevronDownIcon
+                          className={`w-6 h-6 flex-shrink-0 text-[#A2B29F] transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`}
+                        />
+                      </button>
+                      <div
+                        id={`${id}-answer`}
+                        role="region"
+                        aria-labelledby={`${id}-question`}
+                        className={`px-6 text-gray-600 transition-all duration-300 ease-in-out overflow-hidden ${
+                          isOpen
+                            ? 'max-h-[40rem] py-5 border-t border-gray-100 opacity-100'
+                            : 'max-h-0 py-0 opacity-0'
+                        }`}
+                      >
+                        <p>{faq.answer}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}

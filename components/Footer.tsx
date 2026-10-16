@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
@@ -30,6 +31,15 @@ const Footer: React.FC = () => {
         <p className="text-sm text-gray-500">
           &copy; {new Date().getFullYear()} The Barn at Sunset Farm. All Rights
           Reserved.
+        </p>
+        <p className="mt-2 text-sm">
+          <Link
+            to="/privacy"
+            onClick={() => window.scrollTo(0, 0)}
+            className="underline hover:text-white transition-colors duration-300"
+          >
+            Privacy Notice
+          </Link>
         </p>
 
         {/* Designed By & Makers Mark */}

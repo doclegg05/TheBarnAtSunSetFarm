@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { trackOutboundClick } from '../lib/analytics';
 
 type NavLink = {
   title: string;
@@ -21,7 +22,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isInteriorPage = ['/gallery', '/virtual-tour'].includes(
+  const isInteriorPage = ['/gallery', '/virtual-tour', '/privacy'].includes(
     location.pathname
   );
 
@@ -70,6 +71,7 @@ const Header: React.FC = () => {
     setIsMenuOpen(false);
 
     if (link.type === 'external' && link.url) {
+      trackOutboundClick(link.url);
       window.open(link.url, '_blank', 'noopener,noreferrer');
       return;
     }

@@ -1,15 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import Contact from '../components/Contact';
+import { BookingProvider } from '../contexts/BookingContext';
+import { useBooking } from '../contexts/useBooking';
+import { HEARD_ABOUT_OPTIONS } from '../lib/inquirySources';
 import {
   APPLE_MAPS_DIRECTIONS_URL,
   GOOGLE_MAPS_DIRECTIONS_URL,
   GOOGLE_MAPS_EMBED_URL,
 } from '../lib/venueLocation';
 
-const form = vi.hoisted(() => ({
-  state: { succeeded: false, submitting: false, errors: null as unknown },
-  submit: vi.fn((e: { preventDefault: () => void }) => e.preventDefault()),
+const formspree = vi.hoisted(() => ({
+  state: { succeeded: false, submitting: false, errors: null },
+}));
+
+vi.mock('@formspree/react', () => ({
+  useForm: () => [
+    formspree.state,
+    vi.fn((e: { preventDefault: () => void }) => e.preventDefault()),
+  ],
+  ValidationError: () => null,
 }));
 
 vi.mock('@formspree/react', async (importOriginal) => ({
@@ -102,6 +112,81 @@ describe('Contact form validation', () => {
     fireEvent.change(message, { target: { value: huge } });
 
     expect(message.value).toHaveLength(10_000);
+  });
+});
+
+describe('Contact form lead source', () => {
+  beforeEach(() => cleanup());
+
+  it('requires "How did you hear about us?" and submits it as heard_about', () => {
+    renderContact();
+    const source = screen.getByLabelText(
+      'How did you hear about us?'
+    ) as HTMLSelectElement;
+    expect(source.required).toBe(true);
+    expect(source.name).toBe('heard_about');
+    expect(source.value).toBe('');
+  });
+
+  it('offers every lead-source option, including both wedding directories', () => {
+    renderContact();
+    const source = screen.getByLabelText(
+      'How did you hear about us?'
+    ) as HTMLSelectElement;
+    const values = Array.from(source.options)
+      .map((option) => option.value)
+      .filter(Boolean);
+    expect(values).toEqual([...HEARD_ABOUT_OPTIONS]);
+    expect(values).toContain('The Knot');
+    expect(values).toContain('WeddingWire');
+  });
+
+  it('asks for details only when "Other" is chosen', () => {
+    renderContact();
+    const source = screen.getByLabelText(
+      'How did you hear about us?'
+    ) as HTMLSelectElement;
+    expect(screen.queryByLabelText('Where did you hear about us?')).toBeNull();
+
+    fireEvent.change(source, { target: { value: 'Other' } });
+    const details = screen.getByLabelText(
+      'Where did you hear about us?'
+    ) as HTMLInputElement;
+    expect(details.name).toBe('heard_about_other');
+
+    fireEvent.change(source, { target: { value: 'Google Maps' } });
+    expect(screen.queryByLabelText('Where did you hear about us?')).toBeNull();
+  });
+
+  it('records one Google Analytics lead, tagged with the source, when an inquiry is sent', () => {
+    const gtag = vi.fn();
+    window.gtag = gtag;
+    try {
+      const { rerender } = render(
+        <BookingProvider>
+          <Contact />
+        </BookingProvider>
+      );
+      fireEvent.change(screen.getByLabelText('How did you hear about us?'), {
+        target: { value: 'Google Maps' },
+      });
+      expect(gtag).not.toHaveBeenCalled();
+
+      formspree.state = { ...formspree.state, succeeded: true };
+      rerender(
+        <BookingProvider>
+          <Contact />
+        </BookingProvider>
+      );
+
+      expect(gtag).toHaveBeenCalledTimes(1);
+      expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', {
+        heard_about: 'Google Maps',
+      });
+    } finally {
+      formspree.state = { ...formspree.state, succeeded: false };
+      delete window.gtag;
+    }
   });
 });
 

@@ -5,10 +5,14 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
+import Testimonials from './components/Testimonials';
+import BookingCalendar from './components/BookingCalendar';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import GalleryPage from './components/GalleryPage';
 import VirtualTourPage from './components/VirtualTourPage';
+import PrivacyPage from './components/PrivacyPage';
+import { BookingProvider } from './contexts/BookingContext';
 import FadeInSection from './components/FadeInSection';
 
 const NotFound: React.FC = () => (
@@ -43,6 +47,14 @@ const HomePage: React.FC = () => (
       </FadeInSection>
 
       <FadeInSection>
+        <Testimonials />
+      </FadeInSection>
+
+      <FadeInSection>
+        <BookingCalendar />
+      </FadeInSection>
+
+      <FadeInSection>
         <FAQ />
       </FadeInSection>
 
@@ -62,6 +74,7 @@ const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/virtual-tour" element={<VirtualTourPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
