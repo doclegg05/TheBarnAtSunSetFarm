@@ -1,5 +1,9 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
+import { setScrollEngine } from './scroll';
 
 /**
  * Every scroll and pointer animation on the /experience page. The markup in
@@ -10,7 +14,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
  */
 export const initMotion = (root: HTMLElement): (() => void) => {
   // Registered here, not at import, so the module loads outside a browser.
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, SplitText);
   const mm = gsap.matchMedia(root);
   const q = gsap.utils.selector(root);
   const all = <T extends Element = HTMLElement>(selector: string) =>
@@ -26,6 +30,45 @@ export const initMotion = (root: HTMLElement): (() => void) => {
       const { motion, finePointer } = context.conditions ?? {};
       if (!motion) return;
       const cleanups: Array<() => void> = [];
+
+      /* ---------------- Smooth, weighted scrolling ---------------- */
+      // Lenis eases wheel and keyboard scrolling; touch keeps its native
+      // feel. GSAP's ticker drives it so pins and scrubs stay in lockstep.
+      const lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9 });
+      lenis.on('scroll', ScrollTrigger.update);
+      const drive = (time: number) => lenis.raf(time * 1000);
+      gsap.ticker.add(drive);
+      gsap.ticker.lagSmoothing(0);
+      setScrollEngine(lenis);
+      cleanups.push(() => {
+        setScrollEngine(null);
+        gsap.ticker.remove(drive);
+        gsap.ticker.lagSmoothing(500, 33);
+        lenis.destroy();
+      });
+
+      /* ---------------- Headings rise line by line ---------------- */
+      for (const heading of all('.xp-split')) {
+        const split = SplitText.create(heading, {
+          type: 'lines',
+          mask: 'lines',
+          autoSplit: true,
+          onSplit: (self) =>
+            gsap.from(self.lines, {
+              yPercent: 110,
+              rotation: 2,
+              duration: 1.3,
+              stagger: 0.12,
+              ease: 'expo.out',
+              scrollTrigger: {
+                trigger: heading,
+                start: 'top 88%',
+                toggleActions: 'play none none reverse',
+              },
+            }),
+        });
+        cleanups.push(() => split.revert());
+      }
 
       /* ---------------- Hero: the arched window opens ---------------- */
       const hero = all('.xp-hero')[0];

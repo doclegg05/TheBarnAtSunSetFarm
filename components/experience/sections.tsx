@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { TransitionLink } from '../PageTransition';
 import Contact from '../Contact';
 import CheckIcon from '../icons/CheckIcon';
 import { AMENITIES } from '../amenityList';
 import { FAQS, PACKAGE_TIERS } from '../../lib/siteContent';
 import { PHOTOS } from './photos';
+import { scrollToSection } from './scroll';
 
 /*
  * Section markup for the /experience page. Every section is readable as
@@ -15,7 +16,7 @@ import { PHOTOS } from './photos';
 
 const scrollToId = (id: string) => (event: React.MouseEvent) => {
   event.preventDefault();
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  scrollToSection(id);
 };
 
 /** Splits text into per-letter spans for letter-by-letter motion. */
@@ -83,7 +84,7 @@ const Heading: React.FC<{ children: React.ReactNode; className?: string }> = ({
   className = '',
 }) => (
   <h2
-    className={`xp-reveal mt-4 font-serif text-[clamp(2.6rem,6vw,5.5rem)] font-normal leading-[0.98] tracking-tight ${className}`}
+    className={`xp-split mt-4 font-serif text-[clamp(2.6rem,6vw,5.5rem)] font-normal leading-[0.98] tracking-tight ${className}`}
   >
     {children}
   </h2>
@@ -1179,12 +1180,12 @@ export const Finale: React.FC = () => (
         >
           WeddingWire
         </a>
-        <Link to="/gallery" className="hover:text-white">
+        <TransitionLink to="/gallery" className="hover:text-white">
           Gallery
-        </Link>
-        <Link to="/virtual-tour" className="hover:text-white">
+        </TransitionLink>
+        <TransitionLink to="/virtual-tour" className="hover:text-white">
           Virtual tour
-        </Link>
+        </TransitionLink>
       </p>
       <p className="mt-6 text-xs text-white/45">
         &copy; {new Date().getFullYear()} The Barn at Sunset Farm. All Rights

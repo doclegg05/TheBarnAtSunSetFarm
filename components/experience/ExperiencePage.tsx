@@ -1,7 +1,9 @@
 import React from 'react';
+import { TransitionLink } from '../PageTransition';
 import Atmosphere from './Atmosphere';
 import Stage from './three/Stage';
 import { initMotion } from './motion';
+import { scrollToSection } from './scroll';
 import { rgb, SKIES, skyAt, type SkyName, type SkyState } from './sky';
 import {
   Amenities,
@@ -36,8 +38,7 @@ const navLinks = [
   { id: 'faq', label: 'FAQ' },
 ] as const;
 
-const goTo = (id: string) =>
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+const goTo = scrollToSection;
 
 const Nav: React.FC<{ navRef: React.RefObject<HTMLElement | null> }> = ({
   navRef,
@@ -81,6 +82,12 @@ const Nav: React.FC<{ navRef: React.RefObject<HTMLElement | null> }> = ({
               {link.label}
             </a>
           ))}
+          <TransitionLink
+            to="/gallery"
+            className="text-xs font-semibold uppercase tracking-[0.25em] opacity-75 transition-opacity hover:opacity-100"
+          >
+            Gallery
+          </TransitionLink>
         </nav>
         <div className="flex items-center gap-2">
           <a
@@ -127,7 +134,7 @@ const Nav: React.FC<{ navRef: React.RefObject<HTMLElement | null> }> = ({
             key={link.id}
             href={`#${link.id}`}
             onClick={pick(link.id)}
-            className="block border-b border-current/10 py-3 font-serif text-3xl last:border-0"
+            className="block border-b border-current/10 py-3 font-serif text-3xl"
             style={{
               animation: open
                 ? `xp-menu-in 0.5s ${index * 0.05}s both cubic-bezier(0.16,1,0.3,1)`
@@ -137,6 +144,12 @@ const Nav: React.FC<{ navRef: React.RefObject<HTMLElement | null> }> = ({
             {link.label}
           </a>
         ))}
+        <TransitionLink
+          to="/gallery"
+          className="block py-3 font-serif text-3xl"
+        >
+          Gallery
+        </TransitionLink>
       </nav>
     </header>
   );
@@ -318,7 +331,7 @@ const ExperiencePage: React.FC = () => {
       ref={rootRef}
       className={`xp-root relative min-h-screen overflow-x-clip font-sans antialiased ${
         reducedMotion ? 'xp-reduced' : ''
-      }`}
+      } ${has3D ? 'xp-has3d' : ''}`}
       style={
         {
           color: 'var(--ink)',
@@ -332,6 +345,11 @@ const ExperiencePage: React.FC = () => {
       <style>{`
         @keyframes xp-menu-in { from { opacity: 0; transform: translateY(12px); } }
         .xp-root ::selection { background: #d4af37; color: #fff; }
+        /* Over the 3D landscape, copy gets a soft halo in the sky's own colour. */
+        .xp-has3d :is(.xp-reveal, .xp-split, .xp-words, .xp-chapter) {
+          text-shadow: 0 0 18px color-mix(in srgb, var(--sky-mid) 85%, transparent),
+            0 0 5px color-mix(in srgb, var(--sky-mid) 70%, transparent);
+        }
       `}</style>
 
       <a

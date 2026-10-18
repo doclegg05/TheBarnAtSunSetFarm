@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import GalleryPage from './components/GalleryPage';
 import VirtualTourPage from './components/VirtualTourPage';
 import FadeInSection from './components/FadeInSection';
+import { PageTransitionProvider } from './components/PageTransition';
 
 // The all-motion design preview loads on its own so its animation library
 // never adds weight to the classic pages.
@@ -64,22 +65,24 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="bg-brand-cream text-brand-charcoal antialiased overflow-x-hidden">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/virtual-tour" element={<VirtualTourPage />} />
-          <Route
-            path="/experience"
-            element={
-              <React.Suspense
-                fallback={<div className="min-h-screen bg-brand-cream" />}
-              >
-                <ExperiencePage />
-              </React.Suspense>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <PageTransitionProvider>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/virtual-tour" element={<VirtualTourPage />} />
+            <Route
+              path="/experience"
+              element={
+                <React.Suspense
+                  fallback={<div className="min-h-screen bg-brand-cream" />}
+                >
+                  <ExperiencePage />
+                </React.Suspense>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </PageTransitionProvider>
       </div>
     </Router>
   );
