@@ -405,6 +405,8 @@ export const TheDay: React.FC = () => (
               <div
                 key={photo.alt}
                 data-depth={photo.depth}
+                data-gl-photo
+                data-gl-zoom="1.1"
                 className={`xp-chapter-photo absolute overflow-hidden rounded-2xl shadow-2xl ${photo.className}`}
               >
                 <img
@@ -524,6 +526,7 @@ export const Barn: React.FC = () => (
       {mosaic.map((tile) => (
         <div
           key={tile.alt}
+          data-gl-photo
           className={`xp-tile overflow-hidden rounded-2xl shadow-xl ${tile.className}`}
         >
           <img

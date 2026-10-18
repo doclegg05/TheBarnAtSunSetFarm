@@ -5,6 +5,8 @@ interface AtmosphereProps {
   /** Read every frame; the page writes the current sky into it on scroll. */
   skyRef: React.RefObject<SkyState>;
   reducedMotion: boolean;
+  /** The 3D world draws its own stars and fireflies; leave only petals. */
+  petalsOnly?: boolean;
 }
 
 interface Star {
@@ -34,7 +36,11 @@ const random = (min: number, max: number) => min + Math.random() * (max - min);
  * One canvas behind the whole page: drifting blush petals by day, stars and
  * fireflies after dark. Their strength comes from the scroll-driven sky.
  */
-const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
+const Atmosphere: React.FC<AtmosphereProps> = ({
+  skyRef,
+  reducedMotion,
+  petalsOnly = false,
+}) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(() => {
@@ -87,7 +93,7 @@ const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
       const t = time / 1000;
       context.clearRect(0, 0, width, height);
 
-      if (sky.stars > 0.01) {
+      if (!petalsOnly && sky.stars > 0.01) {
         for (const star of stars) {
           const twinkle = reducedMotion
             ? 0.8
@@ -132,7 +138,7 @@ const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
         }
       }
 
-      if (sky.fireflies > 0.01) {
+      if (!petalsOnly && sky.fireflies > 0.01) {
         for (const fly of fireflies) {
           if (!reducedMotion) {
             fly.vx += random(-0.00002, 0.00002);
@@ -187,7 +193,7 @@ const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
       window.removeEventListener('resize', resize);
       window.cancelAnimationFrame(frame);
     };
-  }, [skyRef, reducedMotion]);
+  }, [skyRef, reducedMotion, petalsOnly]);
 
   return (
     <canvas

@@ -1,5 +1,6 @@
 import React from 'react';
 import Atmosphere from './Atmosphere';
+import Stage from './three/Stage';
 import { initMotion } from './motion';
 import { rgb, SKIES, skyAt, type SkyName, type SkyState } from './sky';
 import {
@@ -225,8 +226,14 @@ const ExperiencePage: React.FC = () => {
   const rootRef = React.useRef<HTMLDivElement>(null);
   const sunRef = React.useRef<HTMLDivElement>(null);
   const navRef = React.useRef<HTMLElement>(null);
-  const progressRef = React.useRef<HTMLDivElement>(null);
+  const progressBarRef = React.useRef<HTMLDivElement>(null);
+  const progressRef = React.useRef(0);
   const skyRef = React.useRef<SkyState>(SKIES.dawn);
+  const [has3D, setHas3D] = React.useState(false);
+  const handleStageReady = React.useCallback(
+    (running: boolean) => setHas3D(running),
+    []
+  );
   const reducedMotion = React.useSyncExternalStore(
     subscribeReducedMotion,
     prefersReducedMotion,
@@ -271,8 +278,9 @@ const ExperiencePage: React.FC = () => {
       const scrollable =
         document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
-      if (progressRef.current) {
-        progressRef.current.style.transform = `scaleX(${progress})`;
+      progressRef.current = progress;
+      if (progressBarRef.current) {
+        progressBarRef.current.style.transform = `scaleX(${progress})`;
       }
 
       const y = window.scrollY;
@@ -343,7 +351,9 @@ const ExperiencePage: React.FC = () => {
       >
         <div
           ref={sunRef}
-          className="absolute left-0 top-0 h-[38vmin] w-[38vmin] rounded-full will-change-transform"
+          className={`absolute left-0 top-0 h-[38vmin] w-[38vmin] rounded-full will-change-transform ${
+            has3D ? 'hidden' : ''
+          }`}
           style={
             {
               '--glow': 0.5,
@@ -354,10 +364,33 @@ const ExperiencePage: React.FC = () => {
         />
       </div>
 
-      <Atmosphere skyRef={skyRef} reducedMotion={reducedMotion} />
+      {!reducedMotion && (
+        <Stage
+          skyRef={skyRef}
+          progressRef={progressRef}
+          onReady={handleStageReady}
+        />
+      )}
+      {has3D && (
+        // Softens the landscape at the bottom of the screen so copy that
+        // passes over it stays readable.
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-1"
+          style={{
+            background:
+              'linear-gradient(to top, color-mix(in srgb, var(--sky-bot) 45%, transparent), transparent 42%)',
+          }}
+        />
+      )}
+      <Atmosphere
+        skyRef={skyRef}
+        reducedMotion={reducedMotion}
+        petalsOnly={has3D}
+      />
 
       <div
-        ref={progressRef}
+        ref={progressBarRef}
         aria-hidden="true"
         className="fixed inset-x-0 top-0 z-60 h-0.5 origin-left scale-x-0 bg-brand-gold"
       />
