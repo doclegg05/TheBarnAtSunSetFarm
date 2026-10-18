@@ -1,38 +1,8 @@
 import React from 'react';
 import CheckIcon from './icons/CheckIcon';
+import { PACKAGE_TIERS } from '../lib/siteContent';
 
 const Pricing: React.FC = () => {
-  const tiers = [
-    {
-      name: 'Classic Celebration',
-      description: '1 Day Wedding. Use of the Barn/Porch/Outside Area.',
-      features: [
-        'Open Availability',
-        'Up to 200 guests',
-        'All day rental',
-        'Full Barn & Outdoor access',
-        'Optional: 1 Night at Guest Cabin',
-      ],
-      highlight: false,
-    },
-    {
-      name: 'The Sunset Weekend',
-      description: '2 nights. The ultimate experience.',
-      features: [
-        'Friday - Sunday access',
-        'Up to 200 guests',
-        'Tables and Chairs included',
-        'Rehearsal Dinner space',
-        "Bridal Suite & Groom's Quarters",
-        'Overnight stay for the couple',
-        'Priority vendor access',
-        'All amenities from Classic package',
-        'Additional Amenities Available',
-      ],
-      highlight: true,
-    },
-  ];
-
   return (
     <section id="packages" className="py-20 md:py-32 bg-brand-cream">
       <div className="container mx-auto px-6">
@@ -44,7 +14,7 @@ const Pricing: React.FC = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {tiers.map((tier, index) => (
+          {PACKAGE_TIERS.map((tier, index) => (
             <div
               key={index}
               className={`relative flex flex-col p-8 rounded-2xl transition-transform duration-300 hover:-translate-y-2 ${

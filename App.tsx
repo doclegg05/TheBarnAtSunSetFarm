@@ -11,6 +11,12 @@ import GalleryPage from './components/GalleryPage';
 import VirtualTourPage from './components/VirtualTourPage';
 import FadeInSection from './components/FadeInSection';
 
+// The all-motion design preview loads on its own so its animation library
+// never adds weight to the classic pages.
+const ExperiencePage = React.lazy(
+  () => import('./components/experience/ExperiencePage')
+);
+
 const NotFound: React.FC = () => (
   <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
     <h1 className="text-5xl font-bold text-brand-gold mb-4">404</h1>
@@ -62,6 +68,16 @@ const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/virtual-tour" element={<VirtualTourPage />} />
+          <Route
+            path="/experience"
+            element={
+              <React.Suspense
+                fallback={<div className="min-h-screen bg-brand-cream" />}
+              >
+                <ExperiencePage />
+              </React.Suspense>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

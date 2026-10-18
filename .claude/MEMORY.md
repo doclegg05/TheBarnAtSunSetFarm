@@ -38,6 +38,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - [ ] 52MB walkthrough video could be re-encoded (~10-15MB at 1080p)
 - [x] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env. Obsolete: #25 removed the calendar, and per #25 the Calendar API credential was revoked in Google Cloud on 2026-10-05
 - [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
+- [ ] Britt reviews the all-motion design preview at `/experience` (branch `claude/adoring-cori-11jird`) and decides whether it replaces the home page; it is `noindex` until then
 - [x] Merge #29 (scheduler part 1), then write the part 2 plan (merged 2026-10-14; plans for 2b and 2c are written as each part starts)
 - [x] Apply the 2a migration to the Barn's Supabase project (ran automatically when #31 merged, 2026-10-15)
 - [ ] Merge the table rename (`fix/scheduler-table-names`, migration `20261015000050`) with Britt's yes
@@ -74,6 +75,7 @@ Live site matches `main` at 68e4d3b (bundle names `index-DCr6DVc1.js` and `index
 - Tailwind 4 needs Safari 16.4+, Chrome 111+ or Firefox 128+ (browser floor noted in #25)
 - Brand palette: cream #FDF8F5, blush #EAD1DC, sage #A2B29F, charcoal #4a4a4a, gold #D4AF37; Cormorant Garamond headings / Raleway body
 - Contact form posts to Formspree (id: mdkjokdw)
+- `/experience` (components/experience/): scroll-driven design preview. GSAP + ScrollTrigger, lazy-loaded so the classic pages never load it; all motion lives in `motion.ts` and is skipped under reduced motion. Each section names a time of day (`data-sky`) and `sky.ts` blends the page sky and text colour from dawn to night. FAQ, package and amenity copy is shared with the home page through `lib/siteContent.ts` and `components/amenityList.ts`
 - Venue scheduler (in progress): the design spec lives in Britt's private workspace repo at `docs/specs/2026-10-13-barn-venue-scheduler-design.md`. The engine is in `lib/scheduling/`, calendar feeds in `lib/ical/`.
 - Planned couple tools (wedding page, guest list, RSVP, registry links) are specced in a teardown kept outside this public repo, in the sibling folder `../TheBarnAtSunSetFarm-knot-teardown/`; the decision and its constraints live in Claude's auto-memory (`barn-couple-tools-port`). Guest data never goes in this repo.
 
