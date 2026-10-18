@@ -4,7 +4,8 @@ import Contact from '../Contact';
 import CheckIcon from '../icons/CheckIcon';
 import { AMENITIES } from '../amenityList';
 import { FAQS, PACKAGE_TIERS } from '../../lib/siteContent';
-import { PHOTOS } from './photos';
+import type { ResponsiveImage } from '../../scripts/responsiveImages';
+import { LOGO, PHOTOS, pic } from './photos';
 import { scrollToSection } from './scroll';
 
 /*
@@ -102,7 +103,7 @@ export const Hero: React.FC = () => (
   >
     <div className="xp-hero-frame absolute inset-0 m-auto h-full w-full overflow-hidden bg-brand-charcoal shadow-2xl">
       <img
-        src={PHOTOS.heroBarn}
+        {...pic(PHOTOS.heroBarn, '100vw')}
         alt="The Barn at Sunset Farm at sunset, its porch lights glowing against the mountains"
         className="xp-hero-img h-full w-full object-cover"
         fetchPriority="high"
@@ -139,7 +140,7 @@ export const Hero: React.FC = () => (
         <a
           href="#contact"
           onClick={scrollToId('contact')}
-          className="xp-magnetic rounded-full bg-brand-gold px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg transition-colors hover:bg-white hover:text-brand-charcoal"
+          className="xp-magnetic rounded-full bg-brand-gold px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#2a2522] shadow-lg transition-colors hover:bg-white"
         >
           Inquire about your date
         </a>
@@ -202,7 +203,7 @@ export const Statement: React.FC = () => (
     {floating.map((photo) => (
       <img
         key={photo.alt}
-        src={photo.src}
+        {...pic(photo.src, '15vw')}
         alt={photo.alt}
         loading="lazy"
         data-speed={photo.speed}
@@ -228,7 +229,7 @@ interface Chapter {
   title: string;
   copy: string;
   photos: readonly {
-    src: string;
+    src: ResponsiveImage;
     alt: string;
     className: string;
     depth: number;
@@ -412,7 +413,7 @@ export const TheDay: React.FC = () => (
                 className={`xp-chapter-photo absolute overflow-hidden rounded-2xl shadow-2xl ${photo.className}`}
               >
                 <img
-                  src={photo.src}
+                  {...pic(photo.src, '(min-width: 768px) 40vw, 80vw')}
                   alt={photo.alt}
                   loading="lazy"
                   className="h-full w-full scale-110 object-cover"
@@ -499,7 +500,7 @@ export const Barn: React.FC = () => (
       </div>
       <div className="xp-clip relative h-[70vh] overflow-hidden rounded-[2rem] shadow-2xl">
         <img
-          src={PHOTOS.barnFront}
+          {...pic(PHOTOS.barnFront, '(min-width: 768px) 55vw, 100vw')}
           alt="The front of the barn with its wooden doors open"
           loading="lazy"
           className="xp-parallax-img absolute inset-x-0 -top-[12%] h-[124%] w-full object-cover"
@@ -537,7 +538,7 @@ export const Barn: React.FC = () => (
           className={`xp-tile overflow-hidden rounded-2xl shadow-xl ${tile.className}`}
         >
           <img
-            src={tile.src}
+            {...pic(tile.src, '(min-width: 768px) 50vw, 100vw')}
             alt={tile.alt}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
@@ -655,7 +656,7 @@ export const Stay: React.FC = () => (
         >
           <div className="relative min-h-[36vh] overflow-hidden">
             <img
-              src={stay.src}
+              {...pic(stay.src, '(min-width: 768px) 60vw, 100vw')}
               alt={stay.alt}
               loading="lazy"
               className="absolute inset-0 h-full w-full object-cover"
@@ -706,7 +707,7 @@ export const Packages: React.FC = () => (
             }`}
           >
             {tier.highlight && (
-              <span className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-gold px-5 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-lg">
+              <span className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-gold px-5 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-[#2a2522] shadow-lg">
                 Most popular
               </span>
             )}
@@ -735,7 +736,7 @@ export const Packages: React.FC = () => (
               onClick={scrollToId('contact')}
               className={`xp-magnetic mt-10 block rounded-full py-4 text-center text-sm font-semibold uppercase tracking-[0.2em] transition-colors ${
                 tier.highlight
-                  ? 'bg-brand-gold text-white hover:bg-white hover:text-brand-charcoal'
+                  ? 'bg-brand-gold text-[#2a2522] hover:bg-white'
                   : 'bg-brand-charcoal text-white hover:bg-brand-gold'
               }`}
             >
@@ -786,7 +787,7 @@ export const Planning: React.FC = () => (
       <div className="flex justify-center">
         <div className="xp-medallion relative aspect-square w-[min(70vw,360px)] rounded-full bg-brand-cream p-10 shadow-[0_0_120px_-10px_rgb(212_175_55/0.55)]">
           <img
-            src={PHOTOS.logo}
+            src={LOGO}
             alt="Sunset Willow Event Planning, LLC logo"
             loading="lazy"
             className="h-full w-full object-contain"
@@ -945,7 +946,7 @@ export const Region: React.FC = () => (
           className={`relative overflow-hidden rounded-xl shadow-2xl ${item.place}`}
         >
           <img
-            src={item.src}
+            {...pic(item.src, '(min-width: 768px) 50vw, 60vw')}
             alt={item.alt}
             loading="lazy"
             className="h-full w-full object-cover"
@@ -957,7 +958,7 @@ export const Region: React.FC = () => (
       </div>
     ))}
     <img
-      src={PHOTOS.gorgeSunset}
+      {...pic(PHOTOS.gorgeSunset, '100vw')}
       alt=""
       aria-hidden="true"
       className="absolute inset-0 hidden h-full w-full object-cover [.xp-reduced_&]:block"
@@ -1056,20 +1057,20 @@ export const Finale: React.FC = () => (
     className="xp-finale relative overflow-hidden pt-[18vh]"
   >
     <div className="relative z-10 px-6 text-center">
-      <p
+      <h2
         aria-label="See you at sunset."
-        className="font-serif text-[clamp(3.2rem,10vw,9rem)] leading-none"
+        className="font-serif text-[clamp(3.2rem,10vw,9rem)] font-normal leading-none"
       >
         <Letters text="See you" className="xp-finale-letters block" />
         <Letters
           text="at sunset."
           className="xp-finale-letters block italic text-brand-gold"
         />
-      </p>
+      </h2>
       <a
         href="#contact"
         onClick={scrollToId('contact')}
-        className="xp-magnetic mt-12 inline-block rounded-full border border-brand-gold px-10 py-4 text-sm font-semibold uppercase tracking-[0.25em] text-brand-gold transition-colors hover:bg-brand-gold hover:text-white"
+        className="xp-magnetic mt-12 inline-block rounded-full border border-brand-gold px-10 py-4 text-sm font-semibold uppercase tracking-[0.25em] text-brand-gold transition-colors hover:bg-brand-gold hover:text-[#2a2522]"
       >
         Start your inquiry
       </a>

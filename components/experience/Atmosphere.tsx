@@ -172,8 +172,22 @@ const Atmosphere: React.FC<AtmosphereProps> = ({
       context.globalAlpha = 1;
     };
 
+    let blank = false;
     const loop = (time: number) => {
       frame = window.requestAnimationFrame(loop);
+      // Nothing to draw (daytime petals off, or the 3D world owns the night
+      // sky): clear once, then stay idle.
+      const sky = skyRef.current;
+      const empty =
+        !sky ||
+        ((1 - sky.stars) * 0.7 <= 0.02 &&
+          (petalsOnly || (sky.stars <= 0.01 && sky.fireflies <= 0.01)));
+      if (empty) {
+        if (!blank) context.clearRect(0, 0, width, height);
+        blank = true;
+        return;
+      }
+      blank = false;
       if (reducedMotion) {
         // Still frames only: redraw when the sky itself has changed.
         const sky = skyRef.current;

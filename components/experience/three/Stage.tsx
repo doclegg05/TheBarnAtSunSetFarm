@@ -66,9 +66,12 @@ const Stage: React.FC<StageProps> = ({ skyRef, progressRef, onReady }) => {
       world?.resize();
       photos?.resize();
     };
+    let tick = 0;
     const loop = () => {
       frame = window.requestAnimationFrame(loop);
-      if (!world) return;
+      // Phones draw at most every other frame (about 30 per second).
+      tick += 1;
+      if (!world || (lite && tick % 2 === 1)) return;
       world.render({
         sky: skyRef.current,
         progress: progressRef.current ?? 0,
@@ -83,7 +86,21 @@ const Stage: React.FC<StageProps> = ({ skyRef, progressRef, onReady }) => {
       onReady(false);
     };
 
-    Promise.all([import('./World'), lite ? null : import('./PhotoLayer')])
+    // Start once the page has settled, so the 3D download and set-up never
+    // compete with the first paint or the hero's entrance.
+    const idle = new Promise<void>((resolve) => {
+      // Safari has no requestIdleCallback; a short delay does the same job.
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => resolve(), { timeout: 2500 });
+      } else {
+        setTimeout(resolve, 1200);
+      }
+    });
+
+    idle
+      .then(() =>
+        Promise.all([import('./World'), lite ? null : import('./PhotoLayer')])
+      )
       .then(([worldModule, photoModule]) => {
         if (cancelled) return;
         world = new worldModule.World(canvas, { lite });

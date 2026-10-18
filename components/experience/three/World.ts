@@ -190,6 +190,8 @@ export class World {
   private readonly timer = new THREE.Timer();
   private readonly disposables: Array<{ dispose: () => void }> = [];
   private progress = 0;
+  private drawn = false;
+  private lastSky: SkyState | null = null;
   private pointerX = 0;
   private pointerY = 0;
   private readonly sunDirection = new THREE.Vector3();
@@ -591,7 +593,20 @@ export class World {
     this.fireflies.material.uniforms.uPixelRatio.value = ratio;
   }
 
+  /**
+   * Draws a frame only when something on screen would change: the camera
+   * is still easing, the sky moved, the pointer moved, or it is dark enough
+   * for twinkling stars and fireflies. A still daytime page costs nothing.
+   */
   render({ sky, progress, pointer }: WorldFrame) {
+    const animating = sky.stars > 0.02 || sky.fireflies > 0.02;
+    const easing =
+      Math.abs(progress - this.progress) > 0.0002 ||
+      Math.abs(pointer.x - this.pointerX) > 0.002 ||
+      Math.abs(pointer.y - this.pointerY) > 0.002;
+    if (this.drawn && !animating && !easing && sky === this.lastSky) return;
+    this.drawn = true;
+    this.lastSky = sky;
     this.timer.update();
     const time = this.timer.getElapsed();
     const night = sky.stars;
@@ -637,7 +652,21 @@ export class World {
     this.aim.getPointAt(t, this.lookTarget);
     this.camera.position.x += this.pointerX * 3;
     this.camera.position.y += this.pointerY * 1.5;
+    // Through the middle chapters, keep the barn right of centre on wide
+    // screens, away from the copy, which mostly sits on the left.
+    const middle = smoothstep(0.06, 0.2, t) * (1 - smoothstep(0.85, 0.97, t));
+    this.lookTarget.x *= 1 - middle;
+    this.lookTarget.z *= 1 - middle;
     this.camera.lookAt(this.lookTarget);
+    if (this.camera.aspect > 1) {
+      const halfWidth =
+        Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) *
+        this.camera.aspect;
+      this.camera.rotateOnWorldAxis(
+        THREE.Object3D.DEFAULT_UP,
+        Math.atan(0.42 * halfWidth) * middle
+      );
+    }
     this.sky.position.copy(this.camera.position);
 
     this.renderer.render(this.scene, this.camera);

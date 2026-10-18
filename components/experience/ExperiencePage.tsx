@@ -129,7 +129,7 @@ const Nav: React.FC<{
           <a
             href="#contact"
             onClick={pick('contact')}
-            className="xp-magnetic rounded-full bg-brand-gold px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors hover:bg-brand-charcoal"
+            className="xp-magnetic rounded-full bg-brand-gold px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#2a2522] transition-colors hover:bg-brand-charcoal hover:text-white"
           >
             Inquire
           </a>
