@@ -253,6 +253,74 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             },
           }
         );
+        // Desktop visitors can also grab the track and fling it sideways.
+        const range = slide.scrollTrigger;
+        if (finePointer && range) {
+          let dragging = false;
+          let moved = false;
+          let startX = 0;
+          let startScroll = 0;
+          let lastX = 0;
+          let lastTime = 0;
+          let velocity = 0;
+          const clampToTrack = (value: number) =>
+            Math.min(range.end, Math.max(range.start, value));
+          const down = (event: PointerEvent) => {
+            if (event.button !== 0) return;
+            dragging = true;
+            moved = false;
+            startX = lastX = event.clientX;
+            lastTime = performance.now();
+            startScroll = lenis.scroll;
+            velocity = 0;
+            day.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
+          };
+          const move = (event: PointerEvent) => {
+            if (!dragging) return;
+            const dx = event.clientX - startX;
+            if (Math.abs(dx) > 4) moved = true;
+            const now = performance.now();
+            velocity = (event.clientX - lastX) / Math.max(1, now - lastTime);
+            lastX = event.clientX;
+            lastTime = now;
+            lenis.scrollTo(clampToTrack(startScroll - dx * 1.4), {
+              immediate: true,
+            });
+          };
+          const up = () => {
+            if (!dragging) return;
+            dragging = false;
+            day.style.cursor = '';
+            document.body.style.userSelect = '';
+            lenis.scrollTo(clampToTrack(lenis.scroll - velocity * 450), {
+              duration: 1.3,
+            });
+          };
+          // A drag is not a click on whatever it started over.
+          const click = (event: MouseEvent) => {
+            if (!moved) return;
+            event.preventDefault();
+            event.stopPropagation();
+            moved = false;
+          };
+          const noGhost = (event: DragEvent) => event.preventDefault();
+          day.addEventListener('pointerdown', down);
+          window.addEventListener('pointermove', move);
+          window.addEventListener('pointerup', up);
+          day.addEventListener('click', click, true);
+          day.addEventListener('dragstart', noGhost);
+          day.style.cursor = 'grab';
+          cleanups.push(() => {
+            day.removeEventListener('pointerdown', down);
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', up);
+            day.removeEventListener('click', click, true);
+            day.removeEventListener('dragstart', noGhost);
+            day.style.cursor = '';
+          });
+        }
+
         for (const photo of all('.xp-chapter-photo')) {
           const depth = Number(photo.dataset.depth) || 1;
           gsap.fromTo(

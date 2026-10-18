@@ -4,6 +4,7 @@ import Atmosphere from './Atmosphere';
 import Stage from './three/Stage';
 import { initMotion } from './motion';
 import { scrollToSection } from './scroll';
+import { Soundscape, type Cue } from './soundscape';
 import { rgb, SKIES, skyAt, type SkyName, type SkyState } from './sky';
 import {
   Amenities,
@@ -21,6 +22,7 @@ import {
 } from './sections';
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+const SOUND_KEY = 'xp-sound';
 
 const subscribeReducedMotion = (onChange: () => void) => {
   const query = window.matchMedia?.(REDUCED_MOTION);
@@ -40,9 +42,42 @@ const navLinks = [
 
 const goTo = scrollToSection;
 
-const Nav: React.FC<{ navRef: React.RefObject<HTMLElement | null> }> = ({
-  navRef,
-}) => {
+/** Four bars that dance while the soundscape plays. */
+const SoundToggle: React.FC<{ on: boolean; onToggle: () => void }> = ({
+  on,
+  onToggle,
+}) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    aria-pressed={on}
+    title={on ? 'Turn sound off' : 'Turn sound on'}
+    className="grid h-10 w-10 place-items-center rounded-full border border-current/25 transition-colors hover:bg-current/10"
+  >
+    <span className="sr-only">Sound</span>
+    <span aria-hidden="true" className="flex h-3.5 items-end gap-[3px]">
+      {[0, 1, 2, 3].map((bar) => (
+        <span
+          key={bar}
+          className="block w-[2px] origin-bottom rounded-full bg-current"
+          style={{
+            height: '100%',
+            transform: on ? undefined : 'scaleY(0.25)',
+            animation: on
+              ? `xp-eq 0.9s ${bar * 0.15}s ease-in-out infinite alternate`
+              : undefined,
+          }}
+        />
+      ))}
+    </span>
+  </button>
+);
+
+const Nav: React.FC<{
+  navRef: React.RefObject<HTMLElement | null>;
+  soundOn: boolean;
+  onToggleSound: () => void;
+}> = ({ navRef, soundOn, onToggleSound }) => {
   const [open, setOpen] = React.useState(false);
   const pick = (id: string) => (event: React.MouseEvent) => {
     event.preventDefault();
@@ -90,6 +125,7 @@ const Nav: React.FC<{ navRef: React.RefObject<HTMLElement | null> }> = ({
           </TransitionLink>
         </nav>
         <div className="flex items-center gap-2">
+          <SoundToggle on={soundOn} onToggle={onToggleSound} />
           <a
             href="#contact"
             onClick={pick('contact')}
@@ -158,10 +194,12 @@ const Nav: React.FC<{ navRef: React.RefObject<HTMLElement | null> }> = ({
 /** A soft ring that trails the pointer and swells over anything clickable. */
 const Cursor: React.FC = () => {
   const ringRef = React.useRef<HTMLDivElement>(null);
+  const labelRef = React.useRef<HTMLSpanElement>(null);
 
   React.useEffect(() => {
     const ring = ringRef.current;
-    if (!ring) return;
+    const label = labelRef.current;
+    if (!ring || !label) return;
     const fine = window.matchMedia?.('(hover: hover) and (pointer: fine)');
     if (!fine?.matches || prefersReducedMotion()) return;
 
@@ -177,7 +215,11 @@ const Cursor: React.FC = () => {
       x = event.clientX;
       y = event.clientY;
       const target = event.target as Element | null;
-      targetScale = target?.closest('a, button') ? 2.4 : 1;
+      const hint =
+        target?.closest<HTMLElement>('[data-cursor]')?.dataset.cursor;
+      label.textContent = hint ?? '';
+      ring.dataset.label = hint ? 'on' : '';
+      targetScale = hint ? 2.8 : target?.closest('a, button') ? 2.4 : 1;
       ring.style.opacity = '1';
     };
     const leave = () => {
@@ -205,8 +247,13 @@ const Cursor: React.FC = () => {
     <div
       ref={ringRef}
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-60 h-8 w-8 rounded-full border border-brand-gold opacity-0 mix-blend-difference transition-opacity duration-300"
-    />
+      className="xp-cursor pointer-events-none fixed left-0 top-0 z-60 grid h-8 w-8 place-items-center rounded-full border border-brand-gold opacity-0 mix-blend-difference transition-[opacity,background-color] duration-300"
+    >
+      <span
+        ref={labelRef}
+        className="text-[4px] font-semibold uppercase tracking-[0.2em] text-white"
+      />
+    </div>
   );
 };
 
@@ -247,6 +294,79 @@ const ExperiencePage: React.FC = () => {
     (running: boolean) => setHas3D(running),
     []
   );
+  const soundRef = React.useRef<Soundscape | null>(null);
+  const [soundOn, setSoundOn] = React.useState(false);
+
+  const setSound = React.useCallback(async (on: boolean) => {
+    try {
+      localStorage.setItem(SOUND_KEY, on ? 'on' : 'off');
+    } catch {
+      // Storage can be blocked; the toggle still works for this visit.
+    }
+    if (!on) {
+      soundRef.current?.stop();
+      setSoundOn(false);
+      return;
+    }
+    soundRef.current ??= new Soundscape();
+    setSoundOn(true);
+    try {
+      await soundRef.current.start();
+      soundRef.current.update(skyRef.current);
+    } catch {
+      setSoundOn(false);
+    }
+  }, []);
+
+  // Browsers only start audio from a click or key press, so a visitor who
+  // left sound on last time gets it back at their first interaction.
+  React.useEffect(() => {
+    let remembered = false;
+    try {
+      remembered = localStorage.getItem(SOUND_KEY) === 'on';
+    } catch {
+      return;
+    }
+    if (!remembered) return;
+    const resume = (event: Event) => {
+      if ((event.target as Element | null)?.closest('[aria-pressed]')) return;
+      void setSound(true);
+      window.removeEventListener('pointerdown', resume);
+      window.removeEventListener('keydown', resume);
+    };
+    window.addEventListener('pointerdown', resume);
+    window.addEventListener('keydown', resume);
+    return () => {
+      window.removeEventListener('pointerdown', resume);
+      window.removeEventListener('keydown', resume);
+    };
+  }, [setSound]);
+
+  // One-time sound cues as their sections come into view.
+  React.useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const cue = (entry.target as HTMLElement).dataset.cue as Cue;
+          soundRef.current?.cue(cue);
+        }
+      },
+      // Fires as a section's top passes 60% of the way up the screen,
+      // however tall the section is.
+      { rootMargin: '0px 0px -40% 0px' }
+    );
+    root
+      .querySelectorAll('[data-cue]')
+      .forEach((element) => observer.observe(element));
+    return () => {
+      observer.disconnect();
+      soundRef.current?.dispose();
+      soundRef.current = null;
+    };
+  }, []);
   const reducedMotion = React.useSyncExternalStore(
     subscribeReducedMotion,
     prefersReducedMotion,
@@ -287,6 +407,7 @@ const ExperiencePage: React.FC = () => {
       const sky = skyAt(sections, window.innerHeight);
       skyRef.current = sky;
       applySky(root, sunRef.current, sky);
+      soundRef.current?.update(sky);
 
       const scrollable =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -345,6 +466,10 @@ const ExperiencePage: React.FC = () => {
       <style>{`
         @keyframes xp-menu-in { from { opacity: 0; transform: translateY(12px); } }
         .xp-root ::selection { background: #d4af37; color: #fff; }
+        @keyframes xp-eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
+        .xp-cursor[data-label='on'] { background: #d4af37; border-color: transparent; mix-blend-mode: normal; }
+        .xp-cursor span { opacity: 0; transition: opacity 0.2s; }
+        .xp-cursor[data-label='on'] span { opacity: 1; }
         /* Over the 3D landscape, copy gets a soft halo in the sky's own colour. */
         .xp-has3d :is(.xp-reveal, .xp-split, .xp-words, .xp-chapter) {
           text-shadow: 0 0 18px color-mix(in srgb, var(--sky-mid) 85%, transparent),
@@ -412,7 +537,11 @@ const ExperiencePage: React.FC = () => {
         aria-hidden="true"
         className="fixed inset-x-0 top-0 z-60 h-0.5 origin-left scale-x-0 bg-brand-gold"
       />
-      <Nav navRef={navRef} />
+      <Nav
+        navRef={navRef}
+        soundOn={soundOn}
+        onToggleSound={() => void setSound(!soundOn)}
+      />
 
       <main className="relative z-10">
         <Hero />

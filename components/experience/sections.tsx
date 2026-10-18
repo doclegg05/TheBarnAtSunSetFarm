@@ -367,6 +367,7 @@ export const TheDay: React.FC = () => (
   <section
     id="the-day"
     data-sky="morning"
+    data-cursor="Drag"
     className="xp-day relative overflow-hidden [.xp-reduced_&]:overflow-x-auto"
   >
     <div className="xp-day-track flex min-h-svh w-max items-center gap-[6vw] px-[6vw] py-[10vh]">
@@ -473,7 +474,12 @@ const mosaic = [
 ] as const;
 
 export const Barn: React.FC = () => (
-  <section id="barn" data-sky="golden" className="relative px-6 py-[18vh]">
+  <section
+    id="barn"
+    data-sky="golden"
+    data-cue="doors"
+    className="relative px-6 py-[18vh]"
+  >
     <div className="mx-auto grid max-w-7xl items-center gap-14 md:grid-cols-[1fr_1.15fr]">
       <div>
         <Eyebrow>The Main Barn</Eyebrow>
@@ -678,6 +684,7 @@ export const Packages: React.FC = () => (
   <section
     id="packages"
     data-sky="sunset"
+    data-cue="clink"
     className="relative px-6 pb-[18vh] pt-[8vh] [perspective:1400px]"
   >
     <div className="mb-16 text-center">
@@ -769,7 +776,12 @@ const services = [
 ] as const;
 
 export const Planning: React.FC = () => (
-  <section id="planning" data-sky="dusk" className="relative px-6 py-[18vh]">
+  <section
+    id="planning"
+    data-sky="dusk"
+    data-cue="lights"
+    className="relative px-6 py-[18vh]"
+  >
     <div className="mx-auto grid max-w-6xl items-center gap-16 md:grid-cols-[0.8fr_1.2fr]">
       <div className="flex justify-center">
         <div className="xp-medallion relative aspect-square w-[min(70vw,360px)] rounded-full bg-brand-cream p-10 shadow-[0_0_120px_-10px_rgb(212_175_55/0.55)]">
@@ -1040,6 +1052,7 @@ export const Inquire: React.FC = () => (
 export const Finale: React.FC = () => (
   <footer
     data-sky="night"
+    data-cue="cheer"
     className="xp-finale relative overflow-hidden pt-[18vh]"
   >
     <div className="relative z-10 px-6 text-center">

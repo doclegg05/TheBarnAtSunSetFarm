@@ -69,3 +69,15 @@ describe('experience page content', () => {
     expect(container.querySelector('#contact form')).not.toBeNull();
   });
 });
+
+describe('experience page soundscape', () => {
+  it('plays birds by morning, music at golden hour and crickets at night', async () => {
+    const { layerLevels } = await import('../components/experience/soundscape');
+    const morning = layerLevels(SKIES.morning);
+    const sunset = layerLevels(SKIES.sunset);
+    const night = layerLevels(SKIES.night);
+    expect(morning.birds).toBeGreaterThan(morning.music);
+    expect(sunset.music).toBeGreaterThan(sunset.birds);
+    expect(night).toEqual({ birds: 0, music: 0, crickets: 1 });
+  });
+});
