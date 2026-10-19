@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture review for TheBarnAtSunSetFarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'neutral',
+        securityLevel: 'loose',
+      });
+    </script>
+    <style>
+      .seam {
+        stroke-dasharray: 4 4;
+      }
+      .leak {
+        stroke: #dc2626;
+      }
+      .deep {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+      }
+      .diagram {
+        min-height: 320px;
+      }
+      .mermaid {
+        display: flex;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans">
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-12">
+      <header class="space-y-4">
+        <p class="text-xs uppercase tracking-wider text-slate-500">
+          Architecture review · 19 October 2026
+        </p>
+        <h1 class="font-serif text-4xl">TheBarnAtSunSetFarm</h1>
+        <p class="text-sm text-slate-600">
+          Hot spots from the last 45 days:
+          <span class="font-mono">components/experience/</span> (the scroll
+          page) and <span class="font-mono">lib/server/</span> (lodging feed
+          sync). No GLOSSARY.md or ADRs yet.
+        </p>
+        <div class="flex flex-wrap gap-5 text-xs text-slate-600 pt-2">
+          <span class="flex items-center gap-2"
+            ><span
+              class="inline-block w-5 h-4 border-2 border-slate-400 bg-white"
+            ></span
+            >module</span
+          >
+          <span class="flex items-center gap-2"
+            ><svg width="26" height="6">
+              <line
+                x1="0"
+                y1="3"
+                x2="26"
+                y2="3"
+                stroke="#64748b"
+                stroke-width="2"
+                class="seam"
+              /></svg
+            >seam</span
+          >
+          <span class="flex items-center gap-2"
+            ><svg width="26" height="8">
+              <line
+                x1="0"
+                y1="4"
+                x2="20"
+                y2="4"
+                stroke-width="2"
+                class="leak"
+              />
+              <path d="M20 0 L26 4 L20 8 Z" fill="#dc2626" /></svg
+            >leakage</span
+          >
+          <span class="flex items-center gap-2"
+            ><span class="inline-block w-5 h-4 deep rounded-sm"></span>deep
+            module</span
+          >
+        </div>
+      </header>
+
+      <section id="candidates" class="space-y-10">
+        <!-- 1 ---------------------------------------------------------------- -->
+        <article
+          id="scroll-film"
+          class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5 shadow-sm"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="text-xs font-semibold rounded-full px-3 py-1 bg-emerald-100 text-emerald-800"
+              >Strong</span
+            >
+            <span
+              class="text-xs font-mono rounded-full px-3 py-1 bg-slate-100 text-slate-600"
+              >in-process</span
+            >
+          </div>
+          <h2 class="font-serif text-2xl">1. Deepen the scroll film module</h2>
+          <p class="font-mono text-sm text-slate-600 leading-6">
+            film.ts · films/descent.ts · films/inside.ts · motion.ts:76–155,
+            447–480 · sections.tsx (Descent, Inside, INSIDE_POSTER, insideLines)
+            · scripts/filmFrames.mjs · tests/e2e/experience.spec.ts
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                Before: one film, five places
+              </p>
+              <pre class="mermaid">
+flowchart TB
+  S["sections.tsx<br/>poster = 60<br/>captions × 3"]
+  M["motion.ts<br/>film(…, 2.6)<br/>end: '+=260%'<br/>[doors, hall, porch]"]
+  F["films/inside.ts<br/>count 121"]
+  P["film.ts<br/>FilmPlayer<br/>path format"]
+  K["filmFrames.mjs<br/>path format"]
+  E["e2e spec<br/>height × 2.5<br/>.pin-spacer"]
+  M -->|"pin length ×2"| M
+  M -.->|"assumes 3 lines"| S
+  E -.->|"third copy of pin"| M
+  P -.->|"same path rule"| K
+  M --> P
+  M --> F
+  classDef leak stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
+  class M,E leak
+              </pre>
+            </div>
+            <div
+              class="rounded-xl border border-slate-200 p-4 diagram flex flex-col"
+            >
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                After: one definition, one mount
+              </p>
+              <div
+                class="flex-1 flex flex-col items-center justify-center gap-3"
+              >
+                <div
+                  class="w-60 rounded-lg border-2 border-slate-400 bg-white px-4 py-2 text-center"
+                >
+                  <p class="text-xs uppercase tracking-wider text-slate-500">
+                    film definition
+                  </p>
+                  <p class="font-mono text-xs text-slate-700">
+                    frames · pin · poster · captions(in, out)
+                  </p>
+                </div>
+                <svg width="10" height="22">
+                  <line
+                    x1="5"
+                    y1="0"
+                    x2="5"
+                    y2="22"
+                    stroke="#64748b"
+                    stroke-width="2"
+                    class="seam"
+                  />
+                </svg>
+                <div class="deep w-72 rounded-xl p-4 text-white">
+                  <p
+                    class="text-xs uppercase tracking-wider text-slate-300 mb-3"
+                  >
+                    scroll film module
+                  </p>
+                  <div
+                    class="grid grid-cols-2 gap-2 text-[11px] text-slate-400"
+                  >
+                    <span class="rounded border border-slate-600 px-2 py-1"
+                      >pin + scrub</span
+                    >
+                    <span class="rounded border border-slate-600 px-2 py-1"
+                      >load / release</span
+                    >
+                    <span class="rounded border border-slate-600 px-2 py-1"
+                      >frame blending</span
+                    >
+                    <span class="rounded border border-slate-600 px-2 py-1"
+                      >caption crossfades</span
+                    >
+                    <span class="rounded border border-slate-600 px-2 py-1"
+                      >poster + markup</span
+                    >
+                    <span class="rounded border border-slate-600 px-2 py-1"
+                      >image loader (seam)</span
+                    >
+                  </div>
+                </div>
+                <p class="text-xs text-slate-500">
+                  Descent and Inside become two definitions.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p>
+            <span class="font-semibold">Problem.</span> One scroll film's
+            interface is scattered: pin length lives in three places, captions
+            are matched by position, and the frame path rule is written twice.
+          </p>
+          <p>
+            <span class="font-semibold">Solution.</span> A deep scroll film
+            module takes one film definition and owns the pin, scrub, loading,
+            captions and markup behind it.
+          </p>
+          <ul class="list-disc pl-6 text-sm space-y-1">
+            <li>Locality: pin length lives once</li>
+            <li>Leverage: next chapter is one definition</li>
+            <li>Interface is the test surface</li>
+            <li>Image-loader seam: FilmPlayer testable in jsdom</li>
+            <li>E2E reads pin from definition</li>
+          </ul>
+        </article>
+
+        <!-- 2 ---------------------------------------------------------------- -->
+        <article
+          id="section-motion"
+          class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5 shadow-sm"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="text-xs font-semibold rounded-full px-3 py-1 bg-amber-100 text-amber-800"
+              >Worth exploring</span
+            >
+            <span
+              class="text-xs font-mono rounded-full px-3 py-1 bg-slate-100 text-slate-600"
+              >in-process</span
+            >
+          </div>
+          <h2 class="font-serif text-2xl">
+            2. Put each chapter's motion behind the chapter's own interface
+          </h2>
+          <p class="font-mono text-sm text-slate-600 leading-6">
+            motion.ts (initMotion, ~850 lines) · sections.tsx (~1,300 lines) ·
+            ExperiencePage.tsx:476 · three/PhotoLayer.ts:560
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                Before: declared interface vs real interface
+              </p>
+              <div class="flex items-end justify-center gap-8 h-64">
+                <div class="flex flex-col items-center gap-2">
+                  <div
+                    class="w-24 h-6 border-2 border-slate-400 bg-white grid place-items-center text-[10px] font-mono"
+                  >
+                    root → cleanup
+                  </div>
+                  <p
+                    class="text-[10px] uppercase tracking-wider text-slate-500"
+                  >
+                    declared
+                  </p>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                  <div
+                    class="w-48 h-56 border-2 border-red-500 bg-red-50 p-3 text-[10px] font-mono text-red-800 leading-4 space-y-1"
+                  >
+                    <p>49 .xp-* class hooks</p>
+                    <p>6 data-* names</p>
+                    <p>trigger order = page order</p>
+                    <p>refresh() runs last</p>
+                    <p>.set({}, {}, 1) pads timelines</p>
+                    <p>shared .xp-scroll-hint-dot</p>
+                    <p>PhotoLayer reads GSAP styles</p>
+                  </div>
+                  <p class="text-[10px] uppercase tracking-wider text-red-600">
+                    what a caller must know
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                After: chapters own their recipe
+              </p>
+              <pre class="mermaid">
+flowchart TB
+  P["page: chapters in page order"] --> H["Hero chapter<br/>markup + motion"]
+  P --> D["Day chapter<br/>markup + motion"]
+  P --> F["Scroll film chapters"]
+  P --> B["Barn chapter<br/>markup + motion"]
+  H -.->|"refs, not strings"| H
+  classDef deep fill:#0f172a,color:#fff,stroke:#0f172a;
+  class H,D,F,B deep
+              </pre>
+            </div>
+          </div>
+
+          <p>
+            <span class="font-semibold">Problem.</span> initMotion looks deep,
+            but its real interface is a silent contract of 49 class-name strings
+            and an ordering rule. Renaming one hook drops a pin with no error,
+            and every later trigger shifts.
+          </p>
+          <p>
+            <span class="font-semibold">Solution.</span> Each chapter module
+            owns both its markup and its motion recipe, joined by refs. The page
+            mounts the chapters in page order, so ScrollTrigger order follows by
+            construction.
+          </p>
+          <ul class="list-disc pl-6 text-sm space-y-1">
+            <li>Locality: a chapter changes in one file</li>
+            <li>Renames break the build, not silently</li>
+            <li>Ordering rule moves inside the page</li>
+            <li>Interface shrinks to chapter list</li>
+          </ul>
+        </article>
+
+        <!-- 3 ---------------------------------------------------------------- -->
+        <article
+          id="time-of-day"
+          class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5 shadow-sm"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="text-xs font-semibold rounded-full px-3 py-1 bg-amber-100 text-amber-800"
+              >Worth exploring</span
+            >
+            <span
+              class="text-xs font-mono rounded-full px-3 py-1 bg-slate-100 text-slate-600"
+              >in-process</span
+            >
+          </div>
+          <h2 class="font-serif text-2xl">
+            3. One time-of-day module for sky, sound cues and camera
+          </h2>
+          <p class="font-mono text-sm text-slate-600 leading-6">
+            ExperiencePage.tsx:347–443 · sky.ts:180 · soundscape.ts ·
+            three/World.ts:229–245, 655–668 · sections.tsx (data-sky, data-cue)
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                Before: three pipelines read scroll
+              </p>
+              <div class="space-y-3">
+                <div
+                  class="h-14 border-l-4 border-red-400 bg-stone-50 px-3 py-2"
+                >
+                  <p class="text-xs uppercase tracking-wider text-slate-500">
+                    sky
+                  </p>
+                  <p class="font-mono text-[11px]">
+                    native scroll · getBoundingClientRect ·
+                    <span class="text-red-600">as SkyName</span>
+                  </p>
+                </div>
+                <div
+                  class="h-14 border-l-4 border-red-400 bg-stone-50 px-3 py-2"
+                >
+                  <p class="text-xs uppercase tracking-wider text-slate-500">
+                    sound cues
+                  </p>
+                  <p class="font-mono text-[11px]">
+                    IntersectionObserver −40% ·
+                    <span class="text-red-600">as Cue</span>
+                  </p>
+                </div>
+                <div
+                  class="h-14 border-l-4 border-red-400 bg-stone-50 px-3 py-2"
+                >
+                  <p class="text-xs uppercase tracking-wider text-slate-500">
+                    3D camera
+                  </p>
+                  <p class="font-mono text-[11px]">
+                    page progress · smoothstep(0.06, 0.2) tied to section
+                    lengths
+                  </p>
+                </div>
+                <p class="text-[11px] text-slate-500">
+                  "40% up the screen" written twice; a data-sky typo throws
+                  mid-scroll.
+                </p>
+              </div>
+            </div>
+            <div
+              class="rounded-xl border border-slate-200 p-4 diagram flex flex-col justify-center"
+            >
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                After: one band
+              </p>
+              <div
+                class="deep rounded-xl h-40 p-4 text-white flex flex-col justify-between"
+              >
+                <p class="text-xs uppercase tracking-wider text-slate-300">
+                  time-of-day module
+                </p>
+                <p class="font-mono text-xs text-slate-400">
+                  chapter → sky · chapter → cue · scroll → camera
+                </p>
+                <p class="text-[11px] text-slate-400">
+                  one scroll source · typed chapter names
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p>
+            <span class="font-semibold">Problem.</span> The page's "what time is
+            it here" knowledge is split across three scroll pipelines, with
+            unchecked string casts and a duplicated threshold.
+          </p>
+          <p>
+            <span class="font-semibold">Solution.</span> One module owns the
+            chapter → sky, cue and camera mapping, and is fed by one scroll
+            source.
+          </p>
+          <ul class="list-disc pl-6 text-sm space-y-1">
+            <li>Locality: one place maps chapters</li>
+            <li>Typos caught at the type level</li>
+            <li>Mapping testable without a browser</li>
+          </ul>
+        </article>
+
+        <!-- 4 ---------------------------------------------------------------- -->
+        <article
+          id="alert-once"
+          class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5 shadow-sm"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="text-xs font-semibold rounded-full px-3 py-1 bg-amber-100 text-amber-800"
+              >Worth exploring</span
+            >
+            <span
+              class="text-xs font-mono rounded-full px-3 py-1 bg-slate-100 text-slate-600"
+              >local-substitutable + ports &amp; adapters</span
+            >
+          </div>
+          <h2 class="font-serif text-2xl">
+            4. One "alert once" module for lodging sync
+          </h2>
+          <p class="font-mono text-sm text-slate-600 leading-6">
+            lib/server/sync.ts:125, 195–246, 257 · email.ts (idempotencyKey) ·
+            store.ts (mark/has/record) · supabase migrations (outage_alerted_at,
+            clash_alerted_at, event_stay_alerts)
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                Before: three dedupe schemes
+              </p>
+              <pre class="mermaid">
+sequenceDiagram
+  participant Sync as sync.ts
+  participant Mail as Mailer
+  participant Store as store.ts
+  Sync->>Mail: outage (send)
+  Sync->>Store: markOutageAlerted
+  Sync->>Mail: clash (send)
+  Sync->>Store: markClashAlerted (never reset)
+  Sync->>Mail: event-stay (key from Object.values)
+  Sync->>Store: recordEventStayAlert
+  Sync->>Mail: drop (Resend 24h key only)
+  Note over Sync,Store: send-then-mark by convention<br/>a failed mark throws the run
+              </pre>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-2">
+                After: one ledger
+              </p>
+              <pre class="mermaid">
+sequenceDiagram
+  participant Sync as sync.ts
+  participant Notice as alert-once module
+  Sync->>Notice: notify(kind, subject)
+  Note right of Notice: key · already sent? · send ·<br/>record · failure policy
+              </pre>
+            </div>
+          </div>
+
+          <p>
+            <span class="font-semibold">Problem.</span> "Email about this
+            exactly once" is spread across five modules with three dedupe
+            schemes. The send-then-mark order is held by convention, and the
+            mark-failure paths are untested.
+          </p>
+          <p>
+            <span class="font-semibold">Solution.</span> One alert-once module
+            owns the key, the already-sent check, the send, the record and the
+            failure policy. The two existing adapters, the Mailer fake and
+            pglite, stay as they are.
+          </p>
+          <ul class="list-disc pl-6 text-sm space-y-1">
+            <li>Locality: dedupe rules in one place</li>
+            <li>Mark-failure paths become testable</li>
+            <li>Real seams: Mailer ×3, Rpc ×2</li>
+            <li>sync.ts loses four call shapes</li>
+          </ul>
+        </article>
+
+        <!-- 5 ---------------------------------------------------------------- -->
+        <article
+          id="conflicts"
+          class="rounded-2xl border border-slate-200 bg-white p-6 space-y-5 shadow-sm"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="text-xs font-semibold rounded-full px-3 py-1 bg-slate-200 text-slate-700"
+              >Speculative</span
+            >
+            <span
+              class="text-xs font-mono rounded-full px-3 py-1 bg-slate-100 text-slate-600"
+              >in-process</span
+            >
+          </div>
+          <h2 class="font-serif text-2xl">
+            5. Let the conflict rules return what sync needs
+          </h2>
+          <p class="font-mono text-sm text-slate-600 leading-6">
+            lib/scheduling/conflicts.ts · lib/scheduling/nights.ts ·
+            lib/server/sync.ts:114, 207, 213–217 · lib/server/feedRoute.ts:46 ·
+            migration sched_count_future_stays
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                Before: call-graph with copies
+              </p>
+              <div class="space-y-2 text-[11px] font-mono">
+                <div class="border-2 border-slate-400 rounded p-2">
+                  sync.ts
+                  <div
+                    class="ml-4 mt-1 border border-red-400 rounded p-1 text-red-700"
+                  >
+                    re-finds the stay (barn + dayInRange)
+                  </div>
+                  <div
+                    class="ml-4 mt-1 border border-red-400 rounded p-1 text-red-700"
+                  >
+                    addDays(today, −(BARN_CLEANUP_DAYS + 1))
+                  </div>
+                  <div
+                    class="ml-4 mt-1 border border-red-400 rounded p-1 text-red-700"
+                  >
+                    checkOut ≥ today (also in SQL)
+                  </div>
+                </div>
+                <div class="border-2 border-slate-400 rounded p-2">
+                  feedRoute.ts
+                  <div
+                    class="ml-4 mt-1 border border-red-400 rounded p-1 text-red-700"
+                  >
+                    addDays(today, −(BARN_CLEANUP_DAYS + 1))
+                  </div>
+                </div>
+                <div
+                  class="border-2 border-slate-300 rounded p-2 text-slate-500"
+                >
+                  conflicts.ts → showings only
+                </div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-4 diagram">
+              <p class="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                After: collapsed
+              </p>
+              <div class="deep rounded-xl p-4 text-white">
+                <p class="text-xs uppercase tracking-wider text-slate-300 mb-2">
+                  conflict rules module
+                </p>
+                <div class="space-y-1 text-[11px] text-slate-300 font-mono">
+                  <p>returns (stay, showing) pairs</p>
+                  <p>owns the lookback window</p>
+                  <p>owns "future stay"</p>
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-3">
+                sync.ts and feedRoute.ts ask; they don't re-derive.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            <span class="font-semibold">Problem.</span> The pure conflict
+            functions drop information their callers need, so the callers
+            re-derive rules. The lookback is written twice, and "future stay" is
+            defined once in JS and once in SQL.
+          </p>
+          <p>
+            <span class="font-semibold">Solution.</span> The conflict rules
+            module returns pairs and owns the lookback and "future stay" rules.
+          </p>
+          <ul class="list-disc pl-6 text-sm space-y-1">
+            <li>Locality: rules stop drifting apart</li>
+            <li>Existing pure tests keep working</li>
+          </ul>
+        </article>
+
+        <aside
+          class="rounded-xl border border-dashed border-slate-300 p-5 text-sm text-slate-600 space-y-2"
+        >
+          <p class="text-xs uppercase tracking-wider text-slate-500">
+            Considered, not proposed
+          </p>
+          <p>
+            <span class="font-mono">store.ts</span>: shallow, a 1:1 match to the
+            SQL functions, but it passes the deletion test as the row decoder.
+            Leave it.
+          </p>
+          <p>
+            <span class="font-mono">lib/scheduling</span> availability
+            (computeSlots, rules): well tested, but nothing in production calls
+            it. YAGNI: deepen it when a booking endpoint exists.
+          </p>
+        </aside>
+      </section>
+
+      <section
+        id="top-recommendation"
+        class="rounded-2xl deep text-white p-8 space-y-3"
+      >
+        <p class="text-xs uppercase tracking-wider text-slate-300">
+          Top recommendation
+        </p>
+        <h2 class="font-serif text-3xl">
+          <a
+            href="#scroll-film"
+            class="underline decoration-emerald-400 underline-offset-4"
+            >Deepen the scroll film module</a
+          >
+        </h2>
+        <p class="text-slate-300">
+          It's the hottest code in the repo, its friction is concrete (pin
+          length written three times, captions matched by position), and the
+          shot list calls for three more films: lawn, sunset and stars. Each
+          would cost one definition instead of five edits.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
