@@ -46,3 +46,12 @@ ceiling fans between them, white side doors, and white-framed glass French
 doors with a window each side on the far wall. The far-wall openings are now
 real openings with daylight behind them; in round 1 the glass rendered dark,
 which is why Aleph painted black doors there.
+
+Result: runway-aleph2 generation `5Vf41qTpyp6MBSVjkqaR` (about 16,900
+credits; Aleph prompts must stay under 1,000 characters, and a first attempt
+over the limit failed without generating). The pale knotty pine, glowing
+French doors and windows and wagon-wheel chandeliers now match the real
+hall, with no flicker spikes. Still off: the concrete floor came out dark
+charcoal instead of light grey, and the slope where the ceiling meets the
+walls was read as diagonal braces. Next fixes: a lighter floor in the model
+and a ceiling edge that cannot be mistaken for a brace.
