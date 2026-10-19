@@ -73,21 +73,44 @@ const BX = 12.2,
 // Restrooms side by side at the back of the hall, right up against the
 // house's bathroom; bathroom and bedroom run on behind them.
 const RD = 2.2,
-  HW = BW / 2;
+  HW = BW / 2,
+  HD = 1.3;
+// Restrooms side by side against the house bathroom, then a hallway open to
+// the reception hall, then two storage rooms the same size.
 g +=
   rect(BX, LEG - RD, BX + HW, LEG, '#ffffff', '#2b2b2b', 2) +
   text(BX + HW / 2, LEG - 1.0, 'WC', 12, 700);
 g +=
   rect(BX + HW, LEG - RD, BX + BW, LEG, '#ffffff', '#2b2b2b', 2) +
   text(BX + HW * 1.5, LEG - 1.0, 'WC', 12, 700);
-g += text(BX + BW / 2, LEG - RD - 0.6, 'Restrooms', 12, 700);
+g +=
+  rect(BX, LEG - RD - HD, BX + BW, LEG - RD, '#fbfaf6', '#2b2b2b', 2) +
+  text(BX + BW / 2, LEG - RD - 0.8, 'Hallway', 11, 700, '#777');
+g +=
+  rect(BX, LEG - 2 * RD - HD, BX + HW, LEG - RD - HD, '#f7f3ea', '#2b2b2b', 2) +
+  text(BX + HW / 2, LEG - RD - HD - 1.0, 'Store', 11, 700, '#555');
+g +=
+  rect(
+    BX + HW,
+    LEG - 2 * RD - HD,
+    BX + BW,
+    LEG - RD - HD,
+    '#f7f3ea',
+    '#2b2b2b',
+    2
+  ) + text(BX + HW * 1.5, LEG - RD - HD - 1.0, 'Store', 11, 700, '#555');
+// Opening from the hall into the hallway; doors off the hallway.
+g += `<rect x="${X(BX) - 3}" y="${Y(LEG - RD)}" width="6" height="${HD * S}" fill="${PINE}"/>`;
+for (const x of [BX + 0.3, BX + HW + 0.3]) {
+  g += `<rect x="${X(x)}" y="${Y(LEG - RD) - 4}" width="${0.8 * S}" height="8" fill="#555"/>`;
+  g += `<rect x="${X(x)}" y="${Y(LEG - RD - HD) - 4}" width="${0.8 * S}" height="8" fill="#555"/>`;
+}
 g +=
   rect(BX, LEG, BX + BW, LEG + 3.1, '#f1f3f6', '#2b2b2b', 2) +
   text(BX + BW / 2, LEG + 1.5, 'Bathroom', 13, 700);
 g +=
   rect(BX, LEG + 3.1, BX + BW, LEG + 6.5, '#f1f3f6', '#2b2b2b', 2) +
   text(BX + BW / 2, LEG + 4.8, 'Bedroom', 13, 700);
-g += text(6.1, LEG - 2.2, 'Storage rooms: where?', 13, 700, '#c0392b');
 g += `<rect x="${X(1.4)}" y="${Y(LEG) - 5}" width="${1.2 * S}" height="10" fill="#c8742e"/>`;
 g += text(2.0, LEG - 0.75, 'Door to the hall', 11, 700, '#a0521a');
 g +=
