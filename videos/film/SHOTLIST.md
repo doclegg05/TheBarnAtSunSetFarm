@@ -22,7 +22,8 @@ time-of-day colours will be retuned to match the film.
 
 **1. The doors open (morning).** Picks up at the cedar doors where the
 descent ends. The big sliding doors roll open and morning light pours in as
-the camera moves inside.
+the camera moves inside. The doors open straight into the main reception
+hall (confirmed by Britt).
 
 **2. Through the barn (late morning).** A slow walk through the floor space
 in the order guests experience it, ending at the doors onto the wraparound

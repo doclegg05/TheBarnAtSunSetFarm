@@ -33,3 +33,16 @@ CPU, 25 minutes in all) and motion-interpolates back to 24 fps.
   far wall's French doors into black doors and the pine darker than the
   real space. Both are fixed by modelling the real interior from the tour
   footage and naming them in the prompt.
+
+## Round 2: the real reception hall
+
+Britt confirmed (2026-10-19) that the cedar doors open straight into the main
+reception hall. The hall in `barn_doors.py` is now modelled on the winter
+walkthrough (`public/videos/TheBarnAtSunsetFarm_Walkthrough_Winter.mp4`,
+about 1:06–1:26): pale unstained knotty pine walls and ceiling, a flat
+ceiling that slopes down to the side walls, two rows of square pine posts
+under beams, grey concrete floor, three wagon-wheel chandeliers with black
+ceiling fans between them, white side doors, and white-framed glass French
+doors with a window each side on the far wall. The far-wall openings are now
+real openings with daylight behind them; in round 1 the glass rendered dark,
+which is why Aleph painted black doors there.

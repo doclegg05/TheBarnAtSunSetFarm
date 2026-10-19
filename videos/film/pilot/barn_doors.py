@@ -56,9 +56,10 @@ SIDING = material("siding", (0.055, 0.05, 0.045), 0.75, bump=(2.4, "X", 0.35))
 TRIM = material("trim", (0.03, 0.03, 0.03), 0.6)
 ROOF = material("roof", (0.035, 0.04, 0.045), 0.38, 0.6, bump=(1.6, "X", 0.25))
 CEDAR = material("cedar", (0.62, 0.28, 0.09), 0.55, bump=(9.0, "Z", 0.08))
-PINE = material("pine", (0.78, 0.56, 0.32), 0.6, bump=(5.0, "X", 0.12))
+PINE = material("pine", (0.8, 0.6, 0.36), 0.6, bump=(5.0, "X", 0.12))
+PINE_V = material("pine_v", (0.8, 0.6, 0.36), 0.6, bump=(5.0, "Y", 0.12))
 CONCRETE = material("concrete", (0.42, 0.41, 0.39), 0.85)
-FLOOR = material("hall_floor", (0.5, 0.49, 0.46), 0.55)
+FLOOR = material("hall_floor", (0.46, 0.46, 0.45), 0.7)
 GRAVEL = material("gravel", (0.33, 0.32, 0.3), 0.95)
 GRASS = material("grass", (0.09, 0.2, 0.05), 0.9)
 FOLIAGE = material("foliage", (0.05, 0.13, 0.04), 0.9)
@@ -229,32 +230,62 @@ box("door_track", -2 * DOOR_W - 0.3, 2 * DOOR_W + 0.3, -0.4, -0.3, DOOR_H + 0.02
 
 
 # ------------------------------------------------------------ the hall
-HALL_D, CEIL = 15.0, 3.7
+# The reception hall, from the winter walkthrough: pale knotty pine walls and
+# ceiling, a flat ceiling that slopes down to the side walls, two rows of
+# square pine posts, grey concrete floor, white-framed French doors and
+# windows on the far wall.
+HALL_D, CEIL, CEIL_SIDE, ROW = 15.0, 4.2, 3.05, 2.6
 box("hall_floor", -W, W, 0, HALL_D, -0.02, 0.0, FLOOR)
-box("hall_ceiling", -W, W, 0, HALL_D, CEIL, CEIL + 0.05, PINE)
-box("hall_back", -W, W, HALL_D, HALL_D + 0.1, 0, CEIL, PINE)
+box("hall_ceiling", -ROW, ROW, 0, HALL_D, CEIL, CEIL + 0.05, PINE)
 for s in (-1, 1):
+    slab("hall_slope", [(s * ROW, 0, CEIL), (s * W, 0, CEIL_SIDE),
+                        (s * W, HALL_D, CEIL_SIDE), (s * ROW, HALL_D, CEIL)],
+         0.05, PINE)
     box("hall_wall", s * W - (0.08 if s > 0 else -0.0), s * W + (0.0 if s > 0 else 0.08),
-        0, HALL_D, 0, CEIL, PINE)
+        0, HALL_D, 0, CEIL_SIDE + 0.1, PINE_V)
+    # Beam along each row of posts, where the flat ceiling meets the slope.
+    box("hall_beam", s * ROW - 0.1, s * ROW + 0.1, 0, HALL_D, CEIL - 0.28, CEIL, PINE)
+    for y in (3.6, 7.2, 10.8, 14.2):
+        box("hall_post", s * ROW - 0.075, s * ROW + 0.075, y - 0.075, y + 0.075, 0,
+            CEIL - 0.28, PINE)
+    # A white-trimmed door in each side wall (restrooms, suites).
+    box("side_door", s * W - 0.1, s * W + 0.1, 8.6, 9.5, 0, 2.1, WHITE)
+    box("side_door_trim", s * W - 0.12, s * W + 0.12, 8.5, 9.6, 2.1, 2.2, WHITE)
 box("hall_front_l", -W, -DOOR_W, 0.0, 0.08, 0, CEIL, PINE)
 box("hall_front_r", DOOR_W, W, 0.0, 0.08, 0, CEIL, PINE)
-box("beam", -W, W, 7.4, 7.7, CEIL - 0.3, CEIL, PINE)
-for x in (-2.6, 2.6):
-    for y in (4.5, 10.0):
-        box("hall_post", x - 0.1, x + 0.1, y - 0.1, y + 0.1, 0, CEIL, PINE)
+box("hall_front_top", -DOOR_W, DOOR_W, 0.0, 0.08, DOOR_H, CEIL, PINE)
 
-# Far wall: French doors with a window each side, bright daylight beyond.
-box("french_door", -1.0, 1.0, HALL_D - 0.05, HALL_D + 0.15, 0.05, 2.3, GLASS)
-box("french_frame_top", -1.08, 1.08, HALL_D - 0.06, HALL_D + 0.02, 2.3, 2.42, WHITE)
-box("french_mullion", -0.04, 0.04, HALL_D - 0.06, HALL_D + 0.02, 0.05, 2.3, WHITE)
-for x in (-3.6, 3.6):
-    box("window", x - 0.6, x + 0.6, HALL_D - 0.05, HALL_D + 0.15, 1.0, 2.3, GLASS)
-    box("window_frame", x - 0.66, x + 0.66, HALL_D - 0.06, HALL_D + 0.02, 2.3, 2.38, WHITE)
-for name, x0, x1, z0, z1 in (("back_hole_d", -1.0, 1.0, 0.05, 2.3),):
-    pass  # glass panes stand in for openings; light enters via the backlight
+# Far wall with real openings (French doors, a window each side) and bright
+# daylight beyond, so the doors read as glass rather than dark panels.
+back = box("hall_back", -W, W, HALL_D, HALL_D + 0.1, 0, CEIL, PINE)
+OPENINGS = [(-1.0, 1.0, 0.0, 2.3), (-4.2, -3.0, 0.95, 2.3), (3.0, 4.2, 0.95, 2.3)]
+for x0, x1, z0, z1 in OPENINGS:
+    cut = box("cut", x0, x1, HALL_D - 0.2, HALL_D + 0.3, z0, z1, WHITE)
+    mod = back.modifiers.new("hole", "BOOLEAN")
+    mod.operation, mod.object = "DIFFERENCE", cut
+    bpy.context.view_layer.objects.active = back
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    bpy.data.objects.remove(cut)
+    # White casing, glazing bars and a thin pane of glass.
+    t = 0.07
+    box("casing_top", x0 - t, x1 + t, HALL_D - 0.03, HALL_D + 0.12, z1, z1 + t, WHITE)
+    for xe in (x0 - t, x1):
+        box("casing_side", xe, xe + t, HALL_D - 0.03, HALL_D + 0.12, z0, z1, WHITE)
+    if z0 > 0:
+        box("sill", x0 - t, x1 + t, HALL_D - 0.06, HALL_D + 0.12, z0 - t, z0, WHITE)
+    xm = (x0 + x1) / 2
+    box("mullion", xm - 0.035, xm + 0.035, HALL_D + 0.03, HALL_D + 0.07, z0, z1, WHITE)
+    for k in (1, 2) if z0 == 0 else (1,):
+        zr = z0 + (z1 - z0) * k / (3 if z0 == 0 else 2)
+        box("rail", x0, x1, HALL_D + 0.03, HALL_D + 0.07, zr - 0.03, zr + 0.03, WHITE)
+    if z0 == 0:
+        box("kick", x0, x1, HALL_D + 0.03, HALL_D + 0.07, 0, 0.25, WHITE)
+    box("pane", x0, x1, HALL_D + 0.045, HALL_D + 0.055, z0, z1, GLASS)
+OUTSIDE = material("daylight_view", (0.8, 0.86, 0.9), emit=((0.86, 0.92, 1.0), 9))
+box("daylight_view", -W, W, HALL_D + 2.5, HALL_D + 2.6, -1, CEIL + 1, OUTSIDE)
 
 # Wagon-wheel chandeliers.
-for y in (4.0, 11.0):
+for y in (3.6, 8.2, 12.8):
     bpy.ops.mesh.primitive_torus_add(location=(0, y, CEIL - 0.9), major_radius=0.55,
                                      minor_radius=0.03)
     t = bpy.context.object
@@ -270,18 +301,28 @@ for y in (4.0, 11.0):
     lo.location = (0, y, CEIL - 1.0)
     scene.collection.objects.link(lo)
 
+# Black ceiling fans between the chandeliers.
+for y in (5.9, 10.5):
+    cyl("fan_rod", (0, y, CEIL - 0.2), 0.02, 0.4, BLACK)
+    cyl("fan_hub", (0, y, CEIL - 0.42), 0.12, 0.12, BLACK)
+    for k in range(3):
+        a = k * 2 * math.pi / 3 + 0.4
+        blade = box("fan_blade", -0.32, 0.32, -0.07, 0.07, -0.01, 0.01, BLACK)
+        blade.rotation_euler = (0, 0, a)
+        blade.location = (0.44 * math.cos(a), y + 0.44 * math.sin(a), CEIL - 0.44)
+
 # Fill light so the hall reads as a daylit room, plus daylight past the far wall.
 fill = bpy.data.lights.new("hall_fill", "AREA")
-fill.shape, fill.size, fill.size_y = "RECTANGLE", 10, 13
-fill.energy, fill.color = 350, (1, 0.93, 0.85)
+fill.shape, fill.size, fill.size_y = "RECTANGLE", 2 * ROW - 0.4, 13
+fill.energy, fill.color = 600, (1, 0.95, 0.9)
 fo = bpy.data.objects.new("hall_fill", fill)
 fo.location = (0, HALL_D / 2, CEIL - 0.05)
 scene.collection.objects.link(fo)
 back = bpy.data.lights.new("daylight_back", "AREA")
-back.size, back.energy, back.color = 8, 1500, (1, 0.95, 0.88)
+back.size, back.energy, back.color = 10, 2500, (1, 0.96, 0.9)
 bo = bpy.data.objects.new("daylight_back", back)
-bo.location = (0, HALL_D + 1.5, 1.6)
-bo.rotation_euler = (math.radians(90), 0, 0)
+bo.location = (0, HALL_D + 1.2, 1.6)
+bo.rotation_euler = (math.radians(-90), 0, 0)  # shine back into the hall
 scene.collection.objects.link(bo)
 
 # ------------------------------------------------------------ grounds
