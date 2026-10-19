@@ -13,6 +13,7 @@ import {
   Descent,
   Hero,
   Inquire,
+  Inside,
   Packages,
   Planning,
   Questions,
@@ -549,6 +550,7 @@ const ExperiencePage: React.FC = () => {
         <Hero />
         <Statement />
         <TheDay />
+        <Inside />
         <Barn />
         <Amenities />
         <Stay />

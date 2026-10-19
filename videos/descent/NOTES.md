@@ -22,7 +22,7 @@ dive test" (`cVL5HnqV4TQcJdQQJW1K`), from the real venue photos.
 
 The master (18.6 s, 1920×1080, 24 fps) is downloadable from that generation
 in ElevenLabs. Rebuild the page frames from it with
-`node scripts/descentFrames.mjs path/to/master.mp4`.
+`node scripts/filmFrames.mjs path/to/master.mp4 descent 10`.
 
 ## How the stitch is put together
 

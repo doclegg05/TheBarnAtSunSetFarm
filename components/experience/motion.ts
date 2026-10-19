@@ -3,7 +3,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
-import { DescentPlayer } from './descent';
+import { FilmPlayer } from './film';
+import descentFilm from './films/descent';
+import insideFilm from './films/inside';
 import { setScrollEngine } from './scroll';
 
 /**
@@ -71,17 +73,37 @@ export const initMotion = (root: HTMLElement): (() => void) => {
         cleanups.push(() => split.revert());
       }
 
-      /* ---------------- Descent: from the sky to the barn doors ---------------- */
-      const descent = all('.xp-descent')[0];
-      const canvas = all<HTMLCanvasElement>('.xp-descent-canvas')[0];
-      if (descent && canvas) {
-        const player = new DescentPlayer(canvas);
+      /* ---------------- Scroll films: the descent and the walk inside ---------------- */
+      // A film loads once its section is within two and a half screens and
+      // lets its frames go once the visitor is that far past it.
+      const film = (
+        section: HTMLElement,
+        canvas: HTMLCanvasElement,
+        frames: typeof descentFilm | typeof insideFilm,
+        pinScreens: number
+      ) => {
+        const player = new FilmPlayer(canvas, frames);
         const onResize = () => player.resize();
         window.addEventListener('resize', onResize);
         cleanups.push(() => {
           window.removeEventListener('resize', onResize);
           player.dispose();
         });
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top bottom+=150%',
+          end: () => `+=${window.innerHeight * (pinScreens + 5)}`,
+          onToggle: (self) =>
+            self.isActive ? player.load() : player.release(),
+        });
+        return player;
+      };
+
+      /* ---------------- Descent: from the sky to the barn doors ---------------- */
+      const descent = all('.xp-descent')[0];
+      const canvas = all<HTMLCanvasElement>('.xp-descent-canvas')[0];
+      if (descent && canvas) {
+        const player = film(descent, canvas, descentFilm, 3.6);
 
         gsap
           .timeline({
@@ -420,6 +442,41 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             },
           });
         }
+      }
+
+      /* ---------------- Inside: the cedar doors open onto the hall ---------------- */
+      const insideSection = all('.xp-inside')[0];
+      const insideCanvas = all<HTMLCanvasElement>('.xp-inside-canvas')[0];
+      if (insideSection && insideCanvas) {
+        const player = film(insideSection, insideCanvas, insideFilm, 2.6);
+        const [doors, hall, porch] = all('.xp-inside-line');
+        const rise = { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' };
+        const fall = {
+          autoAlpha: 0,
+          y: -30,
+          duration: 0.07,
+          ease: 'power1.in',
+        };
+
+        gsap
+          .timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: {
+              trigger: insideSection,
+              start: 'top top',
+              end: '+=260%',
+              pin: true,
+              scrub: true,
+              onUpdate: (self) => player.setProgress(self.progress),
+            },
+          })
+          // Timed to the film: the doors open over its first 40%, the hall
+          // fills the middle, and it turns to the French doors at the end.
+          .to(doors, fall, 0.26)
+          .fromTo(hall, { autoAlpha: 0, y: 30 }, rise, 0.45)
+          .to(hall, fall, 0.72)
+          .fromTo(porch, { autoAlpha: 0, y: 30 }, rise, 0.86)
+          .set({}, {}, 1);
       }
 
       /* ---------------- The barn ---------------- */
