@@ -1,27 +1,6 @@
 import React, { useState } from 'react';
 import ChevronDownIcon from './icons/ChevronDownIcon';
-
-const faqs = [
-  {
-    question: 'What is the venue capacity?',
-    answer:
-      'We can comfortably accommodate up to 200 guests for both the ceremony and reception, ensuring an intimate and enjoyable experience for everyone.',
-  },
-  {
-    question: 'Can we bring our own vendors?',
-    answer:
-      'We have a curated list of preferred vendors we love and trust, but you are welcome to bring your own licensed and insured professionals for catering, photography, and florals.',
-  },
-  {
-    question: 'Is there parking on-site?',
-    answer: 'Yes, we have ample parking available for all your guests.',
-  },
-  {
-    question: 'Do you require event insurance?',
-    answer:
-      'Yes, we require a standard event insurance policy for the day of your wedding. This protects both you and the venue and is a standard practice in the industry.',
-  },
-];
+import { FAQS } from '../lib/siteContent';
 
 const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -45,7 +24,7 @@ const FAQ: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          {faqs.map((faq, index) => (
+          {FAQS.map((faq, index) => (
             <div
               key={index}
               className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300"
