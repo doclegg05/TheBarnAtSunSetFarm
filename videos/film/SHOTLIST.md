@@ -28,9 +28,17 @@ hall (confirmed by Britt).
 **2. Through the barn (late morning).** A slow walk through the floor space
 in the order guests experience it, ending at the doors onto the wraparound
 porch, with the mountains framed beyond the porch posts.
-_Needs from Britt:_ interior photos in walking order, starting just inside
-the cedar doors and ending on the porch (and a rough floor-plan sketch if
-there is one).
+The ground floor is not open plan: the reception hall (with restrooms on its
+back wall) is walled off from the house (living room with stone fireplace,
+kitchen, staircase, bedroom and bath). Built from Britt's real tour footage,
+restyled with Aleph (summer light, clutter removed, steadied) rather than a
+3D model, so the layout is the real one.
+_Needs from Britt:_ the raw tour clips (filmed upright) and corrections to
+the draft ground-floor plan.
+
+**How the upright footage is shown (Britt's choice).** On phones the
+interior chapters fill the screen. On computers they play uncropped in a tall
+side panel beside the text; the outdoor chapters stay full screen.
 
 **3. The ceremony lawn (golden hour).** Out across the porch, down the
 steps and onto the lawn, gliding toward the wooden arbor and the rows of
