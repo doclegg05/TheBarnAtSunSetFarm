@@ -120,18 +120,15 @@ for (const x of [4.0, 8.2])
   for (const y of [2.3, 6.8])
     g += `<rect x="${X(x) - 5}" y="${Y(y) - 5}" width="10" height="10" fill="#a7814f"/>`;
 g += `<rect x="${X(4.15)}" y="${Y(0) - 6}" width="${3.9 * S}" height="12" fill="#c8742e"/>`;
-g += `<rect x="${X(4.6)}" y="${Y(0) - 3}" width="${3.0 * S}" height="6" fill="#5dade2"/>`;
-for (const x of [2.4, 8.6])
-  g += `<rect x="${X(x)}" y="${Y(0) - 3}" width="${1.2 * S}" height="6" fill="#5dade2"/>`;
+// White French doors from the porch into the hall, a window each side.
+g += `<rect x="${X(0) - 6}" y="${Y(3.4)}" width="12" height="${1.8 * S}" fill="#5dade2"/>`;
+for (const y of [4.4, 1.0])
+  g += `<rect x="${X(0) - 3}" y="${Y(y)}" width="6" height="${0.8 * S}" fill="#5dade2"/>`;
+g +=
+  text(-2.3, 2.8, 'White French', 13, 700, '#2e86c1') +
+  text(-2.3, 2.2, 'doors', 13, 700, '#2e86c1');
 g += text(6.1, -1.0, '▲ Cedar sliding doors (front)', 16, 700, '#a0521a');
-g += text(
-  6.1,
-  0.5,
-  'White French doors inside, a window each side',
-  12,
-  700,
-  '#2e86c1'
-);
+
 g += `<rect x="${X(5.0)}" y="${Y(18) - 6}" width="${3.4 * S}" height="12" fill="#5dade2"/>`;
 g += text(6.7, 18.9, 'Big windows + sliding door', 13, 700, '#2e86c1');
 const W = X(15.0) + 60,
