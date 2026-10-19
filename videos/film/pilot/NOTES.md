@@ -65,3 +65,12 @@ opening to the porch at the front left, and a cased opening on the right
 into the restroom hallway. The camera now ends turning left toward the
 French doors and the porch, which leads into the porch and lawn chapter.
 Photos of the back porch from outside are in `../reference/`.
+
+Result: runway-aleph2 generation `biDbyU1RqvVTvUHSW8EJ` (about 17,000
+credits). The hall now matches the floor plan's shape: a shallower room, the
+white door on the back wall, and the turn ending on white French doors and
+windows with the porch and lawn beyond. The floor is a mid grey rather than
+charcoal. No flicker: the larger frame-to-frame changes at 8.9–9.0 s follow
+the fast turn in the guide. Still off: Aleph again adds timber rafters and
+diagonal braces at the ceiling edges, makes the pine walls horizontal boards,
+and shows daylight through the restroom-hallway opening on the right.
