@@ -55,3 +55,13 @@ hall, with no flicker spikes. Still off: the concrete floor came out dark
 charcoal instead of light grey, and the slope where the ceiling meets the
 walls was read as diagonal braces. Next fixes: a lighter floor in the model
 and a ceiling edge that cannot be mistaken for a brace.
+
+## Round 3: the hall from Britt's floor plan
+
+The hall in `barn_doors.py` now follows the confirmed ground-floor plan
+(`../ground-floor.png`): about 9 m deep, a plain back wall to the house with
+a white door at the porch end, white French doors with a window each side
+opening to the porch at the front left, and a cased opening on the right
+into the restroom hallway. The camera now ends turning left toward the
+French doors and the porch, which leads into the porch and lawn chapter.
+Photos of the back porch from outside are in `../reference/`.
