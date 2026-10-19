@@ -21,7 +21,7 @@ Total: about 75 seconds of film, streamed one chapter at a time.
 ## The shots
 
 **1. The porch wakes up (morning).** Picks up at the barn doors where the
-descent ends. The camera drifts slowly right along the long covered porch.
+descent ends. The camera drifts slowly left along the long covered porch on the barn's side.
 Sun breaks over the ridge, mist lifts out of the valley, and dew catches the
 light on the lawn. Calm, slow movement, because the longest text sits here.
 
