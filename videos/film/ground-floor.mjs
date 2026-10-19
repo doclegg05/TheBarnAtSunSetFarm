@@ -1,4 +1,4 @@
-// Draws videos/film/ground-floor.png, the ground-floor layout Britt confirmed.
+// Draws videos/film/ground-floor.png, the ground-floor layout as Britt described it.
 // Rough proportions only (not measured). Run: node videos/film/ground-floor.mjs
 import { createRequire } from 'node:module';
 const sharp = createRequire(import.meta.url)('sharp');
@@ -51,62 +51,67 @@ g += rect(0, 0, 12.2, 18, PINE);
 g += rect(0, LEG, 12.2, 18, HOUSE);
 g += rect(0, LEG, KX, 18, KITCHEN, '#2b2b2b', 2);
 g +=
-  text(KX / 2, 14.2, 'Kitchen', 16, 700) +
-  text(KX / 2, 13.5, '+ island', 13, 400, '#555');
+  text(KX / 2, 13.2, 'Kitchen', 16, 700) +
+  text(KX / 2, 12.5, '+ island', 13, 400, '#555');
 g +=
-  text(6.7, 16.6, 'Living room', 16, 700) +
-  text(6.7, 16.0, '+ stone fireplace', 13, 400, '#555') +
-  text(6.7, 15.4, '+ dining (loft above)', 13, 400, '#555');
-g += text(6.7, 13.4, 'THE HOUSE', 20, 800, '#34495e');
-g +=
-  text(KX / 2, 9.4, 'Staircase', 14, 700) +
-  text(KX / 2, 8.8, '+ coffee bar', 11, 400, '#555');
-g +=
-  rect(12.2 - 2.8, 14.6, 12.2, 18, '#f1f3f6', '#2b2b2b', 2) +
-  text(10.8, 16.4, 'Bedroom', 13, 700);
-g +=
-  rect(12.2 - 2.8, WALL, 12.2, 14.6, '#f1f3f6', '#2b2b2b', 2) +
-  text(10.8, 13.0, 'Bathroom', 13, 700);
+  text(8.1, 16.6, 'Living room', 16, 700) +
+  text(8.1, 16.0, '+ stone fireplace', 13, 400, '#555') +
+  text(8.1, 15.4, '+ dining (loft above)', 13, 400, '#555');
+g += text(8.1, 11.0, 'THE HOUSE', 20, 800, '#34495e');
+g += '';
+// Staircase along the hall wall, just right of the door into the hall.
+g += rect(2.8, LEG, 6.6, LEG + 1.2, '#f7f1e6', '#2b2b2b', 2);
+for (let x = 3.2; x < 6.6; x += 0.4)
+  g += `<line x1="${X(x)}" y1="${Y(LEG + 1.2)}" x2="${X(x)}" y2="${Y(LEG)}" stroke="#8a7a66" stroke-width="1"/>`;
+g += text(4.7, LEG + 1.7, 'Staircase + coffee bar', 12, 700);
+
 // Restrooms stacked on the hall's back wall.
-// Restrooms stacked against the kitchen wall; storage rooms the same size opposite.
-const RW = 2.8,
-  R1 = LEG,
-  R2 = (LEG + WALL) / 2;
+// Bump-out on the right, one room deep: restrooms for the hall, bedroom and
+// bathroom for the house. A clean wall separates the house and the hall.
+const BX = 12.2,
+  BW = 2.8;
+// Restrooms side by side at the back of the hall, right up against the
+// house's bathroom; bathroom and bedroom run on behind them.
+const RD = 2.2,
+  HW = BW / 2;
 g +=
-  rect(KX + RW, LEG, 12.2 - RW, WALL, '#fbfaf6', '#2b2b2b', 1) +
-  text(8.1, LEG + 1.6, 'Hallway', 12, 700, '#777');
+  rect(BX, LEG - RD, BX + HW, LEG, '#ffffff', '#2b2b2b', 2) +
+  text(BX + HW / 2, LEG - 1.0, 'WC', 12, 700);
 g +=
-  rect(KX, R1, KX + RW, R2, '#ffffff', '#2b2b2b', 2) +
-  text(KX + RW / 2, R1 + 1.0, 'Restroom', 12, 700);
+  rect(BX + HW, LEG - RD, BX + BW, LEG, '#ffffff', '#2b2b2b', 2) +
+  text(BX + HW * 1.5, LEG - 1.0, 'WC', 12, 700);
+g += text(BX + BW / 2, LEG - RD - 0.6, 'Restrooms', 12, 700);
 g +=
-  rect(KX, R2, KX + RW, WALL, '#ffffff', '#2b2b2b', 2) +
-  text(KX + RW / 2, R2 + 1.0, 'Restroom', 12, 700);
+  rect(BX, LEG, BX + BW, LEG + 3.1, '#f1f3f6', '#2b2b2b', 2) +
+  text(BX + BW / 2, LEG + 1.5, 'Bathroom', 13, 700);
 g +=
-  rect(12.2 - RW, R1, 12.2, R2, '#f7f3ea', '#2b2b2b', 2) +
-  text(12.2 - RW / 2, R1 + 1.0, 'Storage', 12, 700, '#555');
-g +=
-  rect(12.2 - RW, R2, 12.2, WALL, '#f7f3ea', '#2b2b2b', 2) +
-  text(12.2 - RW / 2, R2 + 1.0, 'Storage', 12, 700, '#555');
-for (const [x, y] of [
-  [KX + RW, R1 + 0.7],
-  [KX + RW, R2 + 0.7],
-  [12.2 - RW, R1 + 0.7],
-  [12.2 - RW, R2 + 0.7],
-])
-  g += `<rect x="${X(x) - 4}" y="${Y(y + 0.8)}" width="8" height="${0.8 * S}" fill="#555"/>`;
+  rect(BX, LEG + 3.1, BX + BW, LEG + 6.5, '#f1f3f6', '#2b2b2b', 2) +
+  text(BX + BW / 2, LEG + 4.8, 'Bedroom', 13, 700);
+g += text(6.1, LEG - 2.2, 'Storage rooms: where?', 13, 700, '#c0392b');
 g += `<rect x="${X(1.4)}" y="${Y(LEG) - 5}" width="${1.2 * S}" height="10" fill="#c8742e"/>`;
-g += text(KX / 2, LEG - 0.75, 'Door under the stairs', 11, 700, '#a0521a');
+g += text(2.0, LEG - 0.75, 'Door to the hall', 11, 700, '#a0521a');
 g +=
-  text(6.1, 3.9, 'RECEPTION HALL', 22, 800) +
-  text(6.1, 3.1, 'open, pine walls, posts', 14, 400, '#555');
+  text(6.1, 3.0, 'RECEPTION HALL', 22, 800) +
+  text(6.1, 2.2, 'open, pine walls, posts', 14, 400, '#555');
 for (const x of [4.0, 8.2])
-  for (const y of [1.8, 5.0])
+  for (const y of [1.2, 4.0])
     g += `<rect x="${X(x) - 5}" y="${Y(y) - 5}" width="10" height="10" fill="#a7814f"/>`;
 g += `<rect x="${X(4.15)}" y="${Y(0) - 6}" width="${3.9 * S}" height="12" fill="#c8742e"/>`;
+g += `<rect x="${X(4.6)}" y="${Y(0) - 3}" width="${3.0 * S}" height="6" fill="#5dade2"/>`;
+for (const x of [2.4, 8.6])
+  g += `<rect x="${X(x)}" y="${Y(0) - 3}" width="${1.2 * S}" height="6" fill="#5dade2"/>`;
 g += text(6.1, -1.0, '▲ Cedar sliding doors (front)', 16, 700, '#a0521a');
+g += text(
+  6.1,
+  0.5,
+  'White French doors inside, a window each side',
+  12,
+  700,
+  '#2e86c1'
+);
 g += `<rect x="${X(5.0)}" y="${Y(18) - 6}" width="${3.4 * S}" height="12" fill="#5dade2"/>`;
 g += text(6.7, 18.9, 'Big windows + sliding door', 13, 700, '#2e86c1');
-const W = X(12.2) + 120,
+const W = X(15.0) + 60,
   H = Y(-2.2) + 30;
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 <rect width="100%" height="100%" fill="#fffdf8"/>
