@@ -5,6 +5,7 @@ import CheckIcon from '../icons/CheckIcon';
 import { AMENITIES } from '../amenityList';
 import { FAQS, PACKAGE_TIERS } from '../../lib/siteContent';
 import type { ResponsiveImage } from '../../scripts/responsiveImages';
+import { frameUrl } from './descent';
 import { LOGO, PHOTOS, pic } from './photos';
 import { scrollToSection } from './scroll';
 
@@ -89,6 +90,66 @@ const Heading: React.FC<{ children: React.ReactNode; className?: string }> = ({
   >
     {children}
   </h2>
+);
+
+/* ------------------------------------------------------------------ */
+/* 0. Before dawn: drop from the sky to the barn doors as you scroll.  */
+/* ------------------------------------------------------------------ */
+
+export const Descent: React.FC = () => (
+  <section
+    id="arrive"
+    data-sky="dawn"
+    aria-label="Arriving at the barn"
+    className="xp-descent relative h-svh min-h-[560px] overflow-hidden bg-[#9fb0a8]"
+  >
+    {/* The first frame, shown at once and kept when motion is reduced. */}
+    <img
+      src={frameUrl('md', 0)}
+      alt="Aerial view of the barn on its forested hilltop above misty West Virginia ridges at sunrise"
+      className="absolute inset-0 h-full w-full object-cover"
+      fetchPriority="high"
+    />
+    <canvas
+      aria-hidden="true"
+      className="xp-descent-canvas absolute inset-0 h-full w-full"
+    />
+    <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/35 via-transparent to-black/30" />
+    <div
+      aria-hidden="true"
+      className="xp-descent-fade pointer-events-none absolute inset-0 opacity-0"
+      style={{
+        background:
+          'linear-gradient(to top, var(--sky-bot), color-mix(in srgb, var(--sky-bot) 40%, transparent) 30%, transparent 55%)',
+      }}
+    />
+
+    <div className="xp-descent-intro absolute inset-x-0 top-[24vh] z-10 px-6 text-center text-white">
+      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/85 sm:text-sm">
+        Nebo, West Virginia
+      </p>
+      <p className="mt-5 font-serif text-[clamp(2.6rem,7.5vw,6.5rem)] italic leading-[0.95] drop-shadow-md">
+        High in the hills,
+        <br />
+        the day begins.
+      </p>
+    </div>
+
+    <p className="xp-descent-arrive invisible absolute inset-x-0 bottom-[16vh] z-10 px-6 text-center font-serif text-[clamp(2rem,5vw,4.25rem)] italic leading-tight text-white drop-shadow-lg">
+      Welcome to the barn.
+    </p>
+
+    <div className="xp-descent-hint pointer-events-none absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-white opacity-0">
+      Scroll to descend
+      <span className="relative block h-10 w-px overflow-hidden bg-white/30">
+        <span className="xp-scroll-hint-dot absolute inset-x-0 top-0 h-3 bg-white" />
+      </span>
+    </div>
+
+    <p className="absolute bottom-3 right-4 z-10 text-[0.6rem] uppercase tracking-[0.25em] text-white/60">
+      Artistic rendering
+    </p>
+  </section>
 );
 
 /* ------------------------------------------------------------------ */

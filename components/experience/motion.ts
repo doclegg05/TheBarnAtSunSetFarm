@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
+import { DescentPlayer } from './descent';
 import { setScrollEngine } from './scroll';
 
 /**
@@ -68,6 +69,67 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             }),
         });
         cleanups.push(() => split.revert());
+      }
+
+      /* ---------------- Descent: from the sky to the barn doors ---------------- */
+      const descent = all('.xp-descent')[0];
+      const canvas = all<HTMLCanvasElement>('.xp-descent-canvas')[0];
+      if (descent && canvas) {
+        const player = new DescentPlayer(canvas);
+        const onResize = () => player.resize();
+        window.addEventListener('resize', onResize);
+        cleanups.push(() => {
+          window.removeEventListener('resize', onResize);
+          player.dispose();
+        });
+
+        gsap
+          .timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: {
+              trigger: descent,
+              start: 'top top',
+              end: '+=360%',
+              pin: true,
+              scrub: true,
+              onUpdate: (self) => player.setProgress(self.progress),
+            },
+          })
+          .to('.xp-descent-hint', { autoAlpha: 0, duration: 0.04 }, 0)
+          .to(
+            '.xp-descent-intro',
+            { autoAlpha: 0, y: -80, duration: 0.12, ease: 'power1.in' },
+            0.03
+          )
+          .fromTo(
+            '.xp-descent-arrive',
+            { autoAlpha: 0, y: 40 },
+            { autoAlpha: 1, y: 0, duration: 0.12, ease: 'power2.out' },
+            0.78
+          )
+          .fromTo(
+            '.xp-descent-fade',
+            { opacity: 0 },
+            { opacity: 1, duration: 0.1 },
+            0.9
+          )
+          // Keeps the timeline exactly one unit long, so its progress and
+          // the frame progress agree.
+          .set({}, {}, 1);
+
+        gsap.from('.xp-descent-intro > *', {
+          y: 40,
+          autoAlpha: 0,
+          duration: 1.6,
+          stagger: 0.15,
+          ease: 'expo.out',
+          delay: 0.2,
+        });
+        gsap.to('.xp-descent-hint', {
+          opacity: 0.85,
+          duration: 1,
+          delay: 1.2,
+        });
       }
 
       /* ---------------- Hero: the arched window opens ---------------- */
@@ -140,8 +202,12 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             0.7
           );
 
-        // The first-load entrance: letters rise, the window wipes open.
-        const intro = gsap.timeline({ defaults: { ease: 'expo.out' } });
+        // The entrance as the hero arrives below the descent: letters rise,
+        // the window wipes open.
+        const intro = gsap.timeline({
+          defaults: { ease: 'expo.out' },
+          scrollTrigger: { trigger: hero, start: 'top 70%', once: true },
+        });
         intro
           .from('.xp-hero .xp-letter', {
             yPercent: 115,

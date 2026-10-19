@@ -10,6 +10,7 @@ import {
   Amenities,
   Barn,
   Finale,
+  Descent,
   Hero,
   Inquire,
   Packages,
@@ -544,6 +545,7 @@ const ExperiencePage: React.FC = () => {
       />
 
       <main className="relative z-10">
+        <Descent />
         <Hero />
         <Statement />
         <TheDay />
