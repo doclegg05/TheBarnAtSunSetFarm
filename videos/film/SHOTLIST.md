@@ -33,8 +33,8 @@ back wall) is walled off from the house (living room with stone fireplace,
 kitchen, staircase, bedroom and bath). Built from Britt's real tour footage,
 restyled with Aleph (summer light, clutter removed, steadied) rather than a
 3D model, so the layout is the real one.
-_Needs from Britt:_ the raw tour clips (filmed upright) and corrections to
-the draft ground-floor plan.
+The confirmed layout is in `ground-floor.png` (drawn by `ground-floor.mjs`).
+_Needs from Britt:_ the raw tour clips (filmed upright).
 
 **How the upright footage is shown (Britt's choice).** On phones the
 interior chapters fill the screen. On computers they play uncropped in a tall
