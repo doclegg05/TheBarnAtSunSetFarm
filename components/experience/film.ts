@@ -94,12 +94,17 @@ export class FilmPlayer {
     void this.fetchFrames(this.generation);
   }
 
-  /** Drops every frame; `load` fetches them again (from the HTTP cache). */
+  /**
+   * Drops every frame; `load` fetches them again (from the HTTP cache).
+   * Clears the canvas too, so the poster underneath shows instead of a
+   * stale frame.
+   */
   release() {
     this.generation++;
     this.loading = false;
     this.frames = [];
     this.drawn = '';
+    this.context?.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   dispose() {
