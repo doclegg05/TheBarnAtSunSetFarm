@@ -2,7 +2,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { feedResponse } from '../../lib/server/feedRoute';
 import type { Rpc } from '../../lib/server/rpc';
-import feedsFunction from '../../netlify/functions/feeds';
+import feedsFunction, {
+  config as feedsConfig,
+} from '../../netlify/functions/feeds';
 import { at } from '../scheduling/helpers';
 import { freshDb, type TestDb } from './testDb';
 
@@ -108,5 +110,14 @@ describe('the feeds Netlify function', () => {
       }
     );
     expect(response.status).toBe(404);
+  });
+
+  it('is rate-limited per caller, with a window Netlify accepts', () => {
+    expect(feedsConfig).toMatchObject({
+      rateLimit: { aggregateBy: ['ip', 'domain'] },
+    });
+    // Netlify skips a rule with a window over 180 seconds and still deploys.
+    expect(feedsConfig.rateLimit.windowSize).toBeLessThanOrEqual(180);
+    expect(feedsConfig.rateLimit.windowLimit).toBeGreaterThan(0);
   });
 });
