@@ -1,9 +1,12 @@
 # Security headers for every page Netlify serves. Vite copies this file into dist/.
-# The content security policy only reports for now. Once the browser console shows
-# no reports on the live site, rename the header to Content-Security-Policy and add
-# frame-ancestors 'none' (browsers ignore frame-ancestors in a report-only policy,
-# which is why X-Frame-Options stays). tests/e2e/securityHeaders.spec.ts loads every
-# page under this policy and fails on any violation.
+# The content security policy only reports for now, and only to each visitor's own
+# browser console: it names no report-to collector, so nobody receives the reports.
+# Before enforcing, add a collector and let it run quiet on the live site, then
+# rename the header to Content-Security-Policy and add frame-ancestors 'none'
+# (browsers ignore frame-ancestors in a report-only policy, which is why
+# X-Frame-Options stays). Deploy previews always log two reports from Netlify's own
+# toolbar script; ignore those. tests/e2e/securityHeaders.spec.ts loads every page
+# under this policy and fails on any violation.
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
