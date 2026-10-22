@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# The workflow token can read the code and nothing else.
+permissions:
+  contents: read
+
 jobs:
   quality-gates:
     runs-on: ubuntu-latest
