@@ -112,12 +112,11 @@ describe('the feeds Netlify function', () => {
     expect(response.status).toBe(404);
   });
 
-  it('is rate-limited per caller, with a window Netlify accepts', () => {
-    expect(feedsConfig).toMatchObject({
-      rateLimit: { aggregateBy: ['ip', 'domain'] },
+  it('limits each caller to 30 feed requests a minute', () => {
+    expect(feedsConfig.rateLimit).toEqual({
+      windowLimit: 30,
+      windowSize: 60,
+      aggregateBy: ['ip', 'domain'],
     });
-    // Netlify skips a rule with a window over 180 seconds and still deploys.
-    expect(feedsConfig.rateLimit.windowSize).toBeLessThanOrEqual(180);
-    expect(feedsConfig.rateLimit.windowLimit).toBeGreaterThan(0);
   });
 });
