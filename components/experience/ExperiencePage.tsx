@@ -6,6 +6,7 @@ import { initMotion } from './motion';
 import { scrollToSection } from './scroll';
 import { Soundscape, type Cue } from './soundscape';
 import { rgb, SKIES, skyAt, type SkyName, type SkyState } from './sky';
+import './experience.css';
 import {
   Amenities,
   Barn,
@@ -464,20 +465,6 @@ const ExperiencePage: React.FC = () => {
         } as React.CSSProperties
       }
     >
-      <style>{`
-        @keyframes xp-menu-in { from { opacity: 0; transform: translateY(12px); } }
-        .xp-root ::selection { background: #d4af37; color: #fff; }
-        @keyframes xp-eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
-        .xp-cursor[data-label='on'] { background: #d4af37; border-color: transparent; mix-blend-mode: normal; }
-        .xp-cursor span { opacity: 0; transition: opacity 0.2s; }
-        .xp-cursor[data-label='on'] span { opacity: 1; }
-        /* Over the 3D landscape, copy gets a soft halo in the sky's own colour. */
-        .xp-has3d :is(.xp-reveal, .xp-split, .xp-words, .xp-chapter) {
-          text-shadow: 0 0 18px color-mix(in srgb, var(--sky-mid) 85%, transparent),
-            0 0 5px color-mix(in srgb, var(--sky-mid) 70%, transparent);
-        }
-      `}</style>
-
       <a
         href="#contact"
         className="sr-only z-70 rounded-full bg-brand-charcoal px-5 py-3 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"

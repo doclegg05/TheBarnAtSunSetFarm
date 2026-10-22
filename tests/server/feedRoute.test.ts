@@ -2,7 +2,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { feedResponse } from '../../lib/server/feedRoute';
 import type { Rpc } from '../../lib/server/rpc';
-import feedsFunction from '../../netlify/functions/feeds';
+import feedsFunction, {
+  config as feedsConfig,
+} from '../../netlify/functions/feeds';
 import { at } from '../scheduling/helpers';
 import { freshDb, type TestDb } from './testDb';
 
@@ -108,5 +110,13 @@ describe('the feeds Netlify function', () => {
       }
     );
     expect(response.status).toBe(404);
+  });
+
+  it('limits each caller to 30 feed requests a minute', () => {
+    expect(feedsConfig.rateLimit).toEqual({
+      windowLimit: 30,
+      windowSize: 60,
+      aggregateBy: ['ip', 'domain'],
+    });
   });
 });
