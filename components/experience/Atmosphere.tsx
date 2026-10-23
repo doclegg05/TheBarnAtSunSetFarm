@@ -26,13 +26,12 @@ interface Drifter {
 
 const STAR_COUNT = 160;
 const FIREFLY_COUNT = 38;
-const PETAL_COUNT = 16;
 
 const random = (min: number, max: number) => min + Math.random() * (max - min);
 
 /**
- * One canvas behind the whole page: drifting blush petals by day, stars and
- * fireflies after dark. Their strength comes from the scroll-driven sky.
+ * One canvas behind the whole page: stars and fireflies after dark, their
+ * strength from the scroll-driven sky. By day it draws nothing and idles.
  */
 const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -62,17 +61,9 @@ const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
       phase: random(0, Math.PI * 2),
       size: random(1.2, 2.6),
     }));
-    const petals: Drifter[] = Array.from({ length: PETAL_COUNT }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      vx: random(0.00015, 0.0005),
-      vy: random(0.0003, 0.0007),
-      phase: random(0, Math.PI * 2),
-      size: random(4, 8),
-    }));
 
     const resize = () => {
-      // Petals, stars and fireflies are soft shapes: drawn at 1x they look
+      // Stars and fireflies are soft shapes: drawn at 1x they look
       // the same as at 2x, for a quarter of the pixels on every frame.
       const ratio = 1;
       width = window.innerWidth;
@@ -99,38 +90,6 @@ const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
           context.beginPath();
           context.arc(star.x * width, star.y * height, star.r, 0, Math.PI * 2);
           context.fill();
-        }
-      }
-
-      const petalStrength = (1 - sky.stars) * 0.7;
-      if (petalStrength > 0.02) {
-        context.fillStyle = '#e8b9c9';
-        for (const petal of petals) {
-          if (!reducedMotion) {
-            petal.x += petal.vx + Math.sin(t + petal.phase) * 0.0003;
-            petal.y += petal.vy;
-            if (petal.y > 1.05) {
-              petal.y = -0.05;
-              petal.x = Math.random();
-            }
-            if (petal.x > 1.05) petal.x = -0.05;
-          }
-          context.save();
-          context.globalAlpha = petalStrength * 0.55;
-          context.translate(petal.x * width, petal.y * height);
-          context.rotate(t * 0.6 + petal.phase);
-          context.beginPath();
-          context.ellipse(
-            0,
-            0,
-            petal.size,
-            petal.size * 0.55,
-            0,
-            0,
-            Math.PI * 2
-          );
-          context.fill();
-          context.restore();
         }
       }
 
@@ -171,14 +130,9 @@ const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
     let blank = false;
     const loop = (time: number) => {
       frame = window.requestAnimationFrame(loop);
-      // Nothing to draw (daytime petals off, or the 3D world owns the night
-      // sky): clear once, then stay idle.
+      // Nothing to draw in daylight: clear once, then stay idle.
       const sky = skyRef.current;
-      const empty =
-        !sky ||
-        ((1 - sky.stars) * 0.7 <= 0.02 &&
-          sky.stars <= 0.01 &&
-          sky.fireflies <= 0.01);
+      const empty = !sky || (sky.stars <= 0.01 && sky.fireflies <= 0.01);
       if (empty) {
         if (!blank) context.clearRect(0, 0, width, height);
         blank = true;

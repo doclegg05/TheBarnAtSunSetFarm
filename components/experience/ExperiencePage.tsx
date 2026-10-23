@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import LogoMark from '../LogoMark';
 import { TransitionLink } from '../PageTransition';
 import Atmosphere from './Atmosphere';
 import { initMotion } from './motion';
@@ -140,6 +141,26 @@ const SoundToggle: React.FC<{ on: boolean; onToggle: () => void }> = ({
   </button>
 );
 
+const BRAND_CLASS =
+  'flex min-w-0 items-center gap-2 font-serif leading-none sm:gap-2.5';
+
+/**
+ * The Sunset Barn mark and the venue's name, for the nav: on one line on
+ * wide screens, and stacked like the logo lockup on narrow ones.
+ */
+const Brand: React.FC = () => (
+  <>
+    <LogoMark simple decorative className="h-7 w-auto shrink-0" />
+    <span className="flex flex-col gap-0.5 whitespace-nowrap sm:hidden">
+      <span className="text-[0.8rem] italic">The Barn at</span>
+      <span className="text-lg">Sunset Farm</span>
+    </span>
+    <span className="hidden whitespace-nowrap text-2xl sm:inline">
+      The Barn at Sunset Farm
+    </span>
+  </>
+);
+
 const Nav: React.FC<{
   view: ExperienceView;
   navRef: React.RefObject<HTMLElement | null>;
@@ -165,19 +186,12 @@ const Nav: React.FC<{
         }}
       >
         {view === 'story' ? (
-          <a
-            href="#arrive"
-            onClick={pick('arrive')}
-            className="font-serif text-lg leading-none sm:text-2xl"
-          >
-            The Barn at Sunset Farm
+          <a href="#arrive" onClick={pick('arrive')} className={BRAND_CLASS}>
+            <Brand />
           </a>
         ) : (
-          <TransitionLink
-            to="/experience"
-            className="font-serif text-lg leading-none sm:text-2xl"
-          >
-            The Barn at Sunset Farm
+          <TransitionLink to="/experience" className={BRAND_CLASS}>
+            <Brand />
           </TransitionLink>
         )}
         <nav
@@ -206,7 +220,7 @@ const Nav: React.FC<{
           <a
             href="#contact"
             onClick={pick('contact')}
-            className="xp-magnetic rounded-full bg-brand-gold px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#2a2522] transition-colors hover:bg-brand-charcoal hover:text-white"
+            className="xp-magnetic rounded-full bg-brand-deep-sage px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand-cream transition-colors hover:bg-brand-barn-black"
           >
             Inquire
           </a>

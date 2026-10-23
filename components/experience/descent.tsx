@@ -98,7 +98,7 @@ const Welcome: React.FC = () => (
       <a
         href="#contact"
         onClick={goTo('contact')}
-        className="rounded-full bg-brand-gold px-7 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#2a2522] shadow-lg transition-colors hover:bg-white"
+        className="rounded-full bg-brand-deep-sage px-7 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-brand-cream shadow-lg transition-colors hover:bg-brand-barn-black"
       >
         Check your date
       </a>

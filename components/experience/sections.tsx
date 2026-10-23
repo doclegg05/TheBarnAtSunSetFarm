@@ -10,6 +10,7 @@ import type { ResponsiveImage } from '../../scripts/responsiveImages';
 import FilmStill from './FilmStill';
 import inside from './films/inside';
 import InquiryForm from './InquiryForm';
+import Meadow from './Meadow';
 import { LOGO, PHOTOS, pic } from './photos';
 import { scrollToSection } from './scroll';
 
@@ -622,8 +623,8 @@ export const Packages: React.FC = () => (
               onClick={scrollToId('contact')}
               className={`xp-magnetic mt-10 block rounded-full py-4 text-center text-sm font-semibold uppercase tracking-[0.2em] transition-colors ${
                 tier.highlight
-                  ? 'bg-brand-gold text-[#2a2522] hover:bg-white'
-                  : 'bg-brand-charcoal text-white hover:bg-brand-gold'
+                  ? 'bg-brand-deep-sage text-brand-cream hover:bg-brand-barn-black'
+                  : 'bg-brand-charcoal text-white hover:bg-brand-deep-sage'
               }`}
             >
               Request a quote
@@ -931,7 +932,8 @@ export const Inquire: React.FC = () => (
     aria-labelledby="xp-inquire-title"
     className="relative px-4 py-[12vh] sm:px-6"
   >
-    <div className="mx-auto grid max-w-6xl gap-12 rounded-[2rem] bg-[#fdf8f5] p-8 text-brand-charcoal shadow-2xl sm:p-12 md:grid-cols-[1fr_1.2fr] md:gap-16">
+    <div className="relative mx-auto grid max-w-6xl gap-12 overflow-hidden rounded-[2rem] bg-[#fdf8f5] p-8 pb-[min(24vw,11rem)] text-brand-charcoal shadow-2xl sm:p-12 sm:pb-[min(20vw,12rem)] md:grid-cols-[1fr_1.2fr] md:gap-16">
+      <Meadow className="absolute inset-x-0 bottom-0" />
       <div>
         <Eyebrow>Inquire</Eyebrow>
         <h2

@@ -50,7 +50,7 @@ const Input: React.FC<InputProps> = ({
 );
 
 const buttonClass =
-  'rounded-full bg-brand-gold px-8 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#2a2522] transition-colors hover:bg-brand-charcoal hover:text-white disabled:opacity-60';
+  'rounded-full bg-brand-deep-sage px-8 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-brand-cream transition-colors hover:bg-brand-barn-black disabled:opacity-60';
 
 interface StepProps {
   values: Values;

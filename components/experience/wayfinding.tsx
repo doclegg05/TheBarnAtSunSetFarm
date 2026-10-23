@@ -1,4 +1,5 @@
 import React from 'react';
+import LogoMark from '../LogoMark';
 import { TransitionLink } from '../PageTransition';
 import {
   GOOGLE_MAPS_DIRECTIONS_URL,
@@ -6,6 +7,7 @@ import {
   VENUE_NAME,
 } from '../../lib/venueLocation';
 import { PHOTOS, pic } from './photos';
+import Meadow from './Meadow';
 import { scrollToSection } from './scroll';
 import { Eyebrow, Heading } from './sections';
 import type { SkyName } from './sky';
@@ -208,9 +210,15 @@ const FOOTER_LINKS = [
 
 /** The close of every experience page: where the barn is, and the pages. */
 export const SiteFooter: React.FC = () => (
-  <footer data-sky="night" className="relative z-10 px-6 pb-10 pt-6">
-    <div className="mx-auto flex max-w-7xl flex-col gap-8 border-t border-current/15 pt-10 md:flex-row md:items-end md:justify-between">
+  <footer
+    data-sky="night"
+    className="relative z-10 overflow-hidden px-6 pb-[min(26vw,12rem)] pt-6"
+  >
+    {/* Capped, cropped from the top and faded, so the tall clumps stay clear of the text. */}
+    <Meadow className="absolute inset-x-0 bottom-0 h-[min(24vw,11rem)] object-cover object-bottom opacity-90 [mask-image:linear-gradient(to_top,black_55%,transparent)]" />
+    <div className="relative mx-auto flex max-w-7xl flex-col gap-8 border-t border-current/15 pt-10 md:flex-row md:items-end md:justify-between">
       <div>
+        <LogoMark decorative className="mb-4 h-16 w-auto" />
         <p className="font-serif text-3xl">{VENUE_NAME}</p>
         <address className="mt-2 text-sm not-italic opacity-75">
           {VENUE_ADDRESS.street}, {VENUE_ADDRESS.locality},{' '}
@@ -240,7 +248,7 @@ export const SiteFooter: React.FC = () => (
         </ul>
       </nav>
     </div>
-    <p className="mx-auto mt-8 max-w-7xl text-xs opacity-55">
+    <p className="relative mx-auto mt-8 max-w-7xl text-xs opacity-55">
       &copy; {new Date().getFullYear()} {VENUE_NAME}. The drone and walk-in
       films are artistic renderings made from photos of the barn.
     </p>

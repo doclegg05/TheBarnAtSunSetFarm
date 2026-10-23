@@ -33,6 +33,8 @@ import lake from '/photos/gallery/surrounding/Lake 2.webp?responsive';
 import lighthouse from '/photos/gallery/surrounding/Lighthouse 1.webp?responsive';
 // The public/photos original with its black letterbox bars trimmed off.
 import heroBarn from '/photos/experience/hero-barn-sunset.webp?responsive';
+// Brand watercolour (design/images, "Meadow Edge"): grasses on a clear ground.
+import meadow from '/photos/brand/meadow-edge.webp?responsive';
 
 export const PHOTOS = {
   dresses,
@@ -66,6 +68,7 @@ export const PHOTOS = {
   lake,
   lighthouse,
   heroBarn,
+  meadow,
 } as const;
 
 /** Served from public/ as-is. */
