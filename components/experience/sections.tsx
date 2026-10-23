@@ -1,16 +1,17 @@
 import React from 'react';
-import { TransitionLink } from '../PageTransition';
-import Contact from '../Contact';
+import {
+  GOOGLE_MAPS_DIRECTIONS_URL,
+  VENUE_ADDRESS,
+} from '../../lib/venueLocation';
 import CheckIcon from '../icons/CheckIcon';
 import { AMENITIES } from '../amenityList';
 import { FAQS, PACKAGE_TIERS } from '../../lib/siteContent';
 import type { ResponsiveImage } from '../../scripts/responsiveImages';
 import { frameUrl } from './film';
-import descent from './films/descent';
 import inside from './films/inside';
+import InquiryForm from './InquiryForm';
 import { LOGO, PHOTOS, pic } from './photos';
 import { scrollToSection } from './scroll';
-import { EXPERIENCE_PATHS } from './views';
 
 /*
  * Section markup for the /experience page. Every section is readable as
@@ -23,55 +24,6 @@ const scrollToId = (id: string) => (event: React.MouseEvent) => {
   event.preventDefault();
   scrollToSection(id);
 };
-
-/** Splits text into per-letter spans for letter-by-letter motion. */
-const Letters: React.FC<{ text: string; className?: string }> = ({
-  text,
-  className = '',
-}) => (
-  <span aria-hidden="true" className={className}>
-    {text.split(' ').map((word, w) => (
-      <React.Fragment key={w}>
-        {w > 0 && ' '}
-        <span className="inline-block whitespace-nowrap">
-          {word.split('').map((letter, i) => (
-            <span
-              key={i}
-              className="xp-letter-mask inline-block overflow-hidden"
-            >
-              <span className="xp-letter inline-block will-change-transform">
-                {letter}
-              </span>
-            </span>
-          ))}
-        </span>
-      </React.Fragment>
-    ))}
-  </span>
-);
-
-/** Splits text into word spans that light up one by one as you scroll. */
-const Words: React.FC<{ text: string; accent?: readonly string[] }> = ({
-  text,
-  accent = [],
-}) => (
-  <>
-    {text.split(' ').map((word, i) => (
-      <React.Fragment key={i}>
-        {i > 0 && ' '}
-        <span
-          className={`xp-word inline-block ${
-            accent.includes(word.replace(/[.,]/g, ''))
-              ? 'italic text-brand-gold'
-              : ''
-          }`}
-        >
-          {word}
-        </span>
-      </React.Fragment>
-    ))}
-  </>
-);
 
 export const Eyebrow: React.FC<{
   children: React.ReactNode;
@@ -93,196 +45,6 @@ export const Heading: React.FC<{
   >
     {children}
   </h2>
-);
-
-/* ------------------------------------------------------------------ */
-/* 0. Before dawn: drop from the sky to the barn doors as you scroll.  */
-/* ------------------------------------------------------------------ */
-
-export const Descent: React.FC = () => (
-  <section
-    id="arrive"
-    data-sky="dawn"
-    aria-label="Arriving at the barn"
-    className="xp-descent relative h-svh min-h-[560px] overflow-hidden bg-[#9fb0a8]"
-  >
-    {/* The first frame, shown at once and kept when motion is reduced. */}
-    <img
-      src={frameUrl(descent, 'md', 0)}
-      alt="Aerial view of the barn on its forested hilltop above misty West Virginia ridges at sunrise"
-      className="absolute inset-0 h-full w-full object-cover"
-      fetchPriority="high"
-    />
-    <canvas
-      aria-hidden="true"
-      className="xp-descent-canvas absolute inset-0 h-full w-full"
-    />
-    <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/35 via-transparent to-black/30" />
-    <div
-      aria-hidden="true"
-      className="xp-descent-fade pointer-events-none absolute inset-0 opacity-0"
-      style={{
-        background:
-          'linear-gradient(to top, var(--sky-bot), color-mix(in srgb, var(--sky-bot) 40%, transparent) 30%, transparent 55%)',
-      }}
-    />
-
-    <div className="xp-descent-intro absolute inset-x-0 top-[24vh] z-10 px-6 text-center text-white">
-      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/85 sm:text-sm">
-        Nebo, West Virginia
-      </p>
-      <p className="mt-5 font-serif text-[clamp(2.6rem,7.5vw,6.5rem)] italic leading-[0.95] drop-shadow-md">
-        High in the hills,
-        <br />
-        the day begins.
-      </p>
-    </div>
-
-    <p className="xp-descent-arrive invisible absolute inset-x-0 bottom-[16vh] z-10 px-6 text-center font-serif text-[clamp(2rem,5vw,4.25rem)] italic leading-tight text-white drop-shadow-lg">
-      Welcome to the barn.
-    </p>
-
-    <div className="xp-descent-hint pointer-events-none absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-white opacity-0">
-      Scroll to descend
-      <span className="relative block h-10 w-px overflow-hidden bg-white/30">
-        <span className="xp-scroll-hint-dot absolute inset-x-0 top-0 h-3 bg-white" />
-      </span>
-    </div>
-
-    <p className="absolute bottom-3 right-4 z-10 text-[0.6rem] uppercase tracking-[0.25em] text-white/60">
-      Artistic rendering
-    </p>
-  </section>
-);
-
-/* ------------------------------------------------------------------ */
-/* 1. Dawn: an arched window onto the barn opens to fill the screen.   */
-/* ------------------------------------------------------------------ */
-
-export const Hero: React.FC = () => (
-  <section
-    id="home"
-    data-sky="dawn"
-    className="xp-hero relative h-svh min-h-[560px] overflow-hidden"
-  >
-    <div className="xp-hero-frame absolute inset-0 overflow-hidden">
-      <div className="xp-hero-wipe absolute inset-0 bg-brand-charcoal">
-        <img
-          {...pic(PHOTOS.heroBarn, '100vw')}
-          alt="The Barn at Sunset Farm at sunset, its porch lights glowing against the mountains"
-          className="xp-hero-img h-full w-full object-cover"
-          fetchPriority="high"
-        />
-        <div className="xp-hero-shade absolute inset-0 bg-linear-to-b from-black/35 via-black/15 to-black/65" />
-      </div>
-    </div>
-
-    <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
-      <h1
-        aria-label="The Barn at Sunset Farm"
-        className="xp-hero-title font-serif text-[clamp(3.4rem,11vw,10.5rem)] font-normal leading-none tracking-tight drop-shadow-sm"
-        style={{
-          color:
-            'color-mix(in srgb, white calc(var(--lit, 1) * 100%), var(--ink))',
-        }}
-      >
-        <Letters text="The Barn" className="xp-hero-line1 block" />
-        <Letters
-          text="at Sunset Farm"
-          className="xp-hero-line2 block text-[0.62em] italic"
-        />
-      </h1>
-    </div>
-
-    <div className="xp-hero-copy absolute inset-x-0 bottom-[9vh] z-10 px-6 text-center text-white">
-      <p className="font-serif text-2xl italic sm:text-3xl">
-        Crafting your forever story
-      </p>
-      <p className="mx-auto mt-3 max-w-xl text-sm text-white/85 sm:text-base">
-        Experience the magic of a lifetime at The Barn at Sunset Farm, where
-        rustic charm meets timeless elegance.
-      </p>
-      <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a
-          href="#contact"
-          onClick={scrollToId('contact')}
-          className="xp-magnetic rounded-full bg-brand-gold px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#2a2522] shadow-lg transition-colors hover:bg-white"
-        >
-          Inquire about your date
-        </a>
-        <TransitionLink
-          to={EXPERIENCE_PATHS.day}
-          className="xp-magnetic rounded-full border border-white/70 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-xs transition-colors hover:bg-white/20"
-        >
-          Walk through the day
-        </TransitionLink>
-      </div>
-    </div>
-
-    <div className="xp-scroll-hint pointer-events-none absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] opacity-0">
-      Scroll to begin the day
-      <span className="relative block h-10 w-px overflow-hidden bg-current/25">
-        <span className="xp-scroll-hint-dot absolute inset-x-0 top-0 h-3 bg-current" />
-      </span>
-    </div>
-  </section>
-);
-
-/* ------------------------------------------------------------------ */
-/* 2. Morning: the story in one sentence, lit word by word.            */
-/* ------------------------------------------------------------------ */
-
-const floating = [
-  {
-    src: PHOTOS.cake,
-    alt: 'Wedding cake by the barn wall',
-    className: 'left-[3vw] top-[12%] w-[12vw] max-w-48 rotate-[-6deg]',
-    speed: -18,
-  },
-  {
-    src: PHOTOS.boots,
-    alt: 'Cowboy boots beside a wildflower bouquet',
-    className: 'right-[3vw] top-[8%] w-[11vw] max-w-44 rotate-[5deg]',
-    speed: -32,
-  },
-  {
-    src: PHOTOS.centerpiece,
-    alt: 'White rose centerpiece',
-    className: 'left-[6vw] bottom-[6%] w-[10vw] max-w-40 rotate-[4deg]',
-    speed: -40,
-  },
-  {
-    src: PHOTOS.couplePorch,
-    alt: 'Newlyweds dancing on the porch',
-    className: 'right-[5vw] bottom-[10%] w-[12vw] max-w-48 rotate-[-3deg]',
-    speed: -24,
-  },
-] as const;
-
-export const Statement: React.FC = () => (
-  <section
-    id="about"
-    data-sky="morning"
-    className="relative overflow-hidden px-6 py-[24vh]"
-  >
-    {floating.map((photo) => (
-      <img
-        key={photo.alt}
-        {...pic(photo.src, '15vw')}
-        alt={photo.alt}
-        loading="lazy"
-        data-speed={photo.speed}
-        className={`xp-float absolute hidden aspect-[3/4] rounded-2xl object-cover shadow-2xl xl:block ${photo.className}`}
-      />
-    ))}
-    <Eyebrow className="text-center">Mount Nebo · Nicholas County · WV</Eyebrow>
-    <p className="xp-words relative z-10 mx-auto mt-8 max-w-3xl text-center font-serif text-[clamp(1.9rem,4.2vw,4rem)] leading-[1.14]">
-      <Words
-        text="Just minutes from Summersville and the New River Gorge, a rustic barn with mountain views where weddings, elopements and family reunions unfold from first light to the last dance."
-        accent={['first', 'light', 'last', 'dance']}
-      />
-    </p>
-  </section>
 );
 
 /* ------------------------------------------------------------------ */
@@ -473,7 +235,6 @@ export const TheDay: React.FC = () => (
               <div
                 key={photo.alt}
                 data-depth={photo.depth}
-                data-gl-photo
                 data-gl-zoom="1.1"
                 className={`xp-chapter-photo absolute overflow-hidden rounded-2xl shadow-2xl ${photo.className}`}
               >
@@ -527,7 +288,7 @@ const insideLines = [
 export const Inside: React.FC = () => (
   <section
     id="inside"
-    data-sky="morning"
+    data-sky="golden"
     data-cue="doors"
     aria-label="Stepping inside the barn"
     className="xp-inside relative h-svh min-h-[560px] overflow-hidden bg-[#c9b391]"
@@ -615,7 +376,7 @@ export const Barn: React.FC = () => (
         <p className="xp-reveal mt-8 max-w-lg text-lg opacity-85">
           With its soaring ceilings, exposed wooden beams, and grand
           chandeliers, the barn is a versatile space that can be transformed to
-          match your vision — a spacious dance floor and panoramic windows
+          match your vision: a spacious dance floor and panoramic windows
           overlooking the farm.
         </p>
         <p className="xp-reveal mt-4 max-w-lg opacity-75">
@@ -659,7 +420,6 @@ export const Barn: React.FC = () => (
       {mosaic.map((tile) => (
         <div
           key={tile.alt}
-          data-gl-photo
           className={`xp-tile overflow-hidden rounded-2xl shadow-xl ${tile.className}`}
         >
           <img
@@ -1164,178 +924,39 @@ export const Questions: React.FC = () => {
 };
 
 export const Inquire: React.FC = () => (
-  <div data-sky="night" className="relative px-3 py-[8vh] sm:px-6">
-    <div className="xp-contact mx-auto max-w-7xl overflow-hidden rounded-[2rem] text-brand-charcoal shadow-[0_0_140px_-20px_rgb(212_175_55/0.45)]">
-      <Contact />
-    </div>
-  </div>
-);
-
-/* ------------------------------------------------------------------ */
-/* 11. The finale: the barn on its ridge, windows glowing.             */
-/* ------------------------------------------------------------------ */
-
-export const Finale: React.FC = () => (
-  <footer
+  <section
+    id="contact"
     data-sky="night"
-    data-cue="cheer"
-    className="xp-finale relative overflow-hidden pt-[18vh]"
+    aria-labelledby="xp-inquire-title"
+    className="relative px-4 py-[12vh] sm:px-6"
   >
-    <div className="relative z-10 px-6 text-center">
-      <h2
-        aria-label="See you at sunset."
-        className="font-serif text-[clamp(3.2rem,10vw,9rem)] font-normal leading-none"
-      >
-        <Letters text="See you" className="xp-finale-letters block" />
-        <Letters
-          text="at sunset."
-          className="xp-finale-letters block italic text-brand-gold"
-        />
-      </h2>
-      <a
-        href="#contact"
-        onClick={scrollToId('contact')}
-        className="xp-magnetic mt-12 inline-block rounded-full border border-brand-gold px-10 py-4 text-sm font-semibold uppercase tracking-[0.25em] text-brand-gold transition-colors hover:bg-brand-gold hover:text-[#2a2522]"
-      >
-        Start your inquiry
-      </a>
-    </div>
-
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 1440 420"
-      preserveAspectRatio="xMidYMax slice"
-      className="relative -mt-10 block h-[52vh] min-h-[280px] w-full"
-    >
-      <defs>
-        <radialGradient id="xp-window-glow">
-          <stop offset="0%" stopColor="#ffd98a" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#ffd98a" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <path
-        className="xp-ridge"
-        data-depth="0.15"
-        fill="#2b3150"
-        d="M0 250 L120 205 L240 228 L380 170 L520 214 L660 160 L820 210 L980 150 L1120 205 L1280 168 L1440 214 L1440 420 L0 420 Z"
-      />
-      <path
-        className="xp-ridge"
-        data-depth="0.3"
-        fill="#1d2240"
-        d="M0 300 L160 262 L300 290 L470 238 L610 280 L760 246 L900 288 L1060 236 L1220 284 L1440 252 L1440 420 L0 420 Z"
-      />
-      <g className="xp-ridge" data-depth="0.45">
-        <path
-          fill="#11152b"
-          d="M0 350 C240 318 420 330 600 312 C700 302 760 300 840 306 C1020 320 1220 344 1440 330 L1440 420 L0 420 Z"
-        />
-        {/* The barn on its hill: gambrel roof, cupola and lit doors. */}
-        <g transform="translate(660 214)">
-          <path
-            fill="#11152b"
-            stroke="#3b4372"
-            strokeWidth="1.5"
-            d="M10 96 L10 46 L40 18 L80 4 L120 18 L150 46 L150 96 Z M68 4 L68 -10 L92 -10 L92 4 Z"
-          />
-          <path
-            fill="#11152b"
-            stroke="#3b4372"
-            strokeWidth="1.5"
-            d="M150 96 L150 60 L210 60 L210 96 Z"
-          />
-          <circle
-            cx="80"
-            cy="74"
-            r="58"
-            fill="url(#xp-window-glow)"
-            className="xp-glow"
-          />
-          <rect
-            x="62"
-            y="58"
-            width="36"
-            height="38"
-            fill="#f6c76b"
-            className="xp-window"
-          />
-          <rect
-            x="72"
-            y="26"
-            width="16"
-            height="14"
-            fill="#f6c76b"
-            className="xp-window"
-          />
-          <rect
-            x="168"
-            y="70"
-            width="10"
-            height="10"
-            fill="#f6c76b"
-            className="xp-window"
-          />
-          <rect
-            x="186"
-            y="70"
-            width="10"
-            height="10"
-            fill="#f6c76b"
-            className="xp-window"
-          />
-        </g>
-      </g>
-    </svg>
-
-    <div className="relative z-10 -mt-px bg-[#11152b] px-6 pb-10 pt-4 text-center text-sm text-white/70">
-      <p className="font-serif text-2xl text-white">The Barn at Sunset Farm</p>
-      <p className="mt-2">86 Harper Ln · Mount Nebo, West Virginia</p>
-      <p className="mt-2">
-        <a href="tel:304-619-6805" className="hover:text-white">
-          (304) 619-6805
-        </a>
-        {' · '}
-        <a
-          href="mailto:sunsetwillowevents@gmail.com"
-          className="hover:text-white"
+    <div className="mx-auto grid max-w-6xl gap-12 rounded-[2rem] bg-[#fdf8f5] p-8 text-brand-charcoal shadow-2xl sm:p-12 md:grid-cols-[1fr_1.2fr] md:gap-16">
+      <div>
+        <Eyebrow>Inquire</Eyebrow>
+        <h2
+          id="xp-inquire-title"
+          className="mt-4 font-serif text-[clamp(2.4rem,5vw,4rem)] leading-[1.02]"
         >
-          sunsetwillowevents@gmail.com
-        </a>
-      </p>
-      <p className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          Check your date
+        </h2>
+        <p className="mt-5 max-w-sm opacity-80">
+          Tell us when you&apos;re thinking and how to reach you. We&apos;ll
+          confirm availability and set up a visit to the barn.
+        </p>
+        <p className="mt-8 text-sm opacity-70">
+          {VENUE_ADDRESS.street}, {VENUE_ADDRESS.locality},{' '}
+          {VENUE_ADDRESS.regionCode}
+        </p>
         <a
-          href="https://www.theknot.com/marketplace/the-barn-at-sunset-farm-mount-nebo-wv-2098756"
+          href={GOOGLE_MAPS_DIRECTIONS_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:text-white"
+          className="mt-2 inline-block text-xs font-semibold uppercase tracking-[0.25em] underline decoration-brand-gold underline-offset-8"
         >
-          The Knot
+          Get directions
         </a>
-        <a
-          href="https://www.weddingwire.com/biz/the-barn-at-sunset-farm/24dc683f3d58f6da.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-white"
-        >
-          WeddingWire
-        </a>
-        <TransitionLink to="/gallery" className="hover:text-white">
-          Gallery
-        </TransitionLink>
-        <TransitionLink to="/virtual-tour" className="hover:text-white">
-          Virtual tour
-        </TransitionLink>
-      </p>
-      <p className="mt-6 text-xs text-white/45">
-        &copy; {new Date().getFullYear()} The Barn at Sunset Farm. All Rights
-        Reserved.
-      </p>
-      <img
-        src="/designed-by.webp"
-        alt="Designed by Britt Legg"
-        loading="lazy"
-        className="mx-auto mt-6 h-10 w-auto opacity-80"
-      />
+      </div>
+      <InquiryForm />
     </div>
-  </footer>
+  </section>
 );

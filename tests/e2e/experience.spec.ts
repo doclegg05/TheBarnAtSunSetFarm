@@ -19,7 +19,7 @@ const PAGES = [
   {
     path: '/experience',
     heading: 'The Barn at Sunset Farm',
-    sections: ['home', 'about', 'inside', 'barn', 'next', 'contact'],
+    sections: ['arrive', 'barn', 'inside', 'next', 'contact'],
   },
   {
     path: '/experience/the-day',
@@ -34,7 +34,7 @@ const PAGES = [
 ] as const;
 
 /** Past this the story page has grown long again; move detail to a page. */
-const MAX_STORY_SCREENS = 22;
+const MAX_STORY_SCREENS = 14;
 
 test.describe('experience page', () => {
   for (const { path, heading, sections } of PAGES) {
@@ -194,7 +194,10 @@ test.describe('experience page', () => {
     await expect.poll(() => frames.size, { timeout: 8000 }).toBeGreaterThan(60);
 
     // Near the end of the pin, the last caption has replaced the first.
-    await page.evaluate((top) => window.scrollTo(0, top), start + height * 1.9);
+    await page.evaluate(
+      (top) => window.scrollTo(0, top),
+      start + height * 1.15
+    );
     await expect(page.locator('.xp-inside-line').last()).toHaveCSS(
       'opacity',
       '1'

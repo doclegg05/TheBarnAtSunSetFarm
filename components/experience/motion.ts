@@ -3,14 +3,20 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
+import { CAPTIONS } from './descentSpots';
 import { FilmPlayer } from './film';
 import descentFilm from './films/descent';
 import insideFilm from './films/inside';
 import { scrollToSection, setScrollEngine } from './scroll';
 
 /** How many screens of scrolling each pinned film plays over. */
-const DESCENT_SCREENS = 2.8;
-const INSIDE_SCREENS = 2;
+const DESCENT_SCREENS = 2.6;
+const INSIDE_SCREENS = 1.2;
+/**
+ * The descent plays over this share of its pin, then holds on the barn while
+ * the welcome and the pins come in, so the last frame can be explored.
+ */
+const DESCENT_FILM_END = 0.82;
 
 /**
  * Every scroll and pointer animation on the /experience page. The markup in
@@ -152,43 +158,67 @@ export const initMotion = (
       if (descent && canvas) {
         const player = film(descent, canvas, descentFilm, DESCENT_SCREENS);
 
-        gsap
-          .timeline({
-            defaults: { ease: 'none' },
-            scrollTrigger: {
-              trigger: descent,
-              start: 'top top',
-              end: () => `+=${window.innerHeight * DESCENT_SCREENS}`,
-              pin: true,
-              scrub: true,
-              onUpdate: (self) => player.setProgress(self.progress),
-            },
-          })
+        const timeline = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: descent,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * DESCENT_SCREENS}`,
+            pin: true,
+            scrub: true,
+            onUpdate: (self) =>
+              player.setProgress(self.progress / DESCENT_FILM_END),
+          },
+        });
+        timeline
           .to('.xp-descent-hint', { autoAlpha: 0, duration: 0.04 }, 0)
           .to(
             '.xp-descent-intro',
-            { autoAlpha: 0, y: -80, duration: 0.12, ease: 'power1.in' },
+            { autoAlpha: 0, y: -80, duration: 0.1, ease: 'power1.in' },
             0.03
-          )
+          );
+        // Each caption rises in and leaves at its stretch of the film.
+        all('.xp-descent-caption').forEach((caption, index) => {
+          const { from, to } = CAPTIONS[index];
+          const start = from * DESCENT_FILM_END;
+          const end = to * DESCENT_FILM_END;
+          timeline
+            .fromTo(
+              caption,
+              { autoAlpha: 0, y: 24 },
+              { autoAlpha: 1, y: 0, duration: 0.04 },
+              start
+            )
+            .to(caption, { autoAlpha: 0, y: -16, duration: 0.04 }, end - 0.04);
+        });
+        timeline
           .fromTo(
             '.xp-descent-arrive',
-            { autoAlpha: 0, y: 40 },
-            { autoAlpha: 1, y: 0, duration: 0.12, ease: 'power2.out' },
-            0.78
+            { autoAlpha: 0, y: 30 },
+            { autoAlpha: 1, y: 0, duration: 0.08, ease: 'power2.out' },
+            DESCENT_FILM_END
+          )
+          .fromTo(
+            '.xp-descent-pins, .xp-descent-chips',
+            { autoAlpha: 0 },
+            { autoAlpha: 1, duration: 0.06 },
+            DESCENT_FILM_END + 0.05
           )
           .fromTo(
             '.xp-descent-fade',
             { opacity: 0 },
-            { opacity: 1, duration: 0.1 },
-            0.9
+            { opacity: 1, duration: 0.04 },
+            0.96
           )
           // Keeps the timeline exactly one unit long, so its progress and
-          // the frame progress agree.
+          // the pin's progress agree.
           .set({}, {}, 1);
 
+        // Opacity, not autoAlpha: the page heading stays visible to screen
+        // readers and never waits on the animation to be readable.
         gsap.from('.xp-descent-intro > *', {
           y: 40,
-          autoAlpha: 0,
+          opacity: 0,
           duration: 1.6,
           stagger: 0.15,
           ease: 'expo.out',
@@ -199,103 +229,6 @@ export const initMotion = (
           duration: 1,
           delay: 1.2,
         });
-      }
-
-      /* ---------------- Hero: the arched window opens ---------------- */
-      const hero = all('.xp-hero')[0];
-      const frame = all('.xp-hero-frame')[0];
-      const title = all('.xp-hero-title')[0];
-      if (hero && frame && title) {
-        const archHeight = () => Math.min(window.innerHeight * 0.56, 640);
-        const archWidth = () =>
-          Math.min(archHeight() * 0.66, window.innerWidth * 0.78);
-        const lineShift = () => {
-          const size = parseFloat(getComputedStyle(title).fontSize) || 80;
-          return archHeight() / 2 - size * 0.18;
-        };
-        // The window is the full-screen frame clipped to an arch, so opening
-        // it only repaints; resizing the frame would re-run layout every frame.
-        const arch = () => {
-          const top = (hero.clientHeight - archHeight()) / 2;
-          const side = (hero.clientWidth - archWidth()) / 2;
-          const round = archWidth() / 2;
-          return `inset(${top}px ${side}px ${top}px ${side}px round ${round}px ${round}px 24px 24px)`;
-        };
-
-        const scroll = gsap.timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: {
-            trigger: hero,
-            start: 'top top',
-            end: '+=140%',
-            pin: true,
-            scrub: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-        scroll
-          .fromTo(
-            frame,
-            { clipPath: arch },
-            {
-              clipPath: 'inset(0px 0px 0px 0px round 0px 0px 0px 0px)',
-              ease: 'power2.inOut',
-              duration: 1,
-            },
-            0
-          )
-          .fromTo('.xp-hero-img', { scale: 1.15 }, { scale: 1, duration: 1 }, 0)
-          .fromTo(
-            '.xp-hero-line1',
-            { y: () => -lineShift() },
-            { y: 0, duration: 0.7, ease: 'power2.inOut' },
-            0
-          )
-          .fromTo(
-            '.xp-hero-line2',
-            { y: () => lineShift() },
-            { y: 0, duration: 0.7, ease: 'power2.inOut' },
-            0
-          )
-          .fromTo(title, { '--lit': 0 }, { '--lit': 1, duration: 0.4 }, 0.35)
-          .fromTo(
-            '.xp-hero-shade',
-            { opacity: 0 },
-            { opacity: 1, duration: 0.5 },
-            0.35
-          )
-          .to('.xp-scroll-hint', { autoAlpha: 0, duration: 0.1 }, 0)
-          .fromTo(
-            '.xp-hero-copy',
-            { autoAlpha: 0, y: 50 },
-            { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' },
-            0.7
-          );
-
-        // The entrance as the hero arrives below the descent: letters rise,
-        // the window wipes open.
-        const intro = gsap.timeline({
-          defaults: { ease: 'expo.out' },
-          scrollTrigger: { trigger: hero, start: 'top 70%', once: true },
-        });
-        intro
-          .from('.xp-hero .xp-letter', {
-            yPercent: 115,
-            duration: 1.5,
-            stagger: 0.04,
-          })
-          .fromTo(
-            '.xp-hero-wipe',
-            { clipPath: 'inset(100% 0% 0% 0%)' },
-            {
-              clipPath: 'inset(0% 0% 0% 0%)',
-              duration: 1.8,
-              ease: 'expo.inOut',
-              clearProps: 'clipPath',
-            },
-            0.15
-          )
-          .to('.xp-scroll-hint', { opacity: 0.75, duration: 1 }, 1.4);
         gsap.fromTo(
           '.xp-scroll-hint-dot',
           { yPercent: -100 },
@@ -316,44 +249,6 @@ export const initMotion = (
             toggleActions: 'play none none reverse',
           },
         });
-      }
-
-      /* ---------------- Statement: words light up ---------------- */
-      const words = all('.xp-words')[0];
-      if (words) {
-        gsap.fromTo(
-          all('.xp-word'),
-          { opacity: 0.14 },
-          {
-            opacity: 1,
-            stagger: 0.1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: words,
-              start: 'top 80%',
-              end: 'bottom 40%',
-              scrub: true,
-            },
-          }
-        );
-      }
-      for (const photo of all('.xp-float')) {
-        const speed = Number(photo.dataset.speed) || -20;
-        gsap.fromTo(
-          photo,
-          { yPercent: -speed, rotation: '-=4' },
-          {
-            yPercent: speed,
-            rotation: '+=8',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: photo.parentElement,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          }
-        );
       }
 
       /* ---------------- The day: a horizontal track ---------------- */
@@ -787,73 +682,6 @@ export const initMotion = (
           { autoAlpha: 1, duration: 0.25 },
           0.78
         );
-      }
-
-      /* ---------------- Contact card rises ---------------- */
-      for (const card of all('.xp-contact')) {
-        gsap.fromTo(
-          card,
-          { scale: 0.86, y: 90, borderRadius: '64px' },
-          {
-            scale: 1,
-            y: 0,
-            borderRadius: '32px',
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top 98%',
-              end: 'top 35%',
-              scrub: 1,
-            },
-          }
-        );
-      }
-
-      /* ---------------- Finale ---------------- */
-      const finale = all('.xp-finale')[0];
-      if (finale) {
-        gsap.from(all('.xp-finale-letters .xp-letter'), {
-          yPercent: 115,
-          duration: 1.3,
-          stagger: 0.035,
-          ease: 'expo.out',
-          scrollTrigger: {
-            trigger: finale,
-            start: 'top 75%',
-            toggleActions: 'play none none reverse',
-          },
-        });
-        for (const ridge of all<SVGElement>('.xp-ridge')) {
-          const depth = Number(ridge.dataset.depth) || 0.2;
-          gsap.fromTo(
-            ridge,
-            { y: depth * 320 },
-            {
-              y: 0,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: finale,
-                start: 'top bottom',
-                end: 'bottom bottom',
-                scrub: true,
-              },
-            }
-          );
-        }
-        gsap.to(all<SVGElement>('.xp-window'), {
-          opacity: 0.7,
-          duration: 1.8,
-          stagger: { each: 0.6, repeat: -1, yoyo: true },
-          ease: 'sine.inOut',
-        });
-        gsap.to(all<SVGElement>('.xp-glow'), {
-          scale: 1.25,
-          transformOrigin: '50% 50%',
-          duration: 2.6,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        });
       }
 
       /* ---------------- Pointer: tilt and magnetism ---------------- */
