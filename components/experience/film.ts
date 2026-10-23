@@ -46,12 +46,47 @@ interface Screen {
 type Direction = 1 | -1;
 
 const FETCH_PARALLEL = 6;
-const DECODE_PARALLEL = 3;
 /** Decoded frames kept either side of the playhead. */
 export const DECODE_RADIUS = 12;
-/** Roughly how much memory the decoded frames around the playhead may take. */
-const DECODE_BUDGET = 96 * 1024 * 1024;
 const MIN_RADIUS = 4;
+const MB = 1024 * 1024;
+
+export interface DecodeBudget {
+  /** Frames decoded at once. */
+  parallel: number;
+  /** Roughly how much memory the decoded frames may take. */
+  bytes: number;
+  /** The most frames kept decoded either side of the playhead. */
+  maxRadius: number;
+}
+
+interface Device {
+  cores: number;
+  /** navigator.deviceMemory, in GB; browsers cap it at 8. */
+  memoryGb?: number;
+  touch: boolean;
+}
+
+/**
+ * Phones and touch screens keep a small, steady budget. A computer decodes
+ * on up to half its cores and keeps more frames ready, because a wheel or
+ * trackpad can cross a film far faster than a finger, and the larger frames
+ * it shows take about 30 ms each to decode.
+ */
+export const decodeBudget = ({
+  cores,
+  memoryGb,
+  touch,
+}: Device): DecodeBudget =>
+  touch
+    ? { parallel: 3, bytes: 96 * MB, maxRadius: DECODE_RADIUS }
+    : {
+        parallel: Math.min(8, Math.max(3, Math.floor(cores / 2))),
+        bytes: (memoryGb ?? 8) >= 8 ? 320 * MB : 160 * MB,
+        maxRadius: 20,
+      };
+
+const PHONE_BUDGET = decodeBudget({ cores: 0, touch: true });
 /**
  * How quickly the shown frame catches up with the scroll position: the gap
  * shrinks by about two thirds every GLIDE_MS. An uneven finger or wheel
@@ -119,14 +154,29 @@ export const chooseSize = ({
 };
 
 /** Fewer decoded frames for larger sets, so memory stays about the same. */
-export const decodeRadius = ({ width, height }: FrameSize) =>
+export const decodeRadius = (
+  { width, height }: FrameSize,
+  budget: DecodeBudget = PHONE_BUDGET
+) =>
   Math.max(
     MIN_RADIUS,
     Math.min(
-      DECODE_RADIUS,
-      Math.floor(DECODE_BUDGET / (width * height * 4) / 2)
+      budget.maxRadius,
+      Math.floor(budget.bytes / (width * height * 4) / 2)
     )
   );
+
+/** This device, as decodeBudget sees it; outside a browser, a phone. */
+const readDevice = (): Device => {
+  const fine = window.matchMedia?.(
+    '(hover: hover) and (pointer: fine)'
+  ).matches;
+  return {
+    cores: navigator.hardwareConcurrency || 4,
+    memoryGb: (navigator as Navigator & { deviceMemory?: number }).deviceMemory,
+    touch: !fine,
+  };
+};
 
 const pickSize = (): Size =>
   chooseSize({
@@ -142,6 +192,9 @@ export class FilmPlayer {
   private readonly context: CanvasRenderingContext2D | null;
   private readonly size = pickSize();
   private readonly radius: number;
+  private readonly parallel: number;
+  /** Draws that had to hold an older frame because the right one was not decoded yet. */
+  private held = 0;
   private readonly files: Array<Blob | undefined> = [];
   private readonly decoded = new Map<number, ImageBitmap>();
   private readonly decoding = new Set<number>();
@@ -166,7 +219,9 @@ export class FilmPlayer {
     private readonly film: Film
   ) {
     this.context = canvas.getContext('2d');
-    this.radius = decodeRadius(film.sizes[this.size]);
+    const budget = decodeBudget(readDevice());
+    this.radius = decodeRadius(film.sizes[this.size], budget);
+    this.parallel = budget.parallel;
     this.resize();
   }
 
@@ -287,7 +342,7 @@ export class FilmPlayer {
       this.direction
     );
     for (const index of wanted) {
-      if (this.decoding.size >= DECODE_PARALLEL) return;
+      if (this.decoding.size >= this.parallel) return;
       const file = this.files[index];
       const skip =
         !file ||
@@ -364,6 +419,11 @@ export class FilmPlayer {
     const base = Math.floor(position);
     const from = this.nearest(base);
     if (from < 0) return;
+    if (from !== base) {
+      // Kept on the canvas so a probe can read how often a film stalls.
+      this.held += 1;
+      this.canvas.dataset.held = String(this.held);
+    }
     const next = this.decoded.get(base + 1);
     const blend = from === base && next ? position - base : 0;
     const key = `${from}:${blend.toFixed(2)}:${this.canvas.width}`;

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   chooseSize,
+  decodeBudget,
   DECODE_RADIUS,
   decodeOrder,
   decodeRadius,
@@ -124,6 +125,31 @@ describe('chooseSize', () => {
     expect(
       chooseSize({ width: 390, height: 844, ratio: 3, saveData: true })
     ).toBe('sm');
+  });
+});
+
+describe('decodeBudget', () => {
+  it('keeps phones and touch screens to a small, steady budget', () => {
+    expect(decodeBudget({ cores: 6, touch: true })).toEqual({
+      parallel: 3,
+      bytes: 96 * 1024 * 1024,
+      maxRadius: DECODE_RADIUS,
+    });
+  });
+
+  it('lets a computer decode on more cores and keep more frames ready', () => {
+    const budget = decodeBudget({ cores: 16, memoryGb: 8, touch: false });
+    expect(budget.parallel).toBe(8);
+    expect(
+      decodeRadius({ width: 1920, height: 1080 }, budget)
+    ).toBeGreaterThanOrEqual(15);
+    expect(decodeBudget({ cores: 4, touch: false }).parallel).toBe(3);
+  });
+
+  it('stays smaller on a computer that reports little memory', () => {
+    const small = decodeBudget({ cores: 8, memoryGb: 4, touch: false });
+    const large = decodeBudget({ cores: 8, memoryGb: 8, touch: false });
+    expect(small.bytes).toBeLessThan(large.bytes);
   });
 });
 
