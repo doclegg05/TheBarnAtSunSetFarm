@@ -48,6 +48,21 @@
       ],
       "port": 3004,
       "autoPort": false
+    },
+    {
+      "name": "design-boards",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "3010",
+        "--bind",
+        "0.0.0.0",
+        "--directory",
+        "design"
+      ],
+      "port": 3010,
+      "autoPort": false
     }
   ]
 }

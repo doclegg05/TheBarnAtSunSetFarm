@@ -1,4 +1,5 @@
 import type Lenis from 'lenis';
+import type React from 'react';
 
 /**
  * In-page jumps (nav links, buttons) go through here so they glide with the
@@ -15,6 +16,12 @@ interface ScrollOptions {
   /** Jump straight there instead of gliding, e.g. on arriving at a page. */
   immediate?: boolean;
 }
+
+/** A click handler for an in-page link that jumps through scrollToSection. */
+export const scrollToId = (id: string) => (event: React.MouseEvent) => {
+  event.preventDefault();
+  scrollToSection(id);
+};
 
 export const scrollToSection = (
   id: string,

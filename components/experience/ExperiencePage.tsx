@@ -1,35 +1,34 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import LogoMark from '../LogoMark';
 import { TransitionLink } from '../PageTransition';
 import Atmosphere from './Atmosphere';
-import Stage from './three/Stage';
+import { useBrandHead } from './brandHead';
 import { initMotion } from './motion';
 import { scrollToSection } from './scroll';
 import { Soundscape, type Cue } from './soundscape';
-import { rgb, SKIES, skyAt, type SkyName, type SkyState } from './sky';
 import {
-  Amenities,
-  Barn,
-  Finale,
-  Descent,
-  Hero,
-  Inquire,
-  Inside,
-  Packages,
-  Planning,
-  Questions,
-  Region,
-  Statement,
-  Stay,
-  TheDay,
-} from './sections';
+  mixSky,
+  rgb,
+  SKIES,
+  skyAt,
+  skyGradient,
+  skyLayers,
+  type SkyLayers,
+  type SkyName,
+  type SkyState,
+} from './sky';
+import { Packages, Planning, Questions, TheDay } from './daySections';
+import { Barn, Inquire, Inside } from './sections';
+import { Amenities, Region, Stay } from './staySections';
 import {
   EXPERIENCE_TITLES,
   NAV_TARGETS,
   navHref,
   type ExperienceView,
 } from './views';
-import { Next, PageIntro } from './wayfinding';
+import { Descent } from './descent';
+import { ChapterRail, Next, PageIntro, SiteFooter } from './wayfinding';
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 const SOUND_KEY = 'xp-sound';
@@ -63,11 +62,11 @@ const StayIntro: React.FC = () => (
 );
 
 /**
- * The sections of each page, top to bottom. The story is kept short; the
- * day's detail and lodging live on their own pages.
+ * The sections of each page, top to bottom. The story is kept short: the
+ * drone film, the barn, the walk inside, then cards to the other pages.
  */
 const VIEW_SECTIONS: Readonly<Record<ExperienceView, readonly React.FC[]>> = {
-  story: [Descent, Hero, Statement, Inside, Barn, Next, Inquire],
+  story: [Descent, Barn, Inside, Next, Inquire],
   day: [DayIntro, TheDay, Packages, Planning, Questions, Inquire],
   stay: [StayIntro, Amenities, Stay, Region, Inquire],
 };
@@ -134,6 +133,26 @@ const SoundToggle: React.FC<{ on: boolean; onToggle: () => void }> = ({
   </button>
 );
 
+const BRAND_CLASS =
+  'flex min-w-0 items-center gap-2 font-serif leading-none sm:gap-2.5';
+
+/**
+ * The Sunset Barn mark and the venue's name, for the nav: on one line on
+ * wide screens, and stacked like the logo lockup on narrow ones.
+ */
+const Brand: React.FC = () => (
+  <>
+    <LogoMark simple decorative className="h-7 w-auto shrink-0" />
+    <span className="flex flex-col gap-0.5 whitespace-nowrap sm:hidden">
+      <span className="text-[0.8rem] italic">The Barn at</span>
+      <span className="text-lg">Sunset Farm</span>
+    </span>
+    <span className="hidden whitespace-nowrap text-2xl sm:inline">
+      The Barn at Sunset Farm
+    </span>
+  </>
+);
+
 const Nav: React.FC<{
   view: ExperienceView;
   navRef: React.RefObject<HTMLElement | null>;
@@ -153,25 +172,18 @@ const Nav: React.FC<{
       className="fixed inset-x-0 top-0 z-50 px-3 pt-3 transition-transform duration-500 ease-out sm:px-6"
     >
       <div
-        className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full py-2 pl-5 pr-2 shadow-[0_8px_30px_-12px_rgb(0_0_0/0.35)] backdrop-blur-md"
+        className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full py-2 pl-5 pr-2 shadow-[0_8px_30px_-12px_rgb(0_0_0/0.35)]"
         style={{
-          background: 'color-mix(in srgb, var(--sky-mid) 72%, transparent)',
+          background: 'color-mix(in srgb, var(--sky-mid) 92%, transparent)',
         }}
       >
         {view === 'story' ? (
-          <a
-            href="#home"
-            onClick={pick('home')}
-            className="font-serif text-lg leading-none sm:text-2xl"
-          >
-            The Barn at Sunset Farm
+          <a href="#arrive" onClick={pick('arrive')} className={BRAND_CLASS}>
+            <Brand />
           </a>
         ) : (
-          <TransitionLink
-            to="/experience"
-            className="font-serif text-lg leading-none sm:text-2xl"
-          >
-            The Barn at Sunset Farm
+          <TransitionLink to="/experience" className={BRAND_CLASS}>
+            <Brand />
           </TransitionLink>
         )}
         <nav
@@ -200,7 +212,7 @@ const Nav: React.FC<{
           <a
             href="#contact"
             onClick={pick('contact')}
-            className="xp-magnetic rounded-full bg-brand-gold px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#2a2522] transition-colors hover:bg-brand-charcoal hover:text-white"
+            className="xp-magnetic rounded-full bg-brand-deep-sage px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand-cream transition-colors hover:bg-brand-barn-black"
           >
             Inquire
           </a>
@@ -231,7 +243,7 @@ const Nav: React.FC<{
         id="xp-menu"
         aria-label="Sections"
         hidden={!open}
-        className="mx-auto mt-2 max-w-7xl rounded-3xl p-6 shadow-xl backdrop-blur-md lg:hidden"
+        className="mx-auto mt-2 max-w-7xl rounded-3xl p-6 shadow-xl lg:hidden"
         style={{
           background: 'color-mix(in srgb, var(--sky-mid) 90%, transparent)',
         }}
@@ -328,24 +340,56 @@ const Cursor: React.FC = () => {
   );
 };
 
-const applySky = (
-  root: HTMLElement,
-  sun: HTMLElement | null,
-  sky: SkyState
-) => {
+/**
+ * The colour variables (text, nav, fades) change in this many steps per
+ * hand-over between skies. Every change restyles the whole page, so they
+ * move in steps while the background itself fades smoothly.
+ */
+const SKY_STEPS = 12;
+
+interface PaintedSky {
+  base: SkyName | null;
+  next: SkyName | null;
+  colours: string;
+}
+
+const setSkyColours = (root: HTMLElement, sky: SkyState) => {
   root.style.setProperty('--sky-top', rgb(sky.top));
   root.style.setProperty('--sky-mid', rgb(sky.middle));
   root.style.setProperty('--sky-bot', rgb(sky.bottom));
   root.style.setProperty('--ink', rgb(sky.ink));
-  if (sun) {
-    const x = sky.sunX * window.innerWidth;
-    const y = (0.86 - sky.sun * 0.66) * window.innerHeight;
-    sun.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
-    sun.style.opacity = String(
-      Math.min(1, Math.max(0, (sky.sun + 0.12) / 0.3))
-    );
-    sun.style.setProperty('--glow', String(sky.glow));
+};
+
+/**
+ * Draws the sky as two fixed layers: a gradient is repainted only when a
+ * layer changes time of day; while scrolling, only the top layer's opacity
+ * changes, which the browser composites without repainting. Returns what is
+ * now painted, for the next call to compare against.
+ */
+const paintSky = (
+  root: HTMLElement,
+  layers: { base: HTMLElement; next: HTMLElement },
+  sky: SkyLayers,
+  painted: PaintedSky
+): PaintedSky => {
+  if (painted.base !== sky.base) {
+    layers.base.style.background = skyGradient(SKIES[sky.base]);
   }
+  if (sky.next && painted.next !== sky.next) {
+    layers.next.style.background = skyGradient(SKIES[sky.next]);
+  }
+  layers.next.style.opacity = sky.next ? String(sky.fade) : '0';
+  const step = Math.round(sky.fade * SKY_STEPS) / SKY_STEPS;
+  const colours = `${sky.base}:${sky.next}:${step}`;
+  if (colours !== painted.colours) {
+    setSkyColours(
+      root,
+      sky.next
+        ? mixSky(SKIES[sky.base], SKIES[sky.next], step)
+        : SKIES[sky.base]
+    );
+  }
+  return { base: sky.base, next: sky.next ?? painted.next, colours };
 };
 
 interface ExperiencePageProps {
@@ -355,24 +399,18 @@ interface ExperiencePageProps {
 /**
  * One page of the venue story, set over a sky that moves from dawn to night
  * as you scroll. Lives at /experience (and /experience/the-day,
- * /experience/stay) as a preview beside the classic home page. Only the
- * story page runs the 3D landscape.
+ * /experience/stay) as a preview beside the classic home page.
  */
 const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
   const sections = VIEW_SECTIONS[view];
-  const world = view === 'story';
   const { hash } = useLocation();
+  useBrandHead();
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const sunRef = React.useRef<HTMLDivElement>(null);
   const navRef = React.useRef<HTMLElement>(null);
   const progressBarRef = React.useRef<HTMLDivElement>(null);
-  const progressRef = React.useRef(0);
+  const skyBaseRef = React.useRef<HTMLDivElement>(null);
+  const skyNextRef = React.useRef<HTMLDivElement>(null);
   const skyRef = React.useRef<SkyState>(SKIES.dawn);
-  const [has3D, setHas3D] = React.useState(false);
-  const handleStageReady = React.useCallback(
-    (running: boolean) => setHas3D(running),
-    []
-  );
   const soundRef = React.useRef<Soundscape | null>(null);
   const [soundOn, setSoundOn] = React.useState(false);
 
@@ -476,31 +514,42 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
     goTo(landOn, { immediate: true });
   }, [landOn, reducedMotion]);
 
-  // The sky, sun, progress line and hide-on-scroll nav all follow scroll.
+  // The sky, progress line and hide-on-scroll nav all follow scroll.
   React.useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     let frame = 0;
     let lastY = window.scrollY;
+    let painted: PaintedSky = { base: null, next: null, colours: '' };
+    // A page's sections never change, so they are looked up once.
+    const skySections = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-sky]'),
+      (section: HTMLElement) => section
+    );
 
     const update = () => {
       frame = 0;
-      const sections = Array.from(
-        root.querySelectorAll<HTMLElement>('[data-sky]'),
-        (section: HTMLElement) => ({
-          sky: section.dataset.sky as SkyName,
-          top: section.getBoundingClientRect().top,
-        })
-      );
+      const sections = skySections.map((section) => ({
+        sky: section.dataset.sky as SkyName,
+        top: section.getBoundingClientRect().top,
+      }));
       const sky = skyAt(sections, window.innerHeight);
       skyRef.current = sky;
-      applySky(root, sunRef.current, sky);
       soundRef.current?.update(sky);
+      const base = skyBaseRef.current;
+      const next = skyNextRef.current;
+      if (base && next) {
+        painted = paintSky(
+          root,
+          { base, next },
+          skyLayers(sections, window.innerHeight),
+          painted
+        );
+      }
 
       const scrollable =
         document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
-      progressRef.current = progress;
       if (progressBarRef.current) {
         progressBarRef.current.style.transform = `scaleX(${progress})`;
       }
@@ -540,7 +589,7 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
       ref={rootRef}
       className={`xp-root relative min-h-screen overflow-x-clip font-sans antialiased ${
         reducedMotion ? 'xp-reduced' : ''
-      } ${has3D ? 'xp-has3d' : ''}`}
+      }`}
       style={
         {
           color: 'var(--ink)',
@@ -554,15 +603,11 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
       <style>{`
         @keyframes xp-menu-in { from { opacity: 0; transform: translateY(12px); } }
         .xp-root ::selection { background: #d4af37; color: #fff; }
+        @keyframes xp-photo-in { from { opacity: 0; transform: translateY(28px) scale(0.92); } }
         @keyframes xp-eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
         .xp-cursor[data-label='on'] { background: #d4af37; border-color: transparent; mix-blend-mode: normal; }
         .xp-cursor span { opacity: 0; transition: opacity 0.2s; }
         .xp-cursor[data-label='on'] span { opacity: 1; }
-        /* Over the 3D landscape, copy gets a soft halo in the sky's own colour. */
-        .xp-has3d :is(.xp-reveal, .xp-split, .xp-words, .xp-chapter) {
-          text-shadow: 0 0 18px color-mix(in srgb, var(--sky-mid) 85%, transparent),
-            0 0 5px color-mix(in srgb, var(--sky-mid) 70%, transparent);
-        }
       `}</style>
 
       <a
@@ -573,52 +618,18 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
       </a>
 
       <div
+        ref={skyBaseRef}
         aria-hidden="true"
         className="fixed inset-0 z-0"
-        style={{
-          background:
-            'linear-gradient(to bottom, var(--sky-top), var(--sky-mid) 55%, var(--sky-bot))',
-        }}
-      >
-        <div
-          ref={sunRef}
-          className={`absolute left-0 top-0 h-[38vmin] w-[38vmin] rounded-full will-change-transform ${
-            has3D ? 'hidden' : ''
-          }`}
-          style={
-            {
-              '--glow': 0.5,
-              background:
-                'radial-gradient(circle, rgb(255 250 235) 0 18%, color-mix(in srgb, rgb(255 214 140) calc(100% - var(--glow) * 100%), rgb(244 140 90)) 30%, transparent 68%)',
-            } as React.CSSProperties
-          }
-        />
-      </div>
-
-      {world && !reducedMotion && (
-        <Stage
-          skyRef={skyRef}
-          progressRef={progressRef}
-          onReady={handleStageReady}
-        />
-      )}
-      {has3D && (
-        // Softens the landscape at the bottom of the screen so copy that
-        // passes over it stays readable.
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-1"
-          style={{
-            background:
-              'linear-gradient(to top, color-mix(in srgb, var(--sky-bot) 45%, transparent), transparent 42%)',
-          }}
-        />
-      )}
-      <Atmosphere
-        skyRef={skyRef}
-        reducedMotion={reducedMotion}
-        petalsOnly={has3D}
+        style={{ background: skyGradient(SKIES.dawn) }}
       />
+      <div
+        ref={skyNextRef}
+        aria-hidden="true"
+        className="fixed inset-0 z-0 opacity-0 will-change-[opacity]"
+      />
+
+      <Atmosphere skyRef={skyRef} reducedMotion={reducedMotion} />
 
       <div
         ref={progressBarRef}
@@ -638,9 +649,8 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
           <Section key={index} />
         ))}
       </main>
-      <div className="relative z-10">
-        <Finale />
-      </div>
+      <SiteFooter />
+      {view === 'story' && <ChapterRail />}
 
       <Cursor />
     </div>

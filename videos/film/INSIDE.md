@@ -19,11 +19,19 @@ French doors from the winter walkthrough
 (`public/videos/TheBarnAtSunsetFarm_Walkthrough_Winter.mp4` at 1:10 and
 1:22), and the white door to the house (0:28).
 
-For the page, the master gets a light colour grade (ffmpeg `curves`,
-`colorbalance`, saturation 0.94; no grain, which would bloat the frames) and
-is cut into frames with
-`node scripts/filmFrames.mjs path/to/master.mp4 inside 12`: 121 frames,
-1.4 MB at 1024 px and 0.8 MB at 640 px.
+For the page, the master got a light colour grade (ffmpeg `curves`,
+`colorbalance`, saturation 0.94; no grain, which would bloat the frames). The
+exact filter was not kept; `scripts/fitGrade.mjs` measured it against the
+published frames on 2026-10-23 as a per-channel fit (gain 1.082, 1.088,
+1.015; offset -10.3, -8.8, -8.3).
+
+On 2026-10-23 the master was upscaled to 3840×2156 with Topaz Video Upscale,
+model Proteus, 2x (node `EqTlrUE0lbUfmDZmDVO5`, generation
+`MM9Q7KHkLIrIeDoi4wzg`). Since 2026-10-23 the page plays it on a tap as
+real video. Rebuild the page's copies from that 4K version with
+`node scripts/filmVideos.mjs path/to/inside-4k.mp4 inside --grade '{"gain":[1.082,1.088,1.015],"offset":[-10.3,-8.8,-8.3]}'`:
+a 1920×1080 H.264 file, an upright 1080×1920 cut for screens held upright,
+and the first and last frames as AVIF stills, in public/films/inside/.
 
 ## Known differences from the real barn (Britt chose to keep this version)
 

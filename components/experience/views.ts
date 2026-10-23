@@ -1,7 +1,6 @@
 /**
  * The /experience design is split over three pages so the opening story
- * stays short and light: the story itself (the only page with the 3D
- * landscape), the wedding day and its planning, and lodging with the area
+ * stays short and light: the story itself (with the two films), the wedding day and its planning, and lodging with the area
  * around the farm.
  */
 export type ExperienceView = 'story' | 'day' | 'stay';

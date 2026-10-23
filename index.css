@@ -10,6 +10,16 @@
   --color-brand-pink: #ead1dc;
   --color-brand-sage: #a2b29f;
   --color-brand-gold: #d4af37;
+  /*
+   * From the brand boards (design/README.md, board 05): deeper partners for
+   * sage and gold wherever they carry text, and three colours taken from
+   * the barn itself.
+   */
+  --color-brand-deep-sage: #5f6e5c;
+  --color-brand-antique-gold: #8a6d14;
+  --color-brand-cedar: #b8692f;
+  --color-brand-barn-black: #2b2b2d;
+  --color-brand-golden-hour: #e6a35a;
 
   --font-sans: Raleway, sans-serif;
   --font-serif: 'Cormorant Garamond', serif;
