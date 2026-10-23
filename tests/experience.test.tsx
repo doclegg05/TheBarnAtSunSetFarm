@@ -146,6 +146,34 @@ describe.each(VIEWS)('experience %s page content', (view) => {
   });
 });
 
+describe('experience page branding', () => {
+  const CLASSIC_ICON = '/photos/sunset-willow-logo.webp';
+  const icon = () =>
+    document.head.querySelector<HTMLLinkElement>('link[rel="icon"]');
+
+  it('shows the Sunset Barn icon only while an experience page is open', () => {
+    const classic = document.createElement('link');
+    classic.rel = 'icon';
+    classic.type = 'image/webp';
+    classic.href = CLASSIC_ICON;
+    document.head.appendChild(classic);
+
+    const { unmount } = renderView('story');
+    expect(icon()?.getAttribute('href')).toBe('/favicon.svg');
+    expect(
+      document.head.querySelector('link[rel="apple-touch-icon"]')
+    ).not.toBeNull();
+
+    unmount();
+    expect(icon()?.getAttribute('href')).toBe(CLASSIC_ICON);
+    expect(icon()?.getAttribute('type')).toBe('image/webp');
+    expect(
+      document.head.querySelector('link[rel="apple-touch-icon"]')
+    ).toBeNull();
+    classic.remove();
+  });
+});
+
 describe('experience story page', () => {
   it('leaves the planning and lodging detail to their own pages', () => {
     const { container } = renderView('story');

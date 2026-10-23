@@ -234,5 +234,11 @@ test('the classic home page is unchanged and error-free', async ({ page }) => {
   ).toBeVisible();
   await expect(page.locator('#packages')).toHaveCount(1);
   await expect(page.locator('.xp-root')).toHaveCount(0);
+  // The new brand stays on the experience pages until it is rolled out.
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+    'href',
+    '/photos/sunset-willow-logo.webp'
+  );
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

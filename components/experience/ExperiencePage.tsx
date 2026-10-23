@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import LogoMark from '../LogoMark';
 import { TransitionLink } from '../PageTransition';
 import Atmosphere from './Atmosphere';
+import { useBrandHead } from './brandHead';
 import { initMotion } from './motion';
 import { scrollToSection } from './scroll';
 import { Soundscape, type Cue } from './soundscape';
@@ -412,6 +413,7 @@ interface ExperiencePageProps {
 const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
   const sections = VIEW_SECTIONS[view];
   const { hash } = useLocation();
+  useBrandHead();
   const rootRef = React.useRef<HTMLDivElement>(null);
   const navRef = React.useRef<HTMLElement>(null);
   const progressBarRef = React.useRef<HTMLDivElement>(null);
