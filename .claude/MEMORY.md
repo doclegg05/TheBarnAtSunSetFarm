@@ -52,7 +52,7 @@ On 2026-10-13 #25 (calendar removed, Tailwind 4, sharp 0.35.5) and #27 (no publi
 - [x] Set VITE_GOOGLE_API_KEY/VITE_GOOGLE_CALENDAR_ID in production env. Obsolete: #25 removed the calendar, and per #25 the Calendar API credential was revoked in Google Cloud on 2026-10-05
 - [ ] Unused components: SocialProof.tsx, TheKnotHub.tsx, Map.tsx, Testimonials.tsx
 - [ ] Britt reviews the rebuilt story page on `feat/shorter-story`; the captions and pins name only what the AI drone film shows (no cottage or parking appear in it)
-- [ ] `three` is still in package.json but no longer imported; remove it with `npm uninstall three` in a terminal (the sandbox cannot run installs)
+- [x] `three` removed from package.json (Britt ran `npm uninstall three`, 2026-10-23)
 - [ ] Day page: the 8.5-screen sideways track could become five chapter tabs (review suggestion, not yet approved)
 - [ ] Review quick wins not yet done: "Most popular" badge, "Handicap Accessible" wording, package capitalisation, stock-sounding lines, three em dashes left in sections.tsx
 - [ ] Britt reviews the `/experience` split (story, `/experience/the-day`, `/experience/stay`) and the section placement Claude chose; commit and push to PR #34 on a yes
