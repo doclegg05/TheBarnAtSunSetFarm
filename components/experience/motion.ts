@@ -429,11 +429,13 @@ export const initMotion = (
 
       /* ---------------- The barn ---------------- */
       for (const clip of all('.xp-clip')) {
+        // A scale, not a clip-path: transforms are composited, so the photo
+        // is not repainted on every scroll step.
         gsap.fromTo(
           clip,
-          { clipPath: 'inset(14% 12% 14% 12% round 32px)' },
+          { scale: 0.8 },
           {
-            clipPath: 'inset(0% 0% 0% 0% round 32px)',
+            scale: 1,
             ease: 'none',
             scrollTrigger: {
               trigger: clip,

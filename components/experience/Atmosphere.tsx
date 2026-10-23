@@ -72,7 +72,9 @@ const Atmosphere: React.FC<AtmosphereProps> = ({ skyRef, reducedMotion }) => {
     }));
 
     const resize = () => {
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      // Petals, stars and fireflies are soft shapes: drawn at 1x they look
+      // the same as at 2x, for a quarter of the pixels on every frame.
+      const ratio = 1;
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = Math.round(width * ratio);

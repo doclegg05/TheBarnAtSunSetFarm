@@ -453,7 +453,7 @@ const MarqueeRow: React.FC<{
           {items.map((item) => (
             <li
               key={item.title}
-              className="flex w-[78vw] shrink-0 items-center gap-5 rounded-full border border-current/15 bg-white/45 py-4 pl-4 pr-8 shadow-sm backdrop-blur-sm sm:w-auto"
+              className="flex w-[78vw] shrink-0 items-center gap-5 rounded-full border border-current/15 bg-white/45 py-4 pl-4 pr-8 shadow-sm sm:w-auto"
             >
               <span className="rounded-full bg-brand-cream p-3 text-brand-sage shadow-inner">
                 <item.icon className="h-7 w-7" />
@@ -588,7 +588,7 @@ export const Packages: React.FC = () => (
             className={`xp-tilt relative flex h-full flex-col rounded-[2rem] p-9 shadow-2xl will-change-transform ${
               tier.highlight
                 ? 'bg-brand-charcoal text-white'
-                : 'bg-white/90 text-brand-charcoal backdrop-blur'
+                : 'bg-white/90 text-brand-charcoal'
             }`}
           >
             {tier.highlight && (
@@ -883,7 +883,7 @@ export const Questions: React.FC = () => {
             return (
               <div
                 key={faq.question}
-                className="xp-reveal overflow-hidden rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md"
+                className="xp-reveal overflow-hidden rounded-2xl border border-white/15 bg-white/10"
               >
                 <h3>
                   <button

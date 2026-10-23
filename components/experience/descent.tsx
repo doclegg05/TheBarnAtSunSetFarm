@@ -192,7 +192,7 @@ const Chips: React.FC<ChipsProps> = ({ spots, onOpen }) => (
         key={spot.id}
         type="button"
         onClick={() => onOpen(spot)}
-        className="shrink-0 rounded-full bg-black/45 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm"
+        className="shrink-0 rounded-full bg-black/60 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-white"
       >
         {spot.label}
       </button>
@@ -298,7 +298,7 @@ export const Descent: React.FC = () => {
         <button
           type="button"
           onClick={() => scrollToSection('barn')}
-          className="rounded-full bg-black/35 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-white backdrop-blur-sm transition-colors hover:bg-black/55"
+          className="rounded-full bg-black/55 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-white transition-colors hover:bg-black/55"
         >
           Skip to the barn
         </button>
