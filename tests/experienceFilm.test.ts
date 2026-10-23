@@ -141,6 +141,21 @@ describe('experience scroll film', () => {
     expect(bitmaps[0].closed).toBe(true);
   });
 
+  it('stops fetching once released, so a film left behind never queues ahead of the next', async () => {
+    const { canvas } = fakeCanvas();
+    const player = new FilmPlayer(canvas, film(200));
+
+    player.load();
+    player.release();
+    await settle();
+    const fetched = vi.mocked(fetch).mock.calls.length;
+    expect(fetched).toBeLessThan(200);
+
+    player.load();
+    await settle();
+    expect(vi.mocked(fetch).mock.calls.length).toBe(200);
+  });
+
   it('frees every decoded frame on release and decodes again without refetching', async () => {
     const { canvas } = fakeCanvas();
     const player = new FilmPlayer(canvas, film(10));

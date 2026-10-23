@@ -6,7 +6,8 @@
  *
  * A film only loads once its section is near (`load`). It fetches every
  * frame's compressed file once, coarse to fine (every 16th, then every 8th,
- * and so on), and keeps those small files. Only the frames within
+ * and so on), and keeps those small files; fetching pauses while the film is
+ * released and resumes where it stopped. Only the frames within
  * DECODE_RADIUS of the playhead are decoded, off the main thread, into
  * bitmaps that draw without further work; frames that fall out of that
  * window are freed. So memory stays flat however long the film is, and the
@@ -94,7 +95,9 @@ export class FilmPlayer {
   private direction: Direction = 1;
   private drawn = '';
   private raf = 0;
-  private fetching = false;
+  /** Frames still to fetch, coarsest first; null until the first load. */
+  private queue: number[] | null = null;
+  private fetchers = 0;
   private active = false;
   private generation = 0;
   private disposed = false;
@@ -125,12 +128,16 @@ export class FilmPlayer {
     this.schedule();
   }
 
-  /** Starts decoding near the playhead, fetching the frames the first time. */
+  /**
+   * Starts decoding near the playhead and fetching any frames not fetched
+   * yet, carrying on from where a release stopped it.
+   */
   load() {
     if (this.active || this.disposed) return;
     this.active = true;
-    if (!this.fetching) {
-      this.fetching = true;
+    this.queue ??= loadOrder(this.film.count);
+    while (this.fetchers < FETCH_PARALLEL && this.queue.length > 0) {
+      this.fetchers += 1;
       void this.fetchFrames();
     }
     this.refill();
@@ -161,11 +168,15 @@ export class FilmPlayer {
     return Math.round(this.progress * (this.film.count - 1));
   }
 
+  /**
+   * One of up to FETCH_PARALLEL workers taking frames off the queue. It stops
+   * when the film is released, so a film the visitor has scrolled past
+   * never holds up the next one's downloads.
+   */
   private async fetchFrames() {
-    const queue = loadOrder(this.film.count);
-    const next = async (): Promise<void> => {
-      const index = queue.shift();
-      if (index === undefined || this.disposed) return;
+    while (this.active && !this.disposed) {
+      const index = this.queue?.shift();
+      if (index === undefined) break;
       try {
         const response = await fetch(frameUrl(this.film, this.size, index));
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -175,9 +186,8 @@ export class FilmPlayer {
         // A frame that fails to load is skipped; its neighbours stand in.
         this.broken.add(index);
       }
-      return next();
-    };
-    await Promise.all(Array.from({ length: FETCH_PARALLEL }, next));
+    }
+    this.fetchers -= 1;
   }
 
   /** Frees frames that left the window and decodes missing ones inside it. */
