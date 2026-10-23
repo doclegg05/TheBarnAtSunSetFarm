@@ -69,6 +69,21 @@ const FRAGMENT = /* glsl */ `
   }
 `;
 
+/**
+ * A copy of the photo without srcset, for the texture. A srcset image reports
+ * its size scaled by how much bigger the chosen file is than its slot (a
+ * 480 px file in a 464 px slot says 464), three.js sizes the texture from
+ * that, and the real file no longer fits, so the upload fails and the photo
+ * draws black. A plain image of the same file reports its real pixels, and
+ * the browser serves it from cache.
+ */
+const plainCopy = async (image: HTMLImageElement) => {
+  const copy = new Image();
+  copy.src = image.currentSrc || image.src;
+  await copy.decode();
+  return copy;
+};
+
 interface Item {
   element: HTMLElement;
   image: HTMLImageElement;
@@ -88,6 +103,7 @@ export class PhotoLayer {
   private height = 1;
   private pointer = { x: -9999, y: -9999 };
   private drewLastFrame = false;
+  private disposed = false;
 
   constructor(canvas: HTMLCanvasElement, elements: HTMLElement[]) {
     this.renderer = new THREE.WebGLRenderer({
@@ -108,9 +124,9 @@ export class PhotoLayer {
   }
 
   private prepare(item: Item) {
-    const build = () => {
-      if (!item.image.naturalWidth) return;
-      const texture = new THREE.Texture(item.image);
+    const build = (source: HTMLImageElement) => {
+      if (this.disposed) return;
+      const texture = new THREE.Texture(source);
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.minFilter = THREE.LinearFilter;
       texture.generateMipmaps = false;
@@ -129,10 +145,7 @@ export class PhotoLayer {
           uTexture: { value: texture },
           uSize: { value: new THREE.Vector2(1, 1) },
           uImage: {
-            value: new THREE.Vector2(
-              item.image.naturalWidth,
-              item.image.naturalHeight
-            ),
+            value: new THREE.Vector2(source.naturalWidth, source.naturalHeight),
           },
           uMouse: { value: new THREE.Vector2(0.5, 0.5) },
           uVelocity: { value: new THREE.Vector2() },
@@ -148,8 +161,16 @@ export class PhotoLayer {
       this.scene.add(item.mesh);
       item.image.style.opacity = '0';
     };
-    if (item.image.complete) build();
-    else item.image.addEventListener('load', build, { once: true });
+    const start = () => {
+      if (!item.image.naturalWidth) return;
+      plainCopy(item.image)
+        .then(build)
+        .catch(() => {
+          // The copy failed to load; the page keeps showing the normal <img>.
+        });
+    };
+    if (item.image.complete) start();
+    else item.image.addEventListener('load', start, { once: true });
   }
 
   setPointer(x: number, y: number) {
@@ -230,6 +251,7 @@ export class PhotoLayer {
   }
 
   dispose() {
+    this.disposed = true;
     for (const item of this.items) {
       item.image.style.opacity = '';
       if (item.mesh) {

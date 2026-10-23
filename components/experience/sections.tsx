@@ -5,9 +5,12 @@ import CheckIcon from '../icons/CheckIcon';
 import { AMENITIES } from '../amenityList';
 import { FAQS, PACKAGE_TIERS } from '../../lib/siteContent';
 import type { ResponsiveImage } from '../../scripts/responsiveImages';
-import { frameUrl } from './descent';
+import { frameUrl } from './film';
+import descent from './films/descent';
+import inside from './films/inside';
 import { LOGO, PHOTOS, pic } from './photos';
 import { scrollToSection } from './scroll';
+import { EXPERIENCE_PATHS } from './views';
 
 /*
  * Section markup for the /experience page. Every section is readable as
@@ -70,10 +73,10 @@ const Words: React.FC<{ text: string; accent?: readonly string[] }> = ({
   </>
 );
 
-const Eyebrow: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = '',
-}) => (
+export const Eyebrow: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = '' }) => (
   <p
     className={`xp-reveal text-xs font-semibold uppercase tracking-[0.35em] opacity-70 sm:text-sm ${className}`}
   >
@@ -81,10 +84,10 @@ const Eyebrow: React.FC<{ children: React.ReactNode; className?: string }> = ({
   </p>
 );
 
-const Heading: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = '',
-}) => (
+export const Heading: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = '' }) => (
   <h2
     className={`xp-split mt-4 font-serif text-[clamp(2.6rem,6vw,5.5rem)] font-normal leading-[0.98] tracking-tight ${className}`}
   >
@@ -105,7 +108,7 @@ export const Descent: React.FC = () => (
   >
     {/* The first frame, shown at once and kept when motion is reduced. */}
     <img
-      src={frameUrl('md', 0)}
+      src={frameUrl(descent, 'md', 0)}
       alt="Aerial view of the barn on its forested hilltop above misty West Virginia ridges at sunrise"
       className="absolute inset-0 h-full w-full object-cover"
       fetchPriority="high"
@@ -162,14 +165,16 @@ export const Hero: React.FC = () => (
     data-sky="dawn"
     className="xp-hero relative h-svh min-h-[560px] overflow-hidden"
   >
-    <div className="xp-hero-frame absolute inset-0 m-auto h-full w-full overflow-hidden bg-brand-charcoal shadow-2xl">
-      <img
-        {...pic(PHOTOS.heroBarn, '100vw')}
-        alt="The Barn at Sunset Farm at sunset, its porch lights glowing against the mountains"
-        className="xp-hero-img h-full w-full object-cover"
-        fetchPriority="high"
-      />
-      <div className="xp-hero-shade absolute inset-0 bg-linear-to-b from-black/35 via-black/15 to-black/65" />
+    <div className="xp-hero-frame absolute inset-0 overflow-hidden">
+      <div className="xp-hero-wipe absolute inset-0 bg-brand-charcoal">
+        <img
+          {...pic(PHOTOS.heroBarn, '100vw')}
+          alt="The Barn at Sunset Farm at sunset, its porch lights glowing against the mountains"
+          className="xp-hero-img h-full w-full object-cover"
+          fetchPriority="high"
+        />
+        <div className="xp-hero-shade absolute inset-0 bg-linear-to-b from-black/35 via-black/15 to-black/65" />
+      </div>
     </div>
 
     <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
@@ -205,13 +210,12 @@ export const Hero: React.FC = () => (
         >
           Inquire about your date
         </a>
-        <a
-          href="#the-day"
-          onClick={scrollToId('the-day')}
+        <TransitionLink
+          to={EXPERIENCE_PATHS.day}
           className="xp-magnetic rounded-full border border-white/70 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-xs transition-colors hover:bg-white/20"
         >
           Walk through the day
-        </a>
+        </TransitionLink>
       </div>
     </div>
 
@@ -502,6 +506,71 @@ export const TheDay: React.FC = () => (
 );
 
 /* ------------------------------------------------------------------ */
+/* 3b. Late morning: the cedar doors slide open and you walk inside.  */
+/* ------------------------------------------------------------------ */
+
+/** The film frame shown before it plays, and instead of it when motion is reduced. */
+const INSIDE_POSTER = 60;
+
+const insideLines = [
+  { eyebrow: 'The Main Barn', text: 'Step inside.' },
+  {
+    eyebrow: 'The reception hall',
+    text: 'Knotty pine, morning light, room for 200.',
+  },
+  {
+    eyebrow: 'To the porch',
+    text: 'Out to the porch and the hills.',
+  },
+] as const;
+
+export const Inside: React.FC = () => (
+  <section
+    id="inside"
+    data-sky="morning"
+    data-cue="doors"
+    aria-label="Stepping inside the barn"
+    className="xp-inside relative h-svh min-h-[560px] overflow-hidden bg-[#c9b391]"
+  >
+    <img
+      src={frameUrl(inside, 'md', INSIDE_POSTER)}
+      alt="The reception hall inside the barn: pale knotty pine walls, square pine posts and a black wagon-wheel chandelier"
+      loading="lazy"
+      className="absolute inset-0 h-full w-full object-cover"
+    />
+    <canvas
+      aria-hidden="true"
+      className="xp-inside-canvas absolute inset-0 h-full w-full"
+    />
+    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-black/5 to-black/25" />
+
+    <div className="absolute inset-x-0 bottom-[12vh] z-10 px-6 sm:px-[8vw]">
+      {insideLines.map((line, index) => (
+        <div
+          key={line.text}
+          className={`xp-inside-line text-white sm:max-w-2xl ${
+            index > 0
+              ? 'absolute inset-x-6 bottom-0 opacity-0 sm:inset-x-[8vw]'
+              : ''
+          }`}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/80">
+            {line.eyebrow}
+          </p>
+          <p className="mt-3 font-serif text-[clamp(2.2rem,5.5vw,4.75rem)] italic leading-[1.02] drop-shadow-lg">
+            {line.text}
+          </p>
+        </div>
+      ))}
+    </div>
+
+    <p className="absolute bottom-3 right-4 z-10 text-[0.6rem] uppercase tracking-[0.25em] text-white/60">
+      Artistic rendering
+    </p>
+  </section>
+);
+
+/* ------------------------------------------------------------------ */
 /* 4. Golden: the barn itself, with numbers that count up.             */
 /* ------------------------------------------------------------------ */
 
@@ -536,12 +605,7 @@ const mosaic = [
 ] as const;
 
 export const Barn: React.FC = () => (
-  <section
-    id="barn"
-    data-sky="golden"
-    data-cue="doors"
-    className="relative px-6 py-[18vh]"
-  >
+  <section id="barn" data-sky="golden" className="relative px-6 py-[18vh]">
     <div className="mx-auto grid max-w-7xl items-center gap-14 md:grid-cols-[1fr_1.15fr]">
       <div>
         <Eyebrow>The Main Barn</Eyebrow>

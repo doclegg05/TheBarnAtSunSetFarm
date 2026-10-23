@@ -11,12 +11,39 @@ export const setScrollEngine = (next: Lenis | null) => {
   engine = next;
 };
 
-export const scrollToSection = (id: string) => {
+interface ScrollOptions {
+  /** Jump straight there instead of gliding, e.g. on arriving at a page. */
+  immediate?: boolean;
+}
+
+export const scrollToSection = (
+  id: string,
+  { immediate = false }: ScrollOptions = {}
+) => {
   const target = document.getElementById(id);
   if (!target) return;
   if (engine) {
-    engine.scrollTo(target, { duration: 1.6 });
+    // Lenis may still hold the page height from before the pins added their
+    // scroll room, and would stop short of the target; measure again first.
+    engine.resize();
+    const lenis = engine;
+    const jump = () => {
+      const offset = target.getBoundingClientRect().top;
+      if (Math.abs(offset) > 1) {
+        lenis.scrollTo(window.scrollY + offset, {
+          immediate: true,
+          force: true,
+        });
+      }
+    };
+    if (immediate) {
+      jump();
+    } else {
+      // A glide aims at where the section was when it started; anything that
+      // shifts on the way (a pin, a re-split heading) is corrected at the end.
+      lenis.scrollTo(target, { duration: 1.6, onComplete: jump });
+    }
   } else {
-    target.scrollIntoView({ behavior: 'smooth' });
+    target.scrollIntoView({ behavior: immediate ? 'auto' : 'smooth' });
   }
 };

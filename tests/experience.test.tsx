@@ -2,6 +2,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ExperiencePage from '../components/experience/ExperiencePage';
+import {
+  EXPERIENCE_PATHS,
+  type ExperienceView,
+} from '../components/experience/views';
 import { SKIES, mixSky, skyAt } from '../components/experience/sky';
 
 afterEach(() => cleanup());
@@ -38,22 +42,24 @@ describe('experience page sky', () => {
   });
 });
 
-describe('experience page content', () => {
-  const renderPage = () =>
-    render(
-      <MemoryRouter>
-        <ExperiencePage />
-      </MemoryRouter>
-    );
+const VIEWS: readonly ExperienceView[] = ['story', 'day', 'stay'];
 
+const renderView = (view: ExperienceView) =>
+  render(
+    <MemoryRouter>
+      <ExperiencePage view={view} />
+    </MemoryRouter>
+  );
+
+describe.each(VIEWS)('experience %s page content', (view) => {
   // Same rule as the home page: the venue does not advertise price.
   it('renders no dollar amount', () => {
-    const { container } = renderPage();
+    const { container } = renderView(view);
     expect(container.textContent ?? '').not.toMatch(/\$\s?\d/);
   });
 
   it('gives every in-page link a section to land on', () => {
-    const { container } = renderPage();
+    const { container } = renderView(view);
     const targets = Array.from(
       container.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'),
       (link) => link.getAttribute('href')!.slice(1)
@@ -64,9 +70,47 @@ describe('experience page content', () => {
     }
   });
 
+  it('gives every link to another experience page a section to land on', () => {
+    const { container } = renderView(view);
+    const links = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>('a[href^="/experience"]'),
+      (link) => link.getAttribute('href')!
+    );
+    for (const href of new Set(links)) {
+      const [path, hash] = href.split('#');
+      const target = VIEWS.find((other) => EXPERIENCE_PATHS[other] === path);
+      expect(target, href).toBeDefined();
+      if (!hash) continue;
+      cleanup();
+      const { container: other } = renderView(target!);
+      expect(other.querySelector(`#${hash}`), href).not.toBeNull();
+      cleanup();
+      renderView(view);
+    }
+  });
+
   it('includes the inquiry form', () => {
-    const { container } = renderPage();
+    const { container } = renderView(view);
     expect(container.querySelector('#contact form')).not.toBeNull();
+  });
+});
+
+describe('experience story page', () => {
+  it('leaves the planning and lodging detail to their own pages', () => {
+    const { container } = renderView('story');
+    for (const id of ['the-day', 'stay', 'packages', 'planning', 'faq']) {
+      expect(container.querySelector(`#${id}`), id).toBeNull();
+    }
+  });
+
+  it('points visitors to the day and stay pages', () => {
+    const { container } = renderView('story');
+    const hrefs = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>('#next a'),
+      (link) => link.getAttribute('href')
+    );
+    expect(hrefs).toContain(EXPERIENCE_PATHS.day);
+    expect(hrefs).toContain(EXPERIENCE_PATHS.stay);
   });
 });
 

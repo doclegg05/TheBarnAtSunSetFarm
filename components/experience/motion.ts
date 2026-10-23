@@ -3,8 +3,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
-import { DescentPlayer } from './descent';
-import { setScrollEngine } from './scroll';
+import { FilmPlayer } from './film';
+import descentFilm from './films/descent';
+import insideFilm from './films/inside';
+import { scrollToSection, setScrollEngine } from './scroll';
+
+/** How many screens of scrolling each pinned film plays over. */
+const DESCENT_SCREENS = 2.8;
+const INSIDE_SCREENS = 2;
 
 /**
  * Every scroll and pointer animation on the /experience page. The markup in
@@ -13,7 +19,60 @@ import { setScrollEngine } from './scroll';
  *
  * Returns a cleanup that reverts every tween, pin and listener.
  */
-export const initMotion = (root: HTMLElement): (() => void) => {
+
+/**
+ * Lands on a section the visitor arrived for (a #section in the URL). Fonts
+ * and photos that finish later make ScrollTrigger re-measure, which moves
+ * every section below a pin, so this lands again after each re-measure until
+ * the visitor scrolls on their own. Returns a cleanup.
+ */
+const landOnSection = (id: string): (() => void) => {
+  const land = () => scrollToSection(id, { immediate: true });
+  const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+  const stop = () => {
+    ScrollTrigger.removeEventListener('refresh', land);
+    for (const event of events) window.removeEventListener(event, stop);
+  };
+  ScrollTrigger.addEventListener('refresh', land);
+  for (const event of events) {
+    window.addEventListener(event, stop, { passive: true });
+  }
+  land();
+  return stop;
+};
+
+/**
+ * Lenis eases wheel and keyboard scrolling. It listens to touch with
+ * passive: false, which makes iOS Safari wait for script before every scroll
+ * step, so the whole page jerks whenever the page is busy; that is why it
+ * only starts with a mouse or trackpad. GSAP's ticker drives it so pins and
+ * scrubs stay in lockstep.
+ */
+const startSmoothScroll = (): { lenis: Lenis; stop: () => void } => {
+  const lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9 });
+  lenis.on('scroll', ScrollTrigger.update);
+  const drive = (time: number) => lenis.raf(time * 1000);
+  gsap.ticker.add(drive);
+  gsap.ticker.lagSmoothing(0);
+  setScrollEngine(lenis);
+  const stop = () => {
+    setScrollEngine(null);
+    gsap.ticker.remove(drive);
+    gsap.ticker.lagSmoothing(500, 33);
+    lenis.destroy();
+  };
+  return { lenis, stop };
+};
+
+interface MotionOptions {
+  /** A section to land on once the page has measured itself. */
+  landOn?: string;
+}
+
+export const initMotion = (
+  root: HTMLElement,
+  { landOn }: MotionOptions = {}
+): (() => void) => {
   // Registered here, not at import, so the module loads outside a browser.
   gsap.registerPlugin(ScrollTrigger, SplitText);
   const mm = gsap.matchMedia(root);
@@ -33,20 +92,10 @@ export const initMotion = (root: HTMLElement): (() => void) => {
       const cleanups: Array<() => void> = [];
 
       /* ---------------- Smooth, weighted scrolling ---------------- */
-      // Lenis eases wheel and keyboard scrolling; touch keeps its native
-      // feel. GSAP's ticker drives it so pins and scrubs stay in lockstep.
-      const lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9 });
-      lenis.on('scroll', ScrollTrigger.update);
-      const drive = (time: number) => lenis.raf(time * 1000);
-      gsap.ticker.add(drive);
-      gsap.ticker.lagSmoothing(0);
-      setScrollEngine(lenis);
-      cleanups.push(() => {
-        setScrollEngine(null);
-        gsap.ticker.remove(drive);
-        gsap.ticker.lagSmoothing(500, 33);
-        lenis.destroy();
-      });
+      // Only with a mouse or trackpad: touch screens keep native scrolling.
+      const smooth = finePointer ? startSmoothScroll() : null;
+      if (smooth) cleanups.push(smooth.stop);
+      const lenis = smooth?.lenis ?? null;
 
       /* ---------------- Headings rise line by line ---------------- */
       for (const heading of all('.xp-split')) {
@@ -71,17 +120,37 @@ export const initMotion = (root: HTMLElement): (() => void) => {
         cleanups.push(() => split.revert());
       }
 
-      /* ---------------- Descent: from the sky to the barn doors ---------------- */
-      const descent = all('.xp-descent')[0];
-      const canvas = all<HTMLCanvasElement>('.xp-descent-canvas')[0];
-      if (descent && canvas) {
-        const player = new DescentPlayer(canvas);
+      /* ---------------- Scroll films: the descent and the walk inside ---------------- */
+      // A film loads once its section is within two and a half screens and
+      // lets its frames go once the visitor is that far past it.
+      const film = (
+        section: HTMLElement,
+        canvas: HTMLCanvasElement,
+        frames: typeof descentFilm | typeof insideFilm,
+        pinScreens: number
+      ) => {
+        const player = new FilmPlayer(canvas, frames);
         const onResize = () => player.resize();
         window.addEventListener('resize', onResize);
         cleanups.push(() => {
           window.removeEventListener('resize', onResize);
           player.dispose();
         });
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top bottom+=150%',
+          end: () => `+=${window.innerHeight * (pinScreens + 5)}`,
+          onToggle: (self) =>
+            self.isActive ? player.load() : player.release(),
+        });
+        return player;
+      };
+
+      /* ---------------- Descent: from the sky to the barn doors ---------------- */
+      const descent = all('.xp-descent')[0];
+      const canvas = all<HTMLCanvasElement>('.xp-descent-canvas')[0];
+      if (descent && canvas) {
+        const player = film(descent, canvas, descentFilm, DESCENT_SCREENS);
 
         gsap
           .timeline({
@@ -89,7 +158,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             scrollTrigger: {
               trigger: descent,
               start: 'top top',
-              end: '+=360%',
+              end: () => `+=${window.innerHeight * DESCENT_SCREENS}`,
               pin: true,
               scrub: true,
               onUpdate: (self) => player.setProgress(self.progress),
@@ -144,6 +213,14 @@ export const initMotion = (root: HTMLElement): (() => void) => {
           const size = parseFloat(getComputedStyle(title).fontSize) || 80;
           return archHeight() / 2 - size * 0.18;
         };
+        // The window is the full-screen frame clipped to an arch, so opening
+        // it only repaints; resizing the frame would re-run layout every frame.
+        const arch = () => {
+          const top = (hero.clientHeight - archHeight()) / 2;
+          const side = (hero.clientWidth - archWidth()) / 2;
+          const round = archWidth() / 2;
+          return `inset(${top}px ${side}px ${top}px ${side}px round ${round}px ${round}px 24px 24px)`;
+        };
 
         const scroll = gsap.timeline({
           defaults: { ease: 'none' },
@@ -159,22 +236,15 @@ export const initMotion = (root: HTMLElement): (() => void) => {
         scroll
           .fromTo(
             frame,
+            { clipPath: arch },
             {
-              width: archWidth,
-              height: archHeight,
-              borderRadius: () =>
-                `${archWidth() / 2}px ${archWidth() / 2}px 24px 24px`,
-            },
-            {
-              width: () => hero.clientWidth,
-              height: () => hero.clientHeight,
-              borderRadius: '0px 0px 0px 0px',
+              clipPath: 'inset(0px 0px 0px 0px round 0px 0px 0px 0px)',
               ease: 'power2.inOut',
               duration: 1,
             },
             0
           )
-          .fromTo('.xp-hero-img', { scale: 1.3 }, { scale: 1, duration: 1 }, 0)
+          .fromTo('.xp-hero-img', { scale: 1.15 }, { scale: 1, duration: 1 }, 0)
           .fromTo(
             '.xp-hero-line1',
             { y: () => -lineShift() },
@@ -215,7 +285,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             stagger: 0.04,
           })
           .fromTo(
-            frame,
+            '.xp-hero-wipe',
             { clipPath: 'inset(100% 0% 0% 0%)' },
             {
               clipPath: 'inset(0% 0% 0% 0%)',
@@ -321,7 +391,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
         );
         // Desktop visitors can also grab the track and fling it sideways.
         const range = slide.scrollTrigger;
-        if (finePointer && range) {
+        if (lenis && range) {
           let dragging = false;
           let moved = false;
           let startX = 0;
@@ -420,6 +490,46 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             },
           });
         }
+      }
+
+      /* ---------------- Inside: the cedar doors open onto the hall ---------------- */
+      const insideSection = all('.xp-inside')[0];
+      const insideCanvas = all<HTMLCanvasElement>('.xp-inside-canvas')[0];
+      if (insideSection && insideCanvas) {
+        const player = film(
+          insideSection,
+          insideCanvas,
+          insideFilm,
+          INSIDE_SCREENS
+        );
+        const [doors, hall, porch] = all('.xp-inside-line');
+        const rise = { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' };
+        const fall = {
+          autoAlpha: 0,
+          y: -30,
+          duration: 0.07,
+          ease: 'power1.in',
+        };
+
+        gsap
+          .timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: {
+              trigger: insideSection,
+              start: 'top top',
+              end: () => `+=${window.innerHeight * INSIDE_SCREENS}`,
+              pin: true,
+              scrub: true,
+              onUpdate: (self) => player.setProgress(self.progress),
+            },
+          })
+          // Timed to the film: the doors open over its first 40%, the hall
+          // fills the middle, and it turns to the French doors at the end.
+          .to(doors, fall, 0.26)
+          .fromTo(hall, { autoAlpha: 0, y: 30 }, rise, 0.45)
+          .to(hall, fall, 0.72)
+          .fromTo(porch, { autoAlpha: 0, y: 30 }, rise, 0.86)
+          .set({}, {}, 1);
       }
 
       /* ---------------- The barn ---------------- */
@@ -807,6 +917,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
       // them by page position so pins push later triggers correctly.
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
+      if (landOn) cleanups.push(landOnSection(landOn));
 
       return () => {
         for (const cleanup of cleanups) cleanup();

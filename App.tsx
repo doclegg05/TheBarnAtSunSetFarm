@@ -11,11 +11,22 @@ import GalleryPage from './components/GalleryPage';
 import VirtualTourPage from './components/VirtualTourPage';
 import FadeInSection from './components/FadeInSection';
 import { PageTransitionProvider } from './components/PageTransition';
+import {
+  EXPERIENCE_PATHS,
+  type ExperienceView,
+} from './components/experience/views';
 
 // The all-motion design preview loads on its own so its animation library
 // never adds weight to the classic pages.
 const ExperiencePage = React.lazy(
   () => import('./components/experience/ExperiencePage')
+);
+
+// A fresh page per view (the key), so its motion starts over.
+const experiencePage = (view: ExperienceView) => (
+  <React.Suspense fallback={<div className="min-h-screen bg-brand-cream" />}>
+    <ExperiencePage key={view} view={view} />
+  </React.Suspense>
 );
 
 const NotFound: React.FC = () => (
@@ -71,14 +82,16 @@ const App: React.FC = () => {
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/virtual-tour" element={<VirtualTourPage />} />
             <Route
-              path="/experience"
-              element={
-                <React.Suspense
-                  fallback={<div className="min-h-screen bg-brand-cream" />}
-                >
-                  <ExperiencePage />
-                </React.Suspense>
-              }
+              path={EXPERIENCE_PATHS.story}
+              element={experiencePage('story')}
+            />
+            <Route
+              path={EXPERIENCE_PATHS.day}
+              element={experiencePage('day')}
+            />
+            <Route
+              path={EXPERIENCE_PATHS.stay}
+              element={experiencePage('stay')}
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
