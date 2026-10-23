@@ -7,7 +7,7 @@ import CheckIcon from '../icons/CheckIcon';
 import { AMENITIES } from '../amenityList';
 import { FAQS, PACKAGE_TIERS } from '../../lib/siteContent';
 import type { ResponsiveImage } from '../../scripts/responsiveImages';
-import { frameUrl } from './film';
+import FilmStill from './FilmStill';
 import inside from './films/inside';
 import InquiryForm from './InquiryForm';
 import { LOGO, PHOTOS, pic } from './photos';
@@ -293,8 +293,9 @@ export const Inside: React.FC = () => (
     aria-label="Stepping inside the barn"
     className="xp-inside relative h-svh min-h-[560px] overflow-hidden bg-[#c9b391]"
   >
-    <img
-      src={frameUrl(inside, 'md', INSIDE_POSTER)}
+    <FilmStill
+      film={inside}
+      index={INSIDE_POSTER}
       alt="The reception hall inside the barn: pale knotty pine walls, square pine posts and a black wagon-wheel chandelier"
       loading="lazy"
       className="absolute inset-0 h-full w-full object-cover"

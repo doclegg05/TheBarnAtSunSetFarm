@@ -175,7 +175,7 @@ test.describe('experience page', () => {
     const frames = new Set<string>();
     page.on('request', (request) => {
       const url = request.url();
-      if (/\/inside\/(sm|md)\/\d+\.avif$/.test(url)) frames.add(url);
+      if (/\/inside\/(sm|md|lg|xl|pt)\/\d+\.avif$/.test(url)) frames.add(url);
     });
     await page.goto('/experience');
     await page.waitForTimeout(1000);

@@ -20,16 +20,38 @@ export interface Film {
   readonly count: number;
   readonly fps: number;
   readonly aspect: number;
-  readonly sizes: { readonly sm: number; readonly md: number };
+  /** Each frame set's dimensions, in pixels. */
+  readonly sizes: Readonly<Record<Size, FrameSize>>;
 }
 
-type Size = 'sm' | 'md';
+/**
+ * The frame sets: landscape by width (sm 640, md 1024, lg 1920, xl 2560)
+ * and pt, an upright 1080 x 1920 slice from the middle of the frame for
+ * screens held upright, which only ever show that slice.
+ */
+export type Size = 'sm' | 'md' | 'lg' | 'xl' | 'pt';
+
+export interface FrameSize {
+  readonly width: number;
+  readonly height: number;
+}
+
+interface Screen {
+  width: number;
+  height: number;
+  /** Device pixels per CSS pixel. */
+  ratio: number;
+  saveData?: boolean;
+}
 type Direction = 1 | -1;
 
 const FETCH_PARALLEL = 6;
 const DECODE_PARALLEL = 3;
 /** Decoded frames kept either side of the playhead. */
 export const DECODE_RADIUS = 12;
+/** Roughly how much memory the decoded frames around the playhead may take. */
+const DECODE_BUDGET = 96 * 1024 * 1024;
+const MIN_RADIUS = 4;
 /**
  * How quickly the shown frame catches up with the scroll position: the gap
  * shrinks by about two thirds every GLIDE_MS. An uneven finger or wheel
@@ -81,20 +103,45 @@ export const decodeOrder = (
   return order;
 };
 
-/** Small frames on phones and on data saver; larger ones elsewhere. */
-const pickSize = (): Size => {
-  const saveData =
-    (navigator as Navigator & { connection?: { saveData?: boolean } })
-      .connection?.saveData ?? false;
-  return saveData ||
-    Math.min(window.innerWidth, window.innerHeight * 1.78) < 760
-    ? 'sm'
-    : 'md';
+/** The frame set that looks sharp on a screen without wasting data. */
+export const chooseSize = ({
+  width,
+  height,
+  ratio,
+  saveData,
+}: Screen): Size => {
+  if (saveData) return 'sm';
+  if (height > width) return 'pt';
+  const pixels = width * Math.min(ratio, 2);
+  if (pixels >= 2200) return 'xl';
+  if (pixels >= 1100) return 'lg';
+  return 'md';
 };
+
+/** Fewer decoded frames for larger sets, so memory stays about the same. */
+export const decodeRadius = ({ width, height }: FrameSize) =>
+  Math.max(
+    MIN_RADIUS,
+    Math.min(
+      DECODE_RADIUS,
+      Math.floor(DECODE_BUDGET / (width * height * 4) / 2)
+    )
+  );
+
+const pickSize = (): Size =>
+  chooseSize({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    ratio: window.devicePixelRatio || 1,
+    saveData:
+      (navigator as Navigator & { connection?: { saveData?: boolean } })
+        .connection?.saveData ?? false,
+  });
 
 export class FilmPlayer {
   private readonly context: CanvasRenderingContext2D | null;
   private readonly size = pickSize();
+  private readonly radius: number;
   private readonly files: Array<Blob | undefined> = [];
   private readonly decoded = new Map<number, ImageBitmap>();
   private readonly decoding = new Set<number>();
@@ -119,6 +166,7 @@ export class FilmPlayer {
     private readonly film: Film
   ) {
     this.context = canvas.getContext('2d');
+    this.radius = decodeRadius(film.sizes[this.size]);
     this.resize();
   }
 
@@ -137,13 +185,22 @@ export class FilmPlayer {
   }
 
   /**
-   * One canvas pixel per screen point: the frames are at most 1024 wide and
-   * drawn larger than that, so a 2x canvas would only cost four times the
-   * drawing for no extra detail.
+   * The canvas carries as much detail as the frames do once they are
+   * scaled to cover it, up to 2x: more would only cost drawing time, less
+   * would blur them.
    */
   resize() {
-    const ratio = 1;
+    const frame = this.film.sizes[this.size];
     const { clientWidth, clientHeight } = this.canvas;
+    const cover = Math.max(
+      clientWidth / frame.width,
+      clientHeight / frame.height
+    );
+    const ratio = Math.max(
+      1,
+      Math.min(window.devicePixelRatio || 1, 2, cover > 0 ? 1 / cover : 1)
+    );
+
     this.canvas.width = Math.round(clientWidth * ratio);
     this.canvas.height = Math.round(clientHeight * ratio);
     this.drawn = '';
@@ -218,7 +275,7 @@ export class FilmPlayer {
     if (!this.active || this.disposed) return;
     const center = this.playhead;
     for (const [index, bitmap] of this.decoded) {
-      if (Math.abs(index - center) > DECODE_RADIUS) {
+      if (Math.abs(index - center) > this.radius) {
         bitmap.close();
         this.decoded.delete(index);
       }
@@ -226,7 +283,7 @@ export class FilmPlayer {
     const wanted = decodeOrder(
       center,
       this.film.count,
-      DECODE_RADIUS,
+      this.radius,
       this.direction
     );
     for (const index of wanted) {
@@ -249,7 +306,7 @@ export class FilmPlayer {
       const stale =
         this.disposed ||
         generation !== this.generation ||
-        Math.abs(index - this.playhead) > DECODE_RADIUS;
+        Math.abs(index - this.playhead) > this.radius;
       if (stale) {
         bitmap.close();
       } else {

@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  chooseSize,
   DECODE_RADIUS,
   decodeOrder,
+  decodeRadius,
   FilmPlayer,
   type Film,
 } from '../components/experience/film';
@@ -11,7 +13,13 @@ const film = (count: number): Film => ({
   count,
   fps: 12,
   aspect: 1.78,
-  sizes: { sm: 640, md: 1024 },
+  sizes: {
+    sm: { width: 640, height: 360 },
+    md: { width: 1024, height: 576 },
+    lg: { width: 1920, height: 1080 },
+    xl: { width: 2560, height: 1440 },
+    pt: { width: 1080, height: 1920 },
+  },
 });
 
 /**
@@ -101,6 +109,34 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe('chooseSize', () => {
+  it('gives a phone held upright the upright 1080 by 1920 slice', () => {
+    expect(chooseSize({ width: 390, height: 844, ratio: 3 })).toBe('pt');
+  });
+
+  it('matches landscape screens by their real pixel width', () => {
+    expect(chooseSize({ width: 1280, height: 720, ratio: 1 })).toBe('lg');
+    expect(chooseSize({ width: 1440, height: 900, ratio: 2 })).toBe('xl');
+    expect(chooseSize({ width: 900, height: 600, ratio: 1 })).toBe('md');
+  });
+
+  it('keeps to the smallest frames on data saver', () => {
+    expect(
+      chooseSize({ width: 390, height: 844, ratio: 3, saveData: true })
+    ).toBe('sm');
+  });
+});
+
+describe('decodeRadius', () => {
+  it('keeps fewer large frames decoded, so memory stays about the same', () => {
+    expect(decodeRadius({ width: 1024, height: 576 })).toBe(DECODE_RADIUS);
+    expect(decodeRadius({ width: 1080, height: 1920 })).toBeLessThan(8);
+    expect(decodeRadius({ width: 2560, height: 1440 })).toBeGreaterThanOrEqual(
+      4
+    );
+  });
+});
+
 describe('decodeOrder', () => {
   it('starts at the playhead and works outwards, ahead first', () => {
     expect(decodeOrder(5, 20, 2, 1)).toEqual([5, 6, 4, 7, 3]);
@@ -145,12 +181,14 @@ describe('experience scroll film', () => {
     expect(bitmaps[0].closed).toBe(true);
   });
 
-  it('draws no more canvas pixels than the frames have, even on a 2x screen', () => {
+  it('draws the canvas at the detail the frames carry, never past 2x', () => {
     vi.stubGlobal('devicePixelRatio', 2);
     const { canvas } = fakeCanvas();
+    // A 2x screen in jsdom's 1024 x 768 window picks the 1920-wide frames:
+    // three frame pixels per point on this 640 x 360 canvas, capped at 2x.
     new FilmPlayer(canvas, film(3));
-    expect(canvas.width).toBe(640);
-    expect(canvas.height).toBe(360);
+    expect(canvas.width).toBe(1280);
+    expect(canvas.height).toBe(720);
   });
 
   it('glides toward a new scroll position instead of jumping to it', async () => {

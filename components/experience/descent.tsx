@@ -1,6 +1,6 @@
 import React from 'react';
 import { TransitionLink } from '../PageTransition';
-import { frameUrl } from './film';
+import FilmStill from './FilmStill';
 import descent from './films/descent';
 import {
   CAPTIONS,
@@ -38,9 +38,11 @@ const usePinPositions = (layer: React.RefObject<HTMLElement | null>) => {
     const measure = () => {
       const box = layer.current?.getBoundingClientRect();
       if (!box) return;
-      // On a narrow phone, pins, labels and the welcome do not all fit, so
-      // every place shows as a button in the row under the welcome instead.
-      const roomy = box.width >= PIN_MIN_WIDTH;
+      // On a narrow phone, pins, labels and the welcome do not all fit, and a
+      // screen held upright shows the upright frames, a slice the landscape
+      // pin positions do not fit; either way every place shows as a button
+      // in the row under the welcome instead.
+      const roomy = box.width >= PIN_MIN_WIDTH && box.width >= box.height;
       setPositions(
         HOTSPOTS.map((spot) => {
           const point = coverPoint(spot, FRAME, box);
@@ -250,15 +252,17 @@ export const Descent: React.FC = () => {
       className="xp-descent relative h-svh min-h-[560px] overflow-hidden bg-[#9fb0a8]"
     >
       {/* The first frame, shown at once while the film loads. */}
-      <img
-        src={frameUrl(descent, 'md', 0)}
+      <FilmStill
+        film={descent}
+        index={0}
         alt="Aerial view of the barn on its forested hilltop above misty West Virginia ridges at sunrise"
         className="absolute inset-0 h-full w-full object-cover"
         fetchPriority="high"
       />
       {/* With reduced motion the film stays on its last frame, where the pins are. */}
-      <img
-        src={frameUrl(descent, 'md', LAST_FRAME)}
+      <FilmStill
+        film={descent}
+        index={LAST_FRAME}
         alt=""
         loading="lazy"
         className="absolute inset-0 hidden h-full w-full object-cover in-[.xp-reduced]:block"

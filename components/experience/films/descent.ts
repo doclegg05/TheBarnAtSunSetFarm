@@ -4,5 +4,11 @@ export default {
   count: 186,
   fps: 10,
   aspect: 1.7778,
-  sizes: { sm: 640, md: 1024 },
+  sizes: {
+    sm: { width: 640, height: 360 },
+    md: { width: 1024, height: 576 },
+    lg: { width: 1920, height: 1080 },
+    xl: { width: 2560, height: 1440 },
+    pt: { width: 1080, height: 1920 },
+  },
 } as const;
