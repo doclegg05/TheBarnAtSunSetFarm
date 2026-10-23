@@ -6,9 +6,60 @@ import {
   EXPERIENCE_PATHS,
   type ExperienceView,
 } from '../components/experience/views';
-import { SKIES, mixSky, skyAt } from '../components/experience/sky';
+import { SKIES, mixSky, skyAt, skyLayers } from '../components/experience/sky';
 
 afterEach(() => cleanup());
+
+describe('experience page sky layers', () => {
+  it('shows only the current sky while no section is rising', () => {
+    expect(
+      skyLayers(
+        [
+          { sky: 'dawn', top: -400 },
+          { sky: 'golden', top: 900 },
+        ],
+        800
+      )
+    ).toEqual({ base: 'dawn', next: null, fade: 0 });
+  });
+
+  it('fades the next sky in over the current one as its section rises', () => {
+    const layers = skyLayers(
+      [
+        { sky: 'dawn', top: -2000 },
+        { sky: 'golden', top: 560 },
+      ],
+      800
+    );
+    expect(layers.base).toBe('dawn');
+    expect(layers.next).toBe('golden');
+    expect(layers.fade).toBeCloseTo(0.5);
+  });
+
+  it('makes a fully risen section the new base', () => {
+    expect(
+      skyLayers(
+        [
+          { sky: 'dawn', top: -3000 },
+          { sky: 'golden', top: -100 },
+          { sky: 'night', top: 2000 },
+        ],
+        800
+      )
+    ).toEqual({ base: 'golden', next: null, fade: 0 });
+  });
+
+  it('matches the blended sky the text colour is taken from', () => {
+    const sections = [
+      { sky: 'dawn', top: -2000 },
+      { sky: 'golden', top: 560 },
+    ] as const;
+    const { base, next, fade } = skyLayers(sections, 800);
+    expect(mixSky(SKIES[base], SKIES[next!], fade)).toEqual(
+      skyAt(sections, 800)
+    );
+  });
+});
 
 describe('experience page sky', () => {
   it('holds the first time of day until the next section rises into view', () => {

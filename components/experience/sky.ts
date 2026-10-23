@@ -166,6 +166,45 @@ export const skyAt = (
   return sky;
 };
 
+export interface SkyLayers {
+  /** The time of day drawn underneath, fully opaque. */
+  base: SkyName;
+  /** The time of day fading in over it, if a section is rising. */
+  next: SkyName | null;
+  /** How far `next` has faded in, 0 to 1. */
+  fade: number;
+}
+
+/**
+ * The same hand-over as skyAt, as two layers the page can draw cheaply: a
+ * base sky and the next one fading in over it. Only the top layer's opacity
+ * changes while scrolling, which browsers composite without repainting.
+ */
+export const skyLayers = (
+  sections: readonly SectionPosition[],
+  viewportHeight: number
+): SkyLayers => {
+  let result: SkyLayers = {
+    base: sections[0]?.sky ?? 'dawn',
+    next: null,
+    fade: 0,
+  };
+  const span = Math.max(1, viewportHeight * 0.6);
+  for (let i = 1; i < sections.length; i += 1) {
+    const entered = (viewportHeight - sections[i].top) / span;
+    if (entered <= 0) break;
+    result =
+      entered >= 1
+        ? { base: sections[i].sky, next: null, fade: 0 }
+        : { base: result.base, next: sections[i].sky, fade: entered };
+  }
+  return result;
+};
+
+/** The sky as a background: top of the screen to the bottom. */
+export const skyGradient = (sky: SkyState) =>
+  `linear-gradient(to bottom, ${rgb(sky.top)}, ${rgb(sky.middle)} 55%, ${rgb(sky.bottom)})`;
+
 export const rgb = (color: Rgb, alpha = 1) =>
   alpha === 1
     ? `rgb(${color[0]} ${color[1]} ${color[2]})`

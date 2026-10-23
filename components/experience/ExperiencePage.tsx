@@ -5,7 +5,17 @@ import Atmosphere from './Atmosphere';
 import { initMotion } from './motion';
 import { scrollToSection } from './scroll';
 import { Soundscape, type Cue } from './soundscape';
-import { rgb, SKIES, skyAt, type SkyName, type SkyState } from './sky';
+import {
+  mixSky,
+  rgb,
+  SKIES,
+  skyAt,
+  skyGradient,
+  skyLayers,
+  type SkyLayers,
+  type SkyName,
+  type SkyState,
+} from './sky';
 import {
   Amenities,
   Barn,
@@ -149,9 +159,9 @@ const Nav: React.FC<{
       className="fixed inset-x-0 top-0 z-50 px-3 pt-3 transition-transform duration-500 ease-out sm:px-6"
     >
       <div
-        className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full py-2 pl-5 pr-2 shadow-[0_8px_30px_-12px_rgb(0_0_0/0.35)] backdrop-blur-md"
+        className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full py-2 pl-5 pr-2 shadow-[0_8px_30px_-12px_rgb(0_0_0/0.35)]"
         style={{
-          background: 'color-mix(in srgb, var(--sky-mid) 72%, transparent)',
+          background: 'color-mix(in srgb, var(--sky-mid) 92%, transparent)',
         }}
       >
         {view === 'story' ? (
@@ -227,7 +237,7 @@ const Nav: React.FC<{
         id="xp-menu"
         aria-label="Sections"
         hidden={!open}
-        className="mx-auto mt-2 max-w-7xl rounded-3xl p-6 shadow-xl backdrop-blur-md lg:hidden"
+        className="mx-auto mt-2 max-w-7xl rounded-3xl p-6 shadow-xl lg:hidden"
         style={{
           background: 'color-mix(in srgb, var(--sky-mid) 90%, transparent)',
         }}
@@ -324,11 +334,56 @@ const Cursor: React.FC = () => {
   );
 };
 
-const applySky = (root: HTMLElement, sky: SkyState) => {
+/**
+ * The colour variables (text, nav, fades) change in this many steps per
+ * hand-over between skies. Every change restyles the whole page, so they
+ * move in steps while the background itself fades smoothly.
+ */
+const SKY_STEPS = 12;
+
+interface PaintedSky {
+  base: SkyName | null;
+  next: SkyName | null;
+  colours: string;
+}
+
+const setSkyColours = (root: HTMLElement, sky: SkyState) => {
   root.style.setProperty('--sky-top', rgb(sky.top));
   root.style.setProperty('--sky-mid', rgb(sky.middle));
   root.style.setProperty('--sky-bot', rgb(sky.bottom));
   root.style.setProperty('--ink', rgb(sky.ink));
+};
+
+/**
+ * Draws the sky as two fixed layers: a gradient is repainted only when a
+ * layer changes time of day; while scrolling, only the top layer's opacity
+ * changes, which the browser composites without repainting. Returns what is
+ * now painted, for the next call to compare against.
+ */
+const paintSky = (
+  root: HTMLElement,
+  layers: { base: HTMLElement; next: HTMLElement },
+  sky: SkyLayers,
+  painted: PaintedSky
+): PaintedSky => {
+  if (painted.base !== sky.base) {
+    layers.base.style.background = skyGradient(SKIES[sky.base]);
+  }
+  if (sky.next && painted.next !== sky.next) {
+    layers.next.style.background = skyGradient(SKIES[sky.next]);
+  }
+  layers.next.style.opacity = sky.next ? String(sky.fade) : '0';
+  const step = Math.round(sky.fade * SKY_STEPS) / SKY_STEPS;
+  const colours = `${sky.base}:${sky.next}:${step}`;
+  if (colours !== painted.colours) {
+    setSkyColours(
+      root,
+      sky.next
+        ? mixSky(SKIES[sky.base], SKIES[sky.next], step)
+        : SKIES[sky.base]
+    );
+  }
+  return { base: sky.base, next: sky.next ?? painted.next, colours };
 };
 
 interface ExperiencePageProps {
@@ -346,6 +401,8 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
   const rootRef = React.useRef<HTMLDivElement>(null);
   const navRef = React.useRef<HTMLElement>(null);
   const progressBarRef = React.useRef<HTMLDivElement>(null);
+  const skyBaseRef = React.useRef<HTMLDivElement>(null);
+  const skyNextRef = React.useRef<HTMLDivElement>(null);
   const skyRef = React.useRef<SkyState>(SKIES.dawn);
   const soundRef = React.useRef<Soundscape | null>(null);
   const [soundOn, setSoundOn] = React.useState(false);
@@ -456,20 +513,32 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
     if (!root) return;
     let frame = 0;
     let lastY = window.scrollY;
+    let painted: PaintedSky = { base: null, next: null, colours: '' };
+    // A page's sections never change, so they are looked up once.
+    const skySections = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-sky]'),
+      (section: HTMLElement) => section
+    );
 
     const update = () => {
       frame = 0;
-      const sections = Array.from(
-        root.querySelectorAll<HTMLElement>('[data-sky]'),
-        (section: HTMLElement) => ({
-          sky: section.dataset.sky as SkyName,
-          top: section.getBoundingClientRect().top,
-        })
-      );
+      const sections = skySections.map((section) => ({
+        sky: section.dataset.sky as SkyName,
+        top: section.getBoundingClientRect().top,
+      }));
       const sky = skyAt(sections, window.innerHeight);
       skyRef.current = sky;
-      applySky(root, sky);
       soundRef.current?.update(sky);
+      const base = skyBaseRef.current;
+      const next = skyNextRef.current;
+      if (base && next) {
+        painted = paintSky(
+          root,
+          { base, next },
+          skyLayers(sections, window.innerHeight),
+          painted
+        );
+      }
 
       const scrollable =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -541,12 +610,15 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
       </a>
 
       <div
+        ref={skyBaseRef}
         aria-hidden="true"
         className="fixed inset-0 z-0"
-        style={{
-          background:
-            'linear-gradient(to bottom, var(--sky-top), var(--sky-mid) 55%, var(--sky-bot))',
-        }}
+        style={{ background: skyGradient(SKIES.dawn) }}
+      />
+      <div
+        ref={skyNextRef}
+        aria-hidden="true"
+        className="fixed inset-0 z-0 opacity-0 will-change-[opacity]"
       />
 
       <Atmosphere skyRef={skyRef} reducedMotion={reducedMotion} />
