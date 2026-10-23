@@ -21,8 +21,14 @@ dive test" (`cVL5HnqV4TQcJdQQJW1K`), from the real venue photos.
 | **Master: grass pass over the stitched cut** | runway-aleph2          | `mpbVT4qtXrejXILSZf8j` |
 
 The master (18.6 s, 1920×1080, 24 fps) is downloadable from that generation
-in ElevenLabs. Rebuild the page frames from it with
-`node scripts/filmFrames.mjs path/to/master.mp4 descent 10`.
+in ElevenLabs. On 2026-10-23 it was upscaled to 3840×2160 with Topaz Video
+Upscale, model Proteus, 2x (node `Afbg23nWmm816OoXIX4C`, generation
+`tjF0h1dd6oNRDIvUehzO`), and the page frames are cut from that 4K version.
+The descent carries no colour grade (`scripts/fitGrade.mjs` measures gain
+0.99, offset 1). Rebuild the page frames with
+`node scripts/filmFrames.mjs path/to/descent-4k.mp4 descent 10`: five sets,
+sm 640, md 1024, lg 1920, xl 2560, and pt, an upright 1080×1920 slice for
+screens held upright.
 
 ## How the stitch is put together
 

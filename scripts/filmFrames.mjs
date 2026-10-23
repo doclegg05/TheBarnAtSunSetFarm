@@ -2,12 +2,15 @@
 // into the still frames the /experience page scrubs through as you scroll
 // (components/experience/film.ts).
 //
-//   node scripts/filmFrames.mjs path/to/video.mp4 <name> [fps]
+//   node scripts/filmFrames.mjs path/to/video.mp4 <name> [fps] [--grade '<json>']
 //
 // Needs ffmpeg on the PATH; sharp is already a dev dependency. Writes AVIF
-// frames to public/<name>/{sm,md}/ and their count to
-// components/experience/films/<name>.ts. The source videos are AI-generated
-// (ElevenLabs Flows); see videos/descent/NOTES.md and videos/film/.
+// frames to public/<name>/<size>/ for every size below, and the frame count
+// and each size's dimensions to components/experience/films/<name>.ts.
+// --grade takes the JSON scripts/fitGrade.mjs prints, to match a film's
+// earlier colour grade. The source videos are AI-generated (ElevenLabs
+// Flows), upscaled to 4K with Topaz; see videos/descent/NOTES.md and
+// videos/film/INSIDE.md.
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -15,16 +18,28 @@ import os from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
 
+/**
+ * Landscape sizes by width, and `pt`: an upright 9:16 slice from the middle
+ * of the frame for phones held upright, which only ever show that slice.
+ */
 const SIZES = {
   sm: { width: 640, quality: 42 },
   md: { width: 1024, quality: 40 },
+  lg: { width: 1920, quality: 38 },
+  xl: { width: 2560, quality: 36 },
+  pt: { width: 1080, height: 1920, quality: 38, upright: true },
 };
 
-const [source, name, fpsArg] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const gradeAt = args.indexOf('--grade');
+const grade = gradeAt >= 0 ? JSON.parse(args[gradeAt + 1]) : null;
+const [source, name, fpsArg] = args.filter(
+  (_, i) => gradeAt < 0 || (i !== gradeAt && i !== gradeAt + 1)
+);
 const FPS = Number(fpsArg ?? 10);
 if (!source || !fs.existsSync(source) || !/^[a-z-]+$/.test(name ?? '')) {
   console.error(
-    'Usage: node scripts/filmFrames.mjs path/to/video.mp4 <name> [fps]'
+    "Usage: node scripts/filmFrames.mjs path/to/video.mp4 <name> [fps] [--grade '<json>']"
   );
   process.exit(1);
 }
@@ -34,24 +49,29 @@ const root = path.resolve(
   '..'
 );
 const outDir = path.join(root, 'public', name);
-const work = fs.mkdtempSync(path.join(os.tmpdir(), `${name}-`));
 
-execFileSync('ffmpeg', [
-  '-loglevel',
-  'error',
-  '-i',
-  source,
-  '-vf',
-  `fps=${FPS},scale=${SIZES.md.width}:-2`,
-  path.join(work, '%03d.png'),
-]);
-const frames = fs
-  .readdirSync(work)
-  .filter((f) => f.endsWith('.png'))
-  .sort();
+const filterFor = (size) =>
+  size.upright
+    ? `fps=${FPS},crop=ih*9/16:ih,scale=${size.width}:${size.height}:flags=lanczos`
+    : `fps=${FPS},scale=${size.width}:-2:flags=lanczos`;
 
-for (const [size, { width, quality }] of Object.entries(SIZES)) {
-  const dir = path.join(outDir, size);
+/** One size: extract its frames from the master, grade, encode as AVIF. */
+const buildSize = async (key, size) => {
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), `${name}-${key}-`));
+  execFileSync('ffmpeg', [
+    '-loglevel',
+    'error',
+    '-i',
+    source,
+    '-vf',
+    filterFor(size),
+    path.join(work, '%03d.png'),
+  ]);
+  const frames = fs
+    .readdirSync(work)
+    .filter((f) => f.endsWith('.png'))
+    .sort();
+  const dir = path.join(outDir, key);
   fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
   let bytes = 0;
@@ -60,9 +80,10 @@ for (const [size, { width, quality }] of Object.entries(SIZES)) {
   const encode = async () => {
     for (let job = queue.shift(); job; job = queue.shift()) {
       const [i, frame] = job;
-      const data = await sharp(path.join(work, frame))
-        .resize({ width })
-        .avif({ quality, effort: 4 })
+      let image = sharp(path.join(work, frame));
+      if (grade) image = image.linear(grade.gain, grade.offset);
+      const data = await image
+        .avif({ quality: size.quality, effort: 4 })
         .toBuffer();
       fs.writeFileSync(
         path.join(dir, `${String(i).padStart(3, '0')}.avif`),
@@ -72,12 +93,30 @@ for (const [size, { width, quality }] of Object.entries(SIZES)) {
     }
   };
   await Promise.all(Array.from({ length: os.cpus().length }, encode));
+  const { width, height } = await sharp(path.join(work, frames[0])).metadata();
+  fs.rmSync(work, { recursive: true, force: true });
   console.log(
-    `${size}: ${frames.length} frames, ${(bytes / 1e6).toFixed(1)} MB`
+    `${key}: ${frames.length} frames, ${width}x${height}, ${(bytes / 1e6).toFixed(1)} MB`
   );
+  return { count: frames.length, width, height };
+};
+
+const built = {};
+for (const [key, size] of Object.entries(SIZES)) {
+  built[key] = await buildSize(key, size);
+}
+const counts = new Set(Object.values(built).map((size) => size.count));
+if (counts.size !== 1) {
+  console.error('Sizes came out with different frame counts:', built);
+  process.exit(1);
 }
 
-const { height } = await sharp(path.join(work, frames[0])).metadata();
+const sizes = Object.entries(built)
+  .map(
+    ([key, { width, height }]) =>
+      `    ${key}: { width: ${width}, height: ${height} },`
+  )
+  .join('\n');
 fs.mkdirSync(path.join(root, 'components/experience/films'), {
   recursive: true,
 });
@@ -86,11 +125,12 @@ fs.writeFileSync(
   `// Generated by scripts/filmFrames.mjs. Do not edit by hand.
 export default {
   name: '${name}',
-  count: ${frames.length},
+  count: ${built.md.count},
   fps: ${FPS},
-  aspect: ${(SIZES.md.width / height).toFixed(4)},
-  sizes: { sm: ${SIZES.sm.width}, md: ${SIZES.md.width} },
+  aspect: ${Number((built.md.width / built.md.height).toFixed(4))},
+  sizes: {
+${sizes}
+  },
 } as const;
 `
 );
-fs.rmSync(work, { recursive: true, force: true });
