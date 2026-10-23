@@ -6,7 +6,11 @@ import 'lenis/dist/lenis.css';
 import { FilmPlayer } from './film';
 import descentFilm from './films/descent';
 import insideFilm from './films/inside';
-import { setScrollEngine } from './scroll';
+import { scrollToSection, setScrollEngine } from './scroll';
+
+/** How many screens of scrolling each pinned film plays over. */
+const DESCENT_SCREENS = 2.8;
+const INSIDE_SCREENS = 2;
 
 /**
  * Every scroll and pointer animation on the /experience page. The markup in
@@ -15,7 +19,37 @@ import { setScrollEngine } from './scroll';
  *
  * Returns a cleanup that reverts every tween, pin and listener.
  */
-export const initMotion = (root: HTMLElement): (() => void) => {
+
+/**
+ * Lands on a section the visitor arrived for (a #section in the URL). Fonts
+ * and photos that finish later make ScrollTrigger re-measure, which moves
+ * every section below a pin, so this lands again after each re-measure until
+ * the visitor scrolls on their own. Returns a cleanup.
+ */
+const landOnSection = (id: string): (() => void) => {
+  const land = () => scrollToSection(id, { immediate: true });
+  const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+  const stop = () => {
+    ScrollTrigger.removeEventListener('refresh', land);
+    for (const event of events) window.removeEventListener(event, stop);
+  };
+  ScrollTrigger.addEventListener('refresh', land);
+  for (const event of events) {
+    window.addEventListener(event, stop, { passive: true });
+  }
+  land();
+  return stop;
+};
+
+interface MotionOptions {
+  /** A section to land on once the page has measured itself. */
+  landOn?: string;
+}
+
+export const initMotion = (
+  root: HTMLElement,
+  { landOn }: MotionOptions = {}
+): (() => void) => {
   // Registered here, not at import, so the module loads outside a browser.
   gsap.registerPlugin(ScrollTrigger, SplitText);
   const mm = gsap.matchMedia(root);
@@ -103,7 +137,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
       const descent = all('.xp-descent')[0];
       const canvas = all<HTMLCanvasElement>('.xp-descent-canvas')[0];
       if (descent && canvas) {
-        const player = film(descent, canvas, descentFilm, 3.6);
+        const player = film(descent, canvas, descentFilm, DESCENT_SCREENS);
 
         gsap
           .timeline({
@@ -111,7 +145,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             scrollTrigger: {
               trigger: descent,
               start: 'top top',
-              end: '+=360%',
+              end: () => `+=${window.innerHeight * DESCENT_SCREENS}`,
               pin: true,
               scrub: true,
               onUpdate: (self) => player.setProgress(self.progress),
@@ -166,6 +200,14 @@ export const initMotion = (root: HTMLElement): (() => void) => {
           const size = parseFloat(getComputedStyle(title).fontSize) || 80;
           return archHeight() / 2 - size * 0.18;
         };
+        // The window is the full-screen frame clipped to an arch, so opening
+        // it only repaints; resizing the frame would re-run layout every frame.
+        const arch = () => {
+          const top = (hero.clientHeight - archHeight()) / 2;
+          const side = (hero.clientWidth - archWidth()) / 2;
+          const round = archWidth() / 2;
+          return `inset(${top}px ${side}px ${top}px ${side}px round ${round}px ${round}px 24px 24px)`;
+        };
 
         const scroll = gsap.timeline({
           defaults: { ease: 'none' },
@@ -181,22 +223,15 @@ export const initMotion = (root: HTMLElement): (() => void) => {
         scroll
           .fromTo(
             frame,
+            { clipPath: arch },
             {
-              width: archWidth,
-              height: archHeight,
-              borderRadius: () =>
-                `${archWidth() / 2}px ${archWidth() / 2}px 24px 24px`,
-            },
-            {
-              width: () => hero.clientWidth,
-              height: () => hero.clientHeight,
-              borderRadius: '0px 0px 0px 0px',
+              clipPath: 'inset(0px 0px 0px 0px round 0px 0px 0px 0px)',
               ease: 'power2.inOut',
               duration: 1,
             },
             0
           )
-          .fromTo('.xp-hero-img', { scale: 1.3 }, { scale: 1, duration: 1 }, 0)
+          .fromTo('.xp-hero-img', { scale: 1.15 }, { scale: 1, duration: 1 }, 0)
           .fromTo(
             '.xp-hero-line1',
             { y: () => -lineShift() },
@@ -237,7 +272,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             stagger: 0.04,
           })
           .fromTo(
-            frame,
+            '.xp-hero-wipe',
             { clipPath: 'inset(100% 0% 0% 0%)' },
             {
               clipPath: 'inset(0% 0% 0% 0%)',
@@ -448,7 +483,12 @@ export const initMotion = (root: HTMLElement): (() => void) => {
       const insideSection = all('.xp-inside')[0];
       const insideCanvas = all<HTMLCanvasElement>('.xp-inside-canvas')[0];
       if (insideSection && insideCanvas) {
-        const player = film(insideSection, insideCanvas, insideFilm, 2.6);
+        const player = film(
+          insideSection,
+          insideCanvas,
+          insideFilm,
+          INSIDE_SCREENS
+        );
         const [doors, hall, porch] = all('.xp-inside-line');
         const rise = { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' };
         const fall = {
@@ -464,7 +504,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
             scrollTrigger: {
               trigger: insideSection,
               start: 'top top',
-              end: '+=260%',
+              end: () => `+=${window.innerHeight * INSIDE_SCREENS}`,
               pin: true,
               scrub: true,
               onUpdate: (self) => player.setProgress(self.progress),
@@ -864,6 +904,7 @@ export const initMotion = (root: HTMLElement): (() => void) => {
       // them by page position so pins push later triggers correctly.
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
+      if (landOn) cleanups.push(landOnSection(landOn));
 
       return () => {
         for (const cleanup of cleanups) cleanup();

@@ -15,38 +15,82 @@ const watchErrors = (page: Page) => {
   return errors;
 };
 
-const SECTIONS = [
-  'home',
-  'about',
-  'the-day',
-  'inside',
-  'barn',
-  'stay',
-  'packages',
-  'planning',
-  'explore',
-  'faq',
-  'contact',
-];
+const PAGES = [
+  {
+    path: '/experience',
+    heading: 'The Barn at Sunset Farm',
+    sections: ['home', 'about', 'inside', 'barn', 'next', 'contact'],
+  },
+  {
+    path: '/experience/the-day',
+    heading: 'From first look to last dance',
+    sections: ['the-day', 'packages', 'planning', 'faq', 'contact'],
+  },
+  {
+    path: '/experience/stay',
+    heading: 'Sleep where you celebrate',
+    sections: ['stay', 'explore', 'contact'],
+  },
+] as const;
+
+/** Past this the story page has grown long again; move detail to a page. */
+const MAX_STORY_SCREENS = 22;
 
 test.describe('experience page', () => {
-  test('loads every chapter without errors', async ({ page }) => {
-    const errors = watchErrors(page);
+  for (const { path, heading, sections } of PAGES) {
+    test(`${path} loads every chapter without errors`, async ({ page }) => {
+      const errors = watchErrors(page);
+      await page.goto(path);
+      await expect(
+        page.getByRole('heading', { level: 1, name: heading })
+      ).toBeVisible();
+      for (const id of sections) {
+        await expect(page.locator(`#${id}`)).toHaveCount(1);
+      }
+      // Walk the whole page so every scroll-driven effect runs once.
+      const height = await page.evaluate(() => document.body.scrollHeight);
+      for (let y = 0; y < height; y += 900) {
+        await page.evaluate((top) => window.scrollTo(0, top), y);
+        await page.waitForTimeout(60);
+      }
+      await expect(page.locator('#contact form')).toBeVisible();
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test('the story page stays a short scroll', async ({ page }) => {
     await page.goto('/experience');
+    await page.waitForTimeout(1500);
+    const screens = await page.evaluate(
+      () => document.documentElement.scrollHeight / window.innerHeight
+    );
+    expect(screens).toBeLessThan(MAX_STORY_SCREENS);
+  });
+
+  test('a link to another page lands on its section', async ({ page }) => {
+    await page.goto('/experience/stay');
     await expect(
-      page.getByRole('heading', { level: 1, name: 'The Barn at Sunset Farm' })
+      page.getByRole('heading', { level: 1, name: 'Sleep where you celebrate' })
     ).toBeVisible();
-    for (const id of SECTIONS) {
-      await expect(page.locator(`#${id}`)).toHaveCount(1);
-    }
-    // Walk the whole page so every scroll-driven effect runs once.
-    const height = await page.evaluate(() => document.body.scrollHeight);
-    for (let y = 0; y < height; y += 900) {
-      await page.evaluate((top) => window.scrollTo(0, top), y);
-      await page.waitForTimeout(60);
-    }
-    await expect(page.locator('#contact form')).toBeVisible();
-    expect(errors).toEqual([]);
+    // The phone menu is closed, so click the link the way a script would.
+    await page
+      .locator('a[href="/experience/the-day#faq"]')
+      .first()
+      .dispatchEvent('click');
+    await expect(page).toHaveURL(/\/experience\/the-day#faq$/, {
+      timeout: 15_000,
+    });
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() =>
+            Math.abs(
+              document.getElementById('faq')!.getBoundingClientRect().top
+            )
+          ),
+        { timeout: 8000 }
+      )
+      .toBeLessThan(4);
   });
 
   test('shows no prices anywhere', async ({ page }) => {
@@ -66,7 +110,7 @@ test.describe('experience page', () => {
 
   test('nav jumps land on their sections', async ({ page, isMobile }) => {
     test.skip(isMobile, 'the desktop nav is hidden on phones');
-    await page.goto('/experience');
+    await page.goto('/experience/the-day');
     await page.locator('header nav a[href="#packages"]').first().click();
     await expect
       .poll(
@@ -131,7 +175,7 @@ test.describe('experience page', () => {
     await expect.poll(() => frames.size, { timeout: 8000 }).toBeGreaterThan(60);
 
     // Near the end of the pin, the last caption has replaced the first.
-    await page.evaluate((top) => window.scrollTo(0, top), start + height * 2.5);
+    await page.evaluate((top) => window.scrollTo(0, top), start + height * 1.9);
     await expect(page.locator('.xp-inside-line').last()).toHaveCSS(
       'opacity',
       '1'
@@ -147,7 +191,7 @@ test.describe('experience page', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
     const errors = watchErrors(page);
-    await page.goto('/experience');
+    await page.goto('/experience/the-day');
     await expect(page.locator('.xp-reduced')).toHaveCount(1);
     await expect(page.locator('html')).not.toHaveClass(/lenis/);
     await page.locator('#packages').scrollIntoViewIfNeeded();

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { TransitionLink } from '../PageTransition';
 import Atmosphere from './Atmosphere';
 import Stage from './three/Stage';
@@ -22,6 +23,13 @@ import {
   Stay,
   TheDay,
 } from './sections';
+import {
+  EXPERIENCE_TITLES,
+  NAV_TARGETS,
+  navHref,
+  type ExperienceView,
+} from './views';
+import { Next, PageIntro } from './wayfinding';
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 const SOUND_KEY = 'xp-sound';
@@ -34,15 +42,66 @@ const subscribeReducedMotion = (onChange: () => void) => {
 const prefersReducedMotion = () =>
   window.matchMedia?.(REDUCED_MOTION).matches ?? false;
 
-const navLinks = [
-  { id: 'the-day', label: 'The day' },
-  { id: 'barn', label: 'The barn' },
-  { id: 'stay', label: 'Stay' },
-  { id: 'packages', label: 'Packages' },
-  { id: 'faq', label: 'FAQ' },
-] as const;
-
 const goTo = scrollToSection;
+
+const DayIntro: React.FC = () => (
+  <PageIntro
+    eyebrow="Your wedding day"
+    title="From first look to last dance"
+    lead="How the day unfolds at the barn, the two ways to celebrate, the help we offer and the questions couples ask most."
+    sky="morning"
+  />
+);
+
+const StayIntro: React.FC = () => (
+  <PageIntro
+    eyebrow="Stay & explore"
+    title="Sleep where you celebrate"
+    lead="Rooms for the wedding party in the barn, a cottage on the hill, and the gorge, lakes and trails around Nebo."
+    sky="golden"
+  />
+);
+
+/**
+ * The sections of each page, top to bottom. The story is kept short; the
+ * day's detail and lodging live on their own pages.
+ */
+const VIEW_SECTIONS: Readonly<Record<ExperienceView, readonly React.FC[]>> = {
+  story: [Descent, Hero, Statement, Inside, Barn, Next, Inquire],
+  day: [DayIntro, TheDay, Packages, Planning, Questions, Inquire],
+  stay: [StayIntro, Amenities, Stay, Region, Inquire],
+};
+
+interface NavLinkProps {
+  href: string;
+  className: string;
+  style?: React.CSSProperties;
+  onPick: (id: string) => (event: React.MouseEvent) => void;
+  children: React.ReactNode;
+}
+
+/** An in-page jump when the section is on this page, else a page link. */
+const NavLink: React.FC<NavLinkProps> = ({
+  href,
+  className,
+  style,
+  onPick,
+  children,
+}) =>
+  href.startsWith('#') ? (
+    <a
+      href={href}
+      onClick={onPick(href.slice(1))}
+      className={className}
+      style={style}
+    >
+      {children}
+    </a>
+  ) : (
+    <TransitionLink to={href} className={className} style={style}>
+      {children}
+    </TransitionLink>
+  );
 
 /** Four bars that dance while the soundscape plays. */
 const SoundToggle: React.FC<{ on: boolean; onToggle: () => void }> = ({
@@ -76,10 +135,11 @@ const SoundToggle: React.FC<{ on: boolean; onToggle: () => void }> = ({
 );
 
 const Nav: React.FC<{
+  view: ExperienceView;
   navRef: React.RefObject<HTMLElement | null>;
   soundOn: boolean;
   onToggleSound: () => void;
-}> = ({ navRef, soundOn, onToggleSound }) => {
+}> = ({ view, navRef, soundOn, onToggleSound }) => {
   const [open, setOpen] = React.useState(false);
   const pick = (id: string) => (event: React.MouseEvent) => {
     event.preventDefault();
@@ -98,26 +158,35 @@ const Nav: React.FC<{
           background: 'color-mix(in srgb, var(--sky-mid) 72%, transparent)',
         }}
       >
-        <a
-          href="#home"
-          onClick={pick('home')}
-          className="font-serif text-lg leading-none sm:text-2xl"
-        >
-          The Barn at Sunset Farm
-        </a>
+        {view === 'story' ? (
+          <a
+            href="#home"
+            onClick={pick('home')}
+            className="font-serif text-lg leading-none sm:text-2xl"
+          >
+            The Barn at Sunset Farm
+          </a>
+        ) : (
+          <TransitionLink
+            to="/experience"
+            className="font-serif text-lg leading-none sm:text-2xl"
+          >
+            The Barn at Sunset Farm
+          </TransitionLink>
+        )}
         <nav
           aria-label="Sections"
           className="hidden items-center gap-7 lg:flex"
         >
-          {navLinks.map((link) => (
-            <a
-              key={link.id}
-              href={`#${link.id}`}
-              onClick={pick(link.id)}
+          {NAV_TARGETS.map((target) => (
+            <NavLink
+              key={target.label}
+              href={navHref(target, view)}
+              onPick={pick}
               className="text-xs font-semibold uppercase tracking-[0.25em] opacity-75 transition-opacity hover:opacity-100"
             >
-              {link.label}
-            </a>
+              {target.label}
+            </NavLink>
           ))}
           <TransitionLink
             to="/gallery"
@@ -167,11 +236,11 @@ const Nav: React.FC<{
           background: 'color-mix(in srgb, var(--sky-mid) 90%, transparent)',
         }}
       >
-        {navLinks.map((link, index) => (
-          <a
-            key={link.id}
-            href={`#${link.id}`}
-            onClick={pick(link.id)}
+        {NAV_TARGETS.map((target, index) => (
+          <NavLink
+            key={target.label}
+            href={navHref(target, view)}
+            onPick={pick}
             className="block border-b border-current/10 py-3 font-serif text-3xl"
             style={{
               animation: open
@@ -179,8 +248,8 @@ const Nav: React.FC<{
                 : undefined,
             }}
           >
-            {link.label}
-          </a>
+            {target.label}
+          </NavLink>
         ))}
         <TransitionLink
           to="/gallery"
@@ -279,12 +348,20 @@ const applySky = (
   }
 };
 
+interface ExperiencePageProps {
+  view?: ExperienceView;
+}
+
 /**
- * The whole venue story on one page, set over a sky that moves from dawn to
- * night as you scroll. Lives at /experience as a preview beside the classic
- * home page.
+ * One page of the venue story, set over a sky that moves from dawn to night
+ * as you scroll. Lives at /experience (and /experience/the-day,
+ * /experience/stay) as a preview beside the classic home page. Only the
+ * story page runs the 3D landscape.
  */
-const ExperiencePage: React.FC = () => {
+const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
+  const sections = VIEW_SECTIONS[view];
+  const world = view === 'story';
+  const { hash } = useLocation();
   const rootRef = React.useRef<HTMLDivElement>(null);
   const sunRef = React.useRef<HTMLDivElement>(null);
   const navRef = React.useRef<HTMLElement>(null);
@@ -377,7 +454,7 @@ const ExperiencePage: React.FC = () => {
 
   React.useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'The Barn at Sunset Farm · A day at the barn';
+    document.title = `The Barn at Sunset Farm · ${EXPERIENCE_TITLES[view]}`;
     // A design preview: keep it out of search results until it replaces the
     // home page, so it never competes with the live site.
     const robots = document.createElement('meta');
@@ -388,7 +465,16 @@ const ExperiencePage: React.FC = () => {
       document.title = previousTitle;
       robots.remove();
     };
-  }, []);
+  }, [view]);
+
+  // Arriving from another page with a #section. With motion on, initMotion
+  // lands there once the pins have measured themselves; without it, the
+  // page is static and a plain jump is enough.
+  const [landOn] = React.useState(() => hash.slice(1));
+  React.useEffect(() => {
+    if (!landOn || !reducedMotion) return;
+    goTo(landOn, { immediate: true });
+  }, [landOn, reducedMotion]);
 
   // The sky, sun, progress line and hide-on-scroll nav all follow scroll.
   React.useEffect(() => {
@@ -446,8 +532,8 @@ const ExperiencePage: React.FC = () => {
     const root = rootRef.current;
     // matchMedia is missing only outside real browsers (e.g. test runs).
     if (!root || reducedMotion || !window.matchMedia) return;
-    return initMotion(root);
-  }, [reducedMotion]);
+    return initMotion(root, { landOn });
+  }, [reducedMotion, landOn]);
 
   return (
     <div
@@ -509,7 +595,7 @@ const ExperiencePage: React.FC = () => {
         />
       </div>
 
-      {!reducedMotion && (
+      {world && !reducedMotion && (
         <Stage
           skyRef={skyRef}
           progressRef={progressRef}
@@ -540,25 +626,17 @@ const ExperiencePage: React.FC = () => {
         className="fixed inset-x-0 top-0 z-60 h-0.5 origin-left scale-x-0 bg-brand-gold"
       />
       <Nav
+        view={view}
         navRef={navRef}
         soundOn={soundOn}
         onToggleSound={() => void setSound(!soundOn)}
       />
 
       <main className="relative z-10">
-        <Descent />
-        <Hero />
-        <Statement />
-        <TheDay />
-        <Inside />
-        <Barn />
-        <Amenities />
-        <Stay />
-        <Packages />
-        <Planning />
-        <Region />
-        <Questions />
-        <Inquire />
+        {sections.map((Section, index) => (
+          // Each page's list is fixed, so its position is a stable key.
+          <Section key={index} />
+        ))}
       </main>
       <div className="relative z-10">
         <Finale />

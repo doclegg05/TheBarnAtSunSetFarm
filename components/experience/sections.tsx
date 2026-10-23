@@ -10,6 +10,7 @@ import descent from './films/descent';
 import inside from './films/inside';
 import { LOGO, PHOTOS, pic } from './photos';
 import { scrollToSection } from './scroll';
+import { EXPERIENCE_PATHS } from './views';
 
 /*
  * Section markup for the /experience page. Every section is readable as
@@ -72,10 +73,10 @@ const Words: React.FC<{ text: string; accent?: readonly string[] }> = ({
   </>
 );
 
-const Eyebrow: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = '',
-}) => (
+export const Eyebrow: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = '' }) => (
   <p
     className={`xp-reveal text-xs font-semibold uppercase tracking-[0.35em] opacity-70 sm:text-sm ${className}`}
   >
@@ -83,10 +84,10 @@ const Eyebrow: React.FC<{ children: React.ReactNode; className?: string }> = ({
   </p>
 );
 
-const Heading: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = '',
-}) => (
+export const Heading: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = '' }) => (
   <h2
     className={`xp-split mt-4 font-serif text-[clamp(2.6rem,6vw,5.5rem)] font-normal leading-[0.98] tracking-tight ${className}`}
   >
@@ -164,14 +165,16 @@ export const Hero: React.FC = () => (
     data-sky="dawn"
     className="xp-hero relative h-svh min-h-[560px] overflow-hidden"
   >
-    <div className="xp-hero-frame absolute inset-0 m-auto h-full w-full overflow-hidden bg-brand-charcoal shadow-2xl">
-      <img
-        {...pic(PHOTOS.heroBarn, '100vw')}
-        alt="The Barn at Sunset Farm at sunset, its porch lights glowing against the mountains"
-        className="xp-hero-img h-full w-full object-cover"
-        fetchPriority="high"
-      />
-      <div className="xp-hero-shade absolute inset-0 bg-linear-to-b from-black/35 via-black/15 to-black/65" />
+    <div className="xp-hero-frame absolute inset-0 overflow-hidden">
+      <div className="xp-hero-wipe absolute inset-0 bg-brand-charcoal">
+        <img
+          {...pic(PHOTOS.heroBarn, '100vw')}
+          alt="The Barn at Sunset Farm at sunset, its porch lights glowing against the mountains"
+          className="xp-hero-img h-full w-full object-cover"
+          fetchPriority="high"
+        />
+        <div className="xp-hero-shade absolute inset-0 bg-linear-to-b from-black/35 via-black/15 to-black/65" />
+      </div>
     </div>
 
     <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
@@ -207,13 +210,12 @@ export const Hero: React.FC = () => (
         >
           Inquire about your date
         </a>
-        <a
-          href="#the-day"
-          onClick={scrollToId('the-day')}
+        <TransitionLink
+          to={EXPERIENCE_PATHS.day}
           className="xp-magnetic rounded-full border border-white/70 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-xs transition-colors hover:bg-white/20"
         >
           Walk through the day
-        </a>
+        </TransitionLink>
       </div>
     </div>
 
