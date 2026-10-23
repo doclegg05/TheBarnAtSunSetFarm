@@ -20,10 +20,6 @@ export interface SkyState {
   middle: Rgb;
   bottom: Rgb;
   ink: Rgb;
-  /** Sun height above the horizon, 0 (set) to 1 (high noon). */
-  sun: number;
-  /** Sun left-to-right position across the viewport, 0 to 1. */
-  sunX: number;
   /** Warmth of the sun's glow, 0 (white) to 1 (deep orange). */
   glow: number;
   /** Opacity of the star field. */
@@ -46,8 +42,6 @@ export const SKIES: Readonly<Record<SkyName, SkyState>> = {
     middle: hex('#f9e6de'),
     bottom: hex('#fdf8f5'),
     ink: CHARCOAL,
-    sun: 0.12,
-    sunX: 0.12,
     glow: 0.55,
     stars: 0,
     fireflies: 0,
@@ -57,8 +51,6 @@ export const SKIES: Readonly<Record<SkyName, SkyState>> = {
     middle: hex('#f4f4ec'),
     bottom: hex('#fdf8f5'),
     ink: CHARCOAL,
-    sun: 0.85,
-    sunX: 0.3,
     glow: 0.1,
     stars: 0,
     fireflies: 0,
@@ -68,8 +60,6 @@ export const SKIES: Readonly<Record<SkyName, SkyState>> = {
     middle: hex('#fae9cc'),
     bottom: hex('#fdf5e8'),
     ink: CHARCOAL,
-    sun: 0.55,
-    sunX: 0.6,
     glow: 0.45,
     stars: 0,
     fireflies: 0,
@@ -79,8 +69,6 @@ export const SKIES: Readonly<Record<SkyName, SkyState>> = {
     middle: hex('#f6cfb0'),
     bottom: hex('#fae3d2'),
     ink: CHARCOAL,
-    sun: 0.18,
-    sunX: 0.82,
     glow: 0.9,
     stars: 0,
     fireflies: 0,
@@ -90,8 +78,6 @@ export const SKIES: Readonly<Record<SkyName, SkyState>> = {
     middle: hex('#3d3150'),
     bottom: hex('#5b3e55'),
     ink: CREAM,
-    sun: -0.15,
-    sunX: 0.92,
     glow: 1,
     stars: 0.45,
     fireflies: 0.4,
@@ -101,8 +87,6 @@ export const SKIES: Readonly<Record<SkyName, SkyState>> = {
     middle: hex('#141a31'),
     bottom: hex('#1f2440'),
     ink: CREAM,
-    sun: -0.4,
-    sunX: 0.98,
     glow: 1,
     stars: 1,
     fireflies: 1,
@@ -132,8 +116,6 @@ export const mixSky = (a: SkyState, b: SkyState, t: number): SkyState => {
     middle: mixRgb(a.middle, b.middle, k),
     bottom: mixRgb(a.bottom, b.bottom, k),
     ink: mixRgb(a.ink, b.ink, inkCurve(k)),
-    sun: mixNumber(a.sun, b.sun, k),
-    sunX: mixNumber(a.sunX, b.sunX, k),
     glow: mixNumber(a.glow, b.glow, k),
     stars: mixNumber(a.stars, b.stars, k),
     fireflies: mixNumber(a.fireflies, b.fireflies, k),

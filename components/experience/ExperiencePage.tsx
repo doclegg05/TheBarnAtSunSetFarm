@@ -18,18 +18,9 @@ import {
   type SkyName,
   type SkyState,
 } from './sky';
-import {
-  Amenities,
-  Barn,
-  Inquire,
-  Inside,
-  Packages,
-  Planning,
-  Questions,
-  Region,
-  Stay,
-  TheDay,
-} from './sections';
+import { Packages, Planning, Questions, TheDay } from './daySections';
+import { Barn, Inquire, Inside } from './sections';
+import { Amenities, Region, Stay } from './staySections';
 import {
   EXPERIENCE_TITLES,
   NAV_TARGETS,

@@ -185,16 +185,18 @@ test.describe('experience page', () => {
     const inside = page.locator('#inside');
     await inside.scrollIntoViewIfNeeded();
     const lines = inside.locator('[data-line]');
-    // Before the tap the first line invites the visitor in.
-    await expect(lines.first()).toHaveCSS('opacity', '1');
+    // Before the tap the first line invites the visitor in. The lines fade
+    // with a CSS transition, so check which one is meant to show, not a
+    // sampled opacity that a busy test browser may not have reached yet.
+    await expect(lines.first()).toHaveClass(/\bopacity-100\b/);
     await inside.getByRole('button', { name: 'Step inside' }).click();
     await inside
       .locator('video')
       .evaluate((video) => video.dispatchEvent(new Event('ended')));
 
     // At the end the last line holds on the last frame, with a replay.
-    await expect(lines.last()).toHaveCSS('opacity', '1');
-    await expect(lines.first()).toHaveCSS('opacity', '0');
+    await expect(lines.last()).toHaveClass(/\bopacity-100\b/);
+    await expect(lines.first()).toHaveClass(/\bopacity-0\b/);
     await expect(
       inside.getByRole('button', { name: 'Watch again' })
     ).toBeVisible();
