@@ -128,7 +128,7 @@ interface SpotPanelProps {
 
 const SpotPanel: React.FC<SpotPanelProps> = ({ spot, onClose }) => {
   const close = React.useRef<HTMLButtonElement>(null);
-  React.useEffect(() => close.current?.focus(), []);
+  React.useEffect(() => close.current?.focus({ preventScroll: true }), []);
   return (
     <div
       role="dialog"

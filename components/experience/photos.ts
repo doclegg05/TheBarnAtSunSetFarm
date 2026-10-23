@@ -9,6 +9,8 @@ import vows from '/photos/gallery/weddings/Wedding_Ceremony.1.webp?responsive';
 import porchTables from '/photos/gallery/weddings/Wedding_Design-4.webp?responsive';
 import greatRoom from '/photos/gallery/weddings/Wedding_decorations.15.webp?responsive';
 import cake from '/photos/gallery/weddings/Wedding_decorations.1.webp?responsive';
+import hallTables from '/photos/gallery/weddings/Wedding_decorations.4.webp?responsive';
+import porchLongTables from '/photos/gallery/weddings/Wedding_Design-5.webp?responsive';
 import centerpiece from '/photos/gallery/weddings/Center_Piece.webp?responsive';
 import couplePorch from '/photos/gallery/weddings/Bride and Groom_Porch_1.webp?responsive';
 import coupleDoors from '/photos/gallery/weddings/Bride and Groom_1.webp?responsive';
@@ -45,6 +47,8 @@ export const PHOTOS = {
   porchTables,
   greatRoom,
   cake,
+  hallTables,
+  porchLongTables,
   centerpiece,
   couplePorch,
   coupleDoors,

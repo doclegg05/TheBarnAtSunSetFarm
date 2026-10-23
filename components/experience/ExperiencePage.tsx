@@ -603,6 +603,7 @@ const ExperiencePage: React.FC<ExperiencePageProps> = ({ view = 'story' }) => {
       <style>{`
         @keyframes xp-menu-in { from { opacity: 0; transform: translateY(12px); } }
         .xp-root ::selection { background: #d4af37; color: #fff; }
+        @keyframes xp-photo-in { from { opacity: 0; transform: translateY(28px) scale(0.92); } }
         @keyframes xp-eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
         .xp-cursor[data-label='on'] { background: #d4af37; border-color: transparent; mix-blend-mode: normal; }
         .xp-cursor span { opacity: 0; transition: opacity 0.2s; }

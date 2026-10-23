@@ -200,6 +200,14 @@ test.describe('experience page', () => {
     await expect(
       inside.getByRole('button', { name: 'Watch again' })
     ).toBeVisible();
+    // Real photos of the hall and the porch take over from the film.
+    await expect(
+      inside.getByRole('button', { name: 'The porch at sunset' })
+    ).toBeVisible();
+    await inside.getByRole('button', { name: 'The cake table' }).click();
+    await expect(
+      inside.getByRole('dialog', { name: 'The cake table' })
+    ).toBeVisible();
     await expect(
       inside.locator(
         'img[src$="last-landscape.avif"], img[src$="last-portrait.avif"]'

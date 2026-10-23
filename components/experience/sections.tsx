@@ -5,6 +5,7 @@ import {
 } from '../../lib/venueLocation';
 import TapFilm from './TapFilm';
 import inside from './films/inside';
+import HallPhotos from './HallPhotos';
 import InquiryForm from './InquiryForm';
 import Meadow from './Meadow';
 import { PHOTOS, pic } from './photos';
@@ -87,7 +88,7 @@ export const Inside: React.FC = () => (
                 <div
                   key={line.text}
                   data-line=""
-                  className={`text-white transition-[opacity,translate] duration-700 ease-out sm:max-w-2xl ${
+                  className={`text-white transition-[opacity,translate] duration-700 ease-out sm:max-w-2xl lg:max-w-xl ${
                     index > 0
                       ? 'absolute inset-x-6 bottom-0 sm:inset-x-[8vw]'
                       : ''
@@ -106,6 +107,7 @@ export const Inside: React.FC = () => (
                 </div>
               ))}
             </div>
+            {phase === 'ended' && <HallPhotos />}
             {phase === 'ended' && (
               <button
                 type="button"
