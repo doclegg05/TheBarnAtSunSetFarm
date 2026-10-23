@@ -27,10 +27,11 @@ published frames on 2026-10-23 as a per-channel fit (gain 1.082, 1.088,
 
 On 2026-10-23 the master was upscaled to 3840×2156 with Topaz Video Upscale,
 model Proteus, 2x (node `EqTlrUE0lbUfmDZmDVO5`, generation
-`MM9Q7KHkLIrIeDoi4wzg`). Rebuild the page frames from that 4K version with
-`node scripts/filmFrames.mjs path/to/inside-4k.mp4 inside 12 --grade '{"gain":[1.082,1.088,1.015],"offset":[-10.3,-8.8,-8.3]}'`:
-121 frames in five sets (sm 640, md 1024, lg 1920, xl 2560, and pt, an
-upright 1080×1920 slice for screens held upright).
+`MM9Q7KHkLIrIeDoi4wzg`). Since 2026-10-23 the page plays it on a tap as
+real video. Rebuild the page's copies from that 4K version with
+`node scripts/filmVideos.mjs path/to/inside-4k.mp4 inside --grade '{"gain":[1.082,1.088,1.015],"offset":[-10.3,-8.8,-8.3]}'`:
+a 1920×1080 H.264 file, an upright 1080×1920 cut for screens held upright,
+and the first and last frames as AVIF stills, in public/films/inside/.
 
 ## Known differences from the real barn (Britt chose to keep this version)
 

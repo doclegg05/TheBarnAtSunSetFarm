@@ -7,7 +7,7 @@ import CheckIcon from '../icons/CheckIcon';
 import { AMENITIES } from '../amenityList';
 import { FAQS, PACKAGE_TIERS } from '../../lib/siteContent';
 import type { ResponsiveImage } from '../../scripts/responsiveImages';
-import FilmStill from './FilmStill';
+import TapFilm from './TapFilm';
 import inside from './films/inside';
 import InquiryForm from './InquiryForm';
 import Meadow from './Meadow';
@@ -271,16 +271,18 @@ export const TheDay: React.FC = () => (
 /* 3b. Late morning: the cedar doors slide open and you walk inside.  */
 /* ------------------------------------------------------------------ */
 
-/** The film frame shown before it plays, and instead of it when motion is reduced. */
-const INSIDE_POSTER = 60;
-
+/** Timed to the film: the doors open, the hall, then the French doors. */
 const insideLines = [
-  { eyebrow: 'The Main Barn', text: 'Step inside.' },
+  { from: 0, to: 0.26, eyebrow: 'The Main Barn', text: 'Step inside.' },
   {
+    from: 0.45,
+    to: 0.72,
     eyebrow: 'The reception hall',
     text: 'Knotty pine, morning light, room for 200.',
   },
   {
+    from: 0.86,
+    to: 1,
     eyebrow: 'To the porch',
     text: 'Out to the porch and the hills.',
   },
@@ -294,38 +296,56 @@ export const Inside: React.FC = () => (
     aria-label="Stepping inside the barn"
     className="xp-inside relative h-svh min-h-[560px] overflow-hidden bg-[#c9b391]"
   >
-    <FilmStill
+    <TapFilm
       film={inside}
-      index={INSIDE_POSTER}
+      cues={insideLines}
       alt="The reception hall inside the barn: pale knotty pine walls, square pine posts and a black wagon-wheel chandelier"
-      loading="lazy"
-      className="absolute inset-0 h-full w-full object-cover"
-    />
-    <canvas
-      aria-hidden="true"
-      className="xp-inside-canvas absolute inset-0 h-full w-full"
-    />
-    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-black/5 to-black/25" />
-
-    <div className="absolute inset-x-0 bottom-[12vh] z-10 px-6 sm:px-[8vw]">
-      {insideLines.map((line, index) => (
-        <div
-          key={line.text}
-          className={`xp-inside-line text-white sm:max-w-2xl ${
-            index > 0
-              ? 'absolute inset-x-6 bottom-0 opacity-0 sm:inset-x-[8vw]'
-              : ''
-          }`}
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/80">
-            {line.eyebrow}
-          </p>
-          <p className="mt-3 font-serif text-[clamp(2.2rem,5.5vw,4.75rem)] italic leading-[1.02] drop-shadow-lg">
-            {line.text}
-          </p>
-        </div>
-      ))}
-    </div>
+      playLabel="Step inside"
+      playClassName="absolute inset-0 z-20 grid place-items-center"
+    >
+      {({ phase, cue, play }) => {
+        // Before the film plays, its first line invites the visitor in.
+        const showing = phase === 'ready' ? 0 : cue;
+        return (
+          <>
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-black/5 to-black/25" />
+            <div className="absolute inset-x-0 bottom-[12vh] z-10 px-6 sm:px-[8vw]">
+              {insideLines.map((line, index) => (
+                <div
+                  key={line.text}
+                  data-line=""
+                  className={`text-white transition-[opacity,translate] duration-700 ease-out sm:max-w-2xl ${
+                    index > 0
+                      ? 'absolute inset-x-6 bottom-0 sm:inset-x-[8vw]'
+                      : ''
+                  } ${
+                    showing === index
+                      ? 'translate-y-0 opacity-100'
+                      : 'translate-y-6 opacity-0'
+                  }`}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/80">
+                    {line.eyebrow}
+                  </p>
+                  <p className="mt-3 font-serif text-[clamp(2.2rem,5.5vw,4.75rem)] italic leading-[1.02] drop-shadow-lg">
+                    {line.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+            {phase === 'ended' && (
+              <button
+                type="button"
+                onClick={play}
+                className="absolute bottom-10 right-4 z-20 rounded-full bg-black/55 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-white transition-colors hover:bg-black/70 sm:right-6"
+              >
+                Watch again
+              </button>
+            )}
+          </>
+        );
+      }}
+    </TapFilm>
 
     <p className="absolute bottom-3 right-4 z-10 text-[0.6rem] uppercase tracking-[0.25em] text-white/60">
       Artistic rendering

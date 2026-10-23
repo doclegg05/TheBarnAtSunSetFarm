@@ -25,10 +25,11 @@ in ElevenLabs. On 2026-10-23 it was upscaled to 3840×2160 with Topaz Video
 Upscale, model Proteus, 2x (node `Afbg23nWmm816OoXIX4C`, generation
 `tjF0h1dd6oNRDIvUehzO`), and the page frames are cut from that 4K version.
 The descent carries no colour grade (`scripts/fitGrade.mjs` measures gain
-0.99, offset 1). Rebuild the page frames with
-`node scripts/filmFrames.mjs path/to/descent-4k.mp4 descent 10`: five sets,
-sm 640, md 1024, lg 1920, xl 2560, and pt, an upright 1080×1920 slice for
-screens held upright.
+0.99, offset 1). Since 2026-10-23 the page plays it on a tap as real
+video. Rebuild the page's copies with
+`node scripts/filmVideos.mjs path/to/descent-4k.mp4 descent`: a 1920×1080
+H.264 file, an upright 1080×1920 cut for screens held upright, and the
+first and last frames as AVIF stills, in public/films/descent/.
 
 ## How the stitch is put together
 

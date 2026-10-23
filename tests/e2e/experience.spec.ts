@@ -34,7 +34,7 @@ const PAGES = [
 ] as const;
 
 /** Past this the story page has grown long again; move detail to a page. */
-const MAX_STORY_SCREENS = 14;
+const MAX_STORY_SCREENS = 12;
 
 test.describe('experience page', () => {
   for (const { path, heading, sections } of PAGES) {
@@ -168,44 +168,41 @@ test.describe('experience page', () => {
     await expect(sound).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('the walk into the barn loads only when near, then plays by scroll', async ({
+  test('the films play on a tap and hold their last frame', async ({
     page,
   }) => {
     const errors = watchErrors(page);
-    const frames = new Set<string>();
-    page.on('request', (request) => {
-      const url = request.url();
-      if (/\/inside\/(sm|md|lg|xl|pt)\/\d+\.avif$/.test(url)) frames.add(url);
+    // Headless Chromium has no H.264, so playing is stubbed; the test drives
+    // the film's end itself.
+    await page.addInitScript(() => {
+      HTMLMediaElement.prototype.play = () => Promise.resolve();
     });
     await page.goto('/experience');
-    await page.waitForTimeout(1000);
-    // The poster frame is lazy and the film waits until its section is near.
-    expect(frames.size).toBe(0);
+    await expect(
+      page.getByRole('button', { name: 'Play the arrival' })
+    ).toBeVisible();
 
-    const film = page.locator('.xp-inside');
-    const start = await film.evaluate((section) => {
-      const spacer = section.parentElement?.classList.contains('pin-spacer')
-        ? section.parentElement
-        : section;
-      return spacer.getBoundingClientRect().top + window.scrollY;
-    });
-    const height = await page.evaluate(() => window.innerHeight);
-    await page.evaluate((top) => window.scrollTo(0, top), start);
-    await expect.poll(() => frames.size, { timeout: 8000 }).toBeGreaterThan(60);
+    const inside = page.locator('#inside');
+    await inside.scrollIntoViewIfNeeded();
+    const lines = inside.locator('[data-line]');
+    // Before the tap the first line invites the visitor in.
+    await expect(lines.first()).toHaveCSS('opacity', '1');
+    await inside.getByRole('button', { name: 'Step inside' }).click();
+    await inside
+      .locator('video')
+      .evaluate((video) => video.dispatchEvent(new Event('ended')));
 
-    // Near the end of the pin, the last caption has replaced the first.
-    await page.evaluate(
-      (top) => window.scrollTo(0, top),
-      start + height * 1.15
-    );
-    await expect(page.locator('.xp-inside-line').last()).toHaveCSS(
-      'opacity',
-      '1'
-    );
-    await expect(page.locator('.xp-inside-line').first()).toHaveCSS(
-      'opacity',
-      '0'
-    );
+    // At the end the last line holds on the last frame, with a replay.
+    await expect(lines.last()).toHaveCSS('opacity', '1');
+    await expect(lines.first()).toHaveCSS('opacity', '0');
+    await expect(
+      inside.getByRole('button', { name: 'Watch again' })
+    ).toBeVisible();
+    await expect(
+      inside.locator(
+        'img[src$="last-landscape.avif"], img[src$="last-portrait.avif"]'
+      )
+    ).toHaveCount(1);
     expect(errors).toEqual([]);
   });
 

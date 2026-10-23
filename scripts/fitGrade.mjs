@@ -4,7 +4,7 @@
 //
 //   node scripts/fitGrade.mjs path/to/master.mp4 <name> <fps>
 //
-// Prints a JSON grade for `node scripts/filmFrames.mjs ... --grade '<json>'`
+// Prints a JSON grade for `node scripts/filmVideos.mjs ... --grade '<json>'`
 // and the average error per channel before and after applying it.
 
 import { execFileSync } from 'node:child_process';

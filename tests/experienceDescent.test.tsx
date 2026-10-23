@@ -1,5 +1,11 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Descent } from '../components/experience/descent';
 import {
@@ -8,6 +14,17 @@ import {
   HOTSPOTS,
 } from '../components/experience/descentSpots';
 
+beforeEach(() => {
+  // jsdom has no media playback.
+  Object.defineProperty(HTMLMediaElement.prototype, 'play', {
+    configurable: true,
+    value: vi.fn(() => Promise.resolve()),
+  });
+  Object.defineProperty(HTMLMediaElement.prototype, 'pause', {
+    configurable: true,
+    value: () => {},
+  });
+});
 afterEach(() => cleanup());
 
 const FRAME = { width: 1024, height: 576 };
@@ -55,8 +72,25 @@ describe('descent hotspots', () => {
       </MemoryRouter>
     );
 
-  it('opens a real photo and closes again', () => {
+  it('plays on a tap, and the film can be skipped to its last frame', async () => {
     renderDescent();
+    expect(screen.queryByRole('button', { name: 'Skip the film' })).toBeNull();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Play the arrival' }));
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Skip the film' }));
+    expect(screen.getByRole('button', { name: 'Watch again' })).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Play the arrival' })
+    ).toBeNull();
+  });
+
+  it('opens a real photo from the last frame and closes again', async () => {
+    renderDescent();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Play the arrival' }));
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Skip the film' }));
     const [first] = HOTSPOTS;
     fireEvent.click(screen.getAllByRole('button', { name: first.label })[0]);
     const panel = screen.getByRole('dialog', { name: first.label });
@@ -64,13 +98,6 @@ describe('descent hotspots', () => {
 
     fireEvent.keyDown(panel, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
-  });
-
-  it('offers a way past the film', () => {
-    renderDescent();
-    expect(
-      screen.getByRole('button', { name: 'Skip to the barn' })
-    ).toBeTruthy();
   });
 
   it('names the venue in the page heading from the first frame', () => {

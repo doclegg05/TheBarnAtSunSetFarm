@@ -3,20 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
-import { CAPTIONS } from './descentSpots';
-import { FilmPlayer } from './film';
-import descentFilm from './films/descent';
-import insideFilm from './films/inside';
 import { scrollToSection, setScrollEngine } from './scroll';
-
-/** How many screens of scrolling each pinned film plays over. */
-const DESCENT_SCREENS = 2.6;
-const INSIDE_SCREENS = 1.2;
-/**
- * The descent plays over this share of its pin, then holds on the barn while
- * the welcome and the pins come in, so the last frame can be explored.
- */
-const DESCENT_FILM_END = 0.82;
 
 /**
  * Every scroll and pointer animation on the /experience page. The markup in
@@ -126,115 +113,18 @@ export const initMotion = (
         cleanups.push(() => split.revert());
       }
 
-      /* ---------------- Scroll films: the descent and the walk inside ---------------- */
-      // A film loads once its section is within two and a half screens and
-      // lets its frames go once the visitor is that far past it.
-      const film = (
-        section: HTMLElement,
-        canvas: HTMLCanvasElement,
-        frames: typeof descentFilm | typeof insideFilm,
-        pinScreens: number
-      ) => {
-        const player = new FilmPlayer(canvas, frames);
-        const onResize = () => player.resize();
-        window.addEventListener('resize', onResize);
-        cleanups.push(() => {
-          window.removeEventListener('resize', onResize);
-          player.dispose();
-        });
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top bottom+=150%',
-          end: () => `+=${window.innerHeight * (pinScreens + 5)}`,
-          onToggle: (self) =>
-            self.isActive ? player.load() : player.release(),
-        });
-        return player;
-      };
-
-      /* ---------------- Descent: from the sky to the barn doors ---------------- */
-      const descent = all('.xp-descent')[0];
-      const canvas = all<HTMLCanvasElement>('.xp-descent-canvas')[0];
-      if (descent && canvas) {
-        const player = film(descent, canvas, descentFilm, DESCENT_SCREENS);
-
-        const timeline = gsap.timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: {
-            trigger: descent,
-            start: 'top top',
-            end: () => `+=${window.innerHeight * DESCENT_SCREENS}`,
-            pin: true,
-            scrub: true,
-            onUpdate: (self) =>
-              player.setProgress(self.progress / DESCENT_FILM_END),
-          },
-        });
-        timeline
-          .to('.xp-descent-hint', { autoAlpha: 0, duration: 0.04 }, 0)
-          .to(
-            '.xp-descent-intro',
-            { autoAlpha: 0, y: -80, duration: 0.1, ease: 'power1.in' },
-            0.03
-          );
-        // Each caption rises in and leaves at its stretch of the film.
-        all('.xp-descent-caption').forEach((caption, index) => {
-          const { from, to } = CAPTIONS[index];
-          const start = from * DESCENT_FILM_END;
-          const end = to * DESCENT_FILM_END;
-          timeline
-            .fromTo(
-              caption,
-              { autoAlpha: 0, y: 24 },
-              { autoAlpha: 1, y: 0, duration: 0.04 },
-              start
-            )
-            .to(caption, { autoAlpha: 0, y: -16, duration: 0.04 }, end - 0.04);
-        });
-        timeline
-          .fromTo(
-            '.xp-descent-arrive',
-            { autoAlpha: 0, y: 30 },
-            { autoAlpha: 1, y: 0, duration: 0.08, ease: 'power2.out' },
-            DESCENT_FILM_END
-          )
-          .fromTo(
-            '.xp-descent-pins, .xp-descent-chips',
-            { autoAlpha: 0 },
-            { autoAlpha: 1, duration: 0.06 },
-            DESCENT_FILM_END + 0.05
-          )
-          .fromTo(
-            '.xp-descent-fade',
-            { opacity: 0 },
-            { opacity: 1, duration: 0.04 },
-            0.96
-          )
-          // Keeps the timeline exactly one unit long, so its progress and
-          // the pin's progress agree.
-          .set({}, {}, 1);
-
-        // Opacity, not autoAlpha: the page heading stays visible to screen
-        // readers and never waits on the animation to be readable.
-        gsap.from('.xp-descent-intro > *', {
-          y: 40,
-          opacity: 0,
-          duration: 1.6,
-          stagger: 0.15,
-          ease: 'expo.out',
-          delay: 0.2,
-        });
-        gsap.to('.xp-descent-hint', {
-          opacity: 0.85,
-          duration: 1,
-          delay: 1.2,
-        });
-        gsap.fromTo(
-          '.xp-scroll-hint-dot',
-          { yPercent: -100 },
-          { yPercent: 340, duration: 1.6, ease: 'power1.inOut', repeat: -1 }
-        );
-      }
+      /* ---------------- The page heading rises in ---------------- */
+      // Opacity, not autoAlpha: the page heading stays visible to screen
+      // readers and never waits on the animation to be readable. The films
+      // themselves play on a tap (TapFilm.tsx), not by scroll.
+      gsap.from('.xp-descent-intro > *', {
+        y: 40,
+        opacity: 0,
+        duration: 1.6,
+        stagger: 0.15,
+        ease: 'expo.out',
+        delay: 0.2,
+      });
 
       /* ---------------- Generic rise-in reveals ---------------- */
       for (const element of all('.xp-reveal')) {
@@ -385,46 +275,6 @@ export const initMotion = (
             },
           });
         }
-      }
-
-      /* ---------------- Inside: the cedar doors open onto the hall ---------------- */
-      const insideSection = all('.xp-inside')[0];
-      const insideCanvas = all<HTMLCanvasElement>('.xp-inside-canvas')[0];
-      if (insideSection && insideCanvas) {
-        const player = film(
-          insideSection,
-          insideCanvas,
-          insideFilm,
-          INSIDE_SCREENS
-        );
-        const [doors, hall, porch] = all('.xp-inside-line');
-        const rise = { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' };
-        const fall = {
-          autoAlpha: 0,
-          y: -30,
-          duration: 0.07,
-          ease: 'power1.in',
-        };
-
-        gsap
-          .timeline({
-            defaults: { ease: 'none' },
-            scrollTrigger: {
-              trigger: insideSection,
-              start: 'top top',
-              end: () => `+=${window.innerHeight * INSIDE_SCREENS}`,
-              pin: true,
-              scrub: true,
-              onUpdate: (self) => player.setProgress(self.progress),
-            },
-          })
-          // Timed to the film: the doors open over its first 40%, the hall
-          // fills the middle, and it turns to the French doors at the end.
-          .to(doors, fall, 0.26)
-          .fromTo(hall, { autoAlpha: 0, y: 30 }, rise, 0.45)
-          .to(hall, fall, 0.72)
-          .fromTo(porch, { autoAlpha: 0, y: 30 }, rise, 0.86)
-          .set({}, {}, 1);
       }
 
       /* ---------------- The barn ---------------- */

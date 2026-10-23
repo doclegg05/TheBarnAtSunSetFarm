@@ -1,6 +1,6 @@
 import React from 'react';
 import { TransitionLink } from '../PageTransition';
-import FilmStill from './FilmStill';
+import TapFilm from './TapFilm';
 import descent from './films/descent';
 import {
   CAPTIONS,
@@ -15,10 +15,11 @@ import { scrollToSection } from './scroll';
 import { EXPERIENCE_PATHS } from './views';
 
 /*
- * The opening of the story page: a drone film that plays by scroll, with
+ * The opening of the story page: a drone film that plays on a tap, with
  * captions naming what is on screen, and pins on its last frame that open
- * real photos of those places. motion.ts plays the film and times the
- * captions and pins; without motion the last frame shows with its pins.
+ * real photos of those places. TapFilm plays it and says which caption is
+ * up; once it ends (or is skipped, or motion is reduced) the last frame
+ * holds with the welcome and the pins.
  */
 
 const goTo = (id: string) => (event: React.MouseEvent) => {
@@ -68,12 +69,20 @@ const usePinPositions = (layer: React.RefObject<HTMLElement | null>) => {
   return positions;
 };
 
-const Captions: React.FC = () => (
+/** Fades an overlay in or out; a hidden one takes no clicks or focus. */
+const fade = (shown: boolean) =>
+  `transition-[opacity,visibility,translate] duration-700 ease-out ${
+    shown ? 'visible opacity-100' : 'invisible opacity-0'
+  }`;
+
+const Captions: React.FC<{ cue: number }> = ({ cue }) => (
   <ol className="pointer-events-none absolute bottom-[18vh] left-6 z-10 sm:left-[6vw]">
-    {CAPTIONS.map((caption) => (
+    {CAPTIONS.map((caption, index) => (
       <li
         key={caption.text}
-        className="xp-descent-caption invisible absolute bottom-0 left-0 w-[min(80vw,26rem)] border-l-2 border-brand-gold pl-4 text-white"
+        className={`absolute bottom-0 left-0 w-[min(80vw,26rem)] border-l-2 border-brand-gold pl-4 text-white ${fade(
+          cue === index
+        )} ${cue === index ? 'translate-y-0' : 'translate-y-4'}`}
       >
         <p className="text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-white/80">
           {caption.eyebrow}
@@ -87,7 +96,7 @@ const Captions: React.FC = () => (
 );
 
 const Welcome: React.FC = () => (
-  <div className="xp-descent-arrive pointer-events-auto invisible text-center text-white in-[.xp-reduced]:visible">
+  <div className="pointer-events-auto text-center text-white">
     <p className="font-serif text-[clamp(2.2rem,5.5vw,4.5rem)] italic leading-tight drop-shadow-lg">
       Welcome to the barn.
     </p>
@@ -182,13 +191,18 @@ const Pin: React.FC<PinProps> = ({ spot, at, onOpen }) => (
 );
 
 interface ChipsProps {
+  shown: boolean;
   spots: readonly Hotspot[];
   onOpen: (spot: Hotspot) => void;
 }
 
 /** The places whose pins would fall off this screen, as plain buttons. */
-const Chips: React.FC<ChipsProps> = ({ spots, onOpen }) => (
-  <div className="xp-descent-chips pointer-events-auto invisible flex max-w-full gap-2 overflow-x-auto px-1 [scrollbar-width:none] in-[.xp-reduced]:visible [&::-webkit-scrollbar]:hidden">
+const Chips: React.FC<ChipsProps> = ({ shown, spots, onOpen }) => (
+  <div
+    className={`pointer-events-auto flex max-w-full gap-2 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${fade(
+      shown
+    )} delay-300`}
+  >
     {spots.map((spot) => (
       <button
         key={spot.id}
@@ -206,10 +220,10 @@ const Chips: React.FC<ChipsProps> = ({ spots, onOpen }) => (
  * Everything on the film's last frame: the welcome, pins where they fit on
  * screen, chips for the rest, and the photo panel a pin opens.
  */
-const Arrival: React.FC = () => {
+const Arrival: React.FC<{ shown: boolean }> = ({ shown: arrived }) => {
   // Measures a layer of its own: a parent's ref is not attached yet when a
-  // child's layout effect runs. motion.ts fades the pin and chip layers as
-  // wholes, since the pins themselves re-render once they are measured.
+  // child's layout effect runs. The pin and chip layers fade as wholes,
+  // since the pins themselves re-render once they are measured.
   const layer = React.useRef<HTMLDivElement>(null);
   const positions = usePinPositions(layer);
   const [open, setOpen] = React.useState<Hotspot | null>(null);
@@ -217,14 +231,19 @@ const Arrival: React.FC = () => {
 
   return (
     <div ref={layer} className="pointer-events-none absolute inset-0 z-20">
-      <div className="absolute inset-x-0 top-[13vh] flex flex-col items-center gap-6 px-6">
+      <div
+        className={`absolute inset-x-0 top-[13vh] flex flex-col items-center gap-6 px-6 ${fade(
+          arrived
+        )} ${arrived ? 'translate-y-0' : 'translate-y-6'}`}
+      >
         <Welcome />
         <Chips
+          shown={arrived}
           spots={HOTSPOTS.filter((_, index) => !shown(index))}
           onOpen={setOpen}
         />
       </div>
-      <div className="xp-descent-pins invisible absolute inset-0 in-[.xp-reduced]:visible">
+      <div className={`absolute inset-0 ${fade(arrived)} delay-300`}>
         {HOTSPOTS.map((spot, index) =>
           shown(index) ? (
             <Pin
@@ -236,84 +255,78 @@ const Arrival: React.FC = () => {
           ) : null
         )}
       </div>
-      {open && <SpotPanel spot={open} onClose={() => setOpen(null)} />}
+      {arrived && open && (
+        <SpotPanel spot={open} onClose={() => setOpen(null)} />
+      )}
     </div>
   );
 };
 
-const LAST_FRAME = descent.count - 1;
-
-export const Descent: React.FC = () => {
-  return (
-    <section
-      id="arrive"
-      data-sky="dawn"
-      aria-label="Arriving at the barn"
-      className="xp-descent relative h-svh min-h-[560px] overflow-hidden bg-[#9fb0a8]"
+export const Descent: React.FC = () => (
+  <section
+    id="arrive"
+    data-sky="dawn"
+    aria-label="Arriving at the barn"
+    className="relative h-svh min-h-[560px] overflow-hidden bg-[#9fb0a8]"
+  >
+    <TapFilm
+      film={descent}
+      cues={CAPTIONS}
+      alt="Aerial view of the barn on its forested hilltop above misty West Virginia ridges at sunrise"
+      playLabel="Play the arrival"
     >
-      {/* The first frame, shown at once while the film loads. */}
-      <FilmStill
-        film={descent}
-        index={0}
-        alt="Aerial view of the barn on its forested hilltop above misty West Virginia ridges at sunrise"
-        className="absolute inset-0 h-full w-full object-cover"
-        fetchPriority="high"
-      />
-      {/* With reduced motion the film stays on its last frame, where the pins are. */}
-      <FilmStill
-        film={descent}
-        index={LAST_FRAME}
-        alt=""
-        loading="lazy"
-        className="absolute inset-0 hidden h-full w-full object-cover in-[.xp-reduced]:block"
-      />
-      <canvas
-        aria-hidden="true"
-        className="xp-descent-canvas absolute inset-0 h-full w-full"
-      />
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/35" />
-      <div
-        aria-hidden="true"
-        className="xp-descent-fade pointer-events-none absolute inset-x-0 bottom-0 h-1/3 opacity-0"
-        style={{
-          background: 'linear-gradient(to top, var(--sky-bot), transparent)',
-        }}
-      />
+      {({ phase, cue, play, skip }) => (
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/35" />
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-x-0 bottom-0 h-1/3 transition-opacity duration-1000 ${
+              phase === 'ended' ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{
+              background:
+                'linear-gradient(to top, var(--sky-bot), transparent)',
+            }}
+          />
 
-      <div className="xp-descent-intro absolute inset-x-0 top-[20vh] z-10 px-6 text-center text-white in-[.xp-reduced]:hidden">
-        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/85 sm:text-sm">
-          Mount Nebo, West Virginia
-        </p>
-        <h1 className="mt-5 font-serif text-[clamp(2.8rem,8vw,7rem)] leading-[0.95] drop-shadow-md">
-          The Barn at Sunset Farm
-        </h1>
-        <p className="mt-4 font-serif text-xl italic text-white/90 sm:text-2xl">
-          High in the hills, the day begins.
-        </p>
-      </div>
+          {/* Kept in the page while hidden: it is the page's heading. */}
+          <div
+            className={`xp-descent-intro absolute inset-x-0 top-[20vh] z-10 px-6 text-center text-white transition-[opacity,translate] duration-700 ${
+              phase === 'ready'
+                ? 'opacity-100'
+                : 'pointer-events-none -translate-y-16 opacity-0'
+            }`}
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/85 sm:text-sm">
+              Mount Nebo, West Virginia
+            </p>
+            <h1 className="mt-5 font-serif text-[clamp(2.8rem,8vw,7rem)] leading-[0.95] drop-shadow-md">
+              The Barn at Sunset Farm
+            </h1>
+            <p className="mt-4 font-serif text-xl italic text-white/90 sm:text-2xl">
+              High in the hills, the day begins.
+            </p>
+          </div>
 
-      <Captions />
-      <Arrival />
+          <Captions cue={phase === 'playing' ? cue : -1} />
+          <Arrival shown={phase === 'ended'} />
 
-      <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-between px-4 sm:px-6">
-        <p className="text-[0.6rem] uppercase tracking-[0.25em] text-white/60">
-          Artistic rendering
-        </p>
-        <button
-          type="button"
-          onClick={() => scrollToSection('barn')}
-          className="rounded-full bg-black/55 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-white transition-colors hover:bg-black/55"
-        >
-          Skip to the barn
-        </button>
-      </div>
-
-      <div className="xp-descent-hint pointer-events-none absolute inset-x-0 bottom-16 z-10 flex flex-col items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-white opacity-0">
-        Scroll to descend
-        <span className="relative block h-10 w-px overflow-hidden bg-white/30">
-          <span className="xp-scroll-hint-dot absolute inset-x-0 top-0 h-3 bg-white" />
-        </span>
-      </div>
-    </section>
-  );
-};
+          <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-between px-4 sm:px-6">
+            <p className="text-[0.6rem] uppercase tracking-[0.25em] text-white/60">
+              Artistic rendering
+            </p>
+            {phase !== 'ready' && (
+              <button
+                type="button"
+                onClick={phase === 'playing' ? skip : play}
+                className="rounded-full bg-black/55 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-white transition-colors hover:bg-black/70"
+              >
+                {phase === 'playing' ? 'Skip the film' : 'Watch again'}
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </TapFilm>
+  </section>
+);
