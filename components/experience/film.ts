@@ -4,11 +4,14 @@
  * them, so the motion stays smooth although there are only 10–12 frames a
  * second. Used for the opening drone descent and the walk into the barn.
  *
- * Frames load coarse to fine (every 16th, then every 8th, and so on), so a
- * whole film works within a second and sharpens as the rest arrive. A film
- * only loads once its section is near (`load`), and hands its decoded frames
- * back to the browser when the visitor has scrolled well away (`release`),
- * so two films never sit in memory for nothing.
+ * A film only loads once its section is near (`load`). It fetches every
+ * frame's compressed file once, coarse to fine (every 16th, then every 8th,
+ * and so on), and keeps those small files. Only the frames within
+ * DECODE_RADIUS of the playhead are decoded, off the main thread, into
+ * bitmaps that draw without further work; frames that fall out of that
+ * window are freed. So memory stays flat however long the film is, and the
+ * frame about to be drawn is already decoded. `release` frees every decoded
+ * frame when the visitor has scrolled well away.
  */
 
 export interface Film {
@@ -20,8 +23,12 @@ export interface Film {
 }
 
 type Size = 'sm' | 'md';
+type Direction = 1 | -1;
 
-const MAX_PARALLEL = 6;
+const FETCH_PARALLEL = 6;
+const DECODE_PARALLEL = 3;
+/** Decoded frames kept either side of the playhead. */
+export const DECODE_RADIUS = 12;
 
 export const frameUrl = (film: Film, size: Size, index: number) =>
   `/${film.name}/${size}/${String(index).padStart(3, '0')}.avif`;
@@ -42,6 +49,29 @@ export const loadOrder = (count: number) => {
   return order;
 };
 
+/**
+ * The frames to decode around `center`, nearest first, and on a tie the one
+ * in the direction of travel first.
+ */
+export const decodeOrder = (
+  center: number,
+  count: number,
+  radius: number,
+  direction: Direction
+): number[] => {
+  const order: number[] = [];
+  for (let step = 0; step <= radius; step += 1) {
+    const candidates =
+      step === 0
+        ? [center]
+        : [center + step * direction, center - step * direction];
+    for (const index of candidates) {
+      if (index >= 0 && index < count) order.push(index);
+    }
+  }
+  return order;
+};
+
 /** Small frames on phones and on data saver; larger ones elsewhere. */
 const pickSize = (): Size => {
   const saveData =
@@ -55,12 +85,17 @@ const pickSize = (): Size => {
 
 export class FilmPlayer {
   private readonly context: CanvasRenderingContext2D | null;
-  private frames: Array<HTMLImageElement | undefined> = [];
   private readonly size = pickSize();
+  private readonly files: Array<Blob | undefined> = [];
+  private readonly decoded = new Map<number, ImageBitmap>();
+  private readonly decoding = new Set<number>();
+  private readonly broken = new Set<number>();
   private progress = 0;
+  private direction: Direction = 1;
   private drawn = '';
   private raf = 0;
-  private loading = false;
+  private fetching = false;
+  private active = false;
   private generation = 0;
   private disposed = false;
 
@@ -74,7 +109,10 @@ export class FilmPlayer {
 
   /** 0 at the film's first frame, 1 at its last. */
   setProgress(progress: number) {
-    this.progress = Math.min(1, Math.max(0, progress));
+    const next = Math.min(1, Math.max(0, progress));
+    if (next !== this.progress) this.direction = next > this.progress ? 1 : -1;
+    this.progress = next;
+    this.refill();
     this.schedule();
   }
 
@@ -87,51 +125,111 @@ export class FilmPlayer {
     this.schedule();
   }
 
-  /** Starts fetching frames; does nothing if they are loaded or loading. */
+  /** Starts decoding near the playhead, fetching the frames the first time. */
   load() {
-    if (this.loading || this.disposed) return;
-    this.loading = true;
-    void this.fetchFrames(this.generation);
+    if (this.active || this.disposed) return;
+    this.active = true;
+    if (!this.fetching) {
+      this.fetching = true;
+      void this.fetchFrames();
+    }
+    this.refill();
   }
 
   /**
-   * Drops every frame; `load` fetches them again (from the HTTP cache).
-   * Clears the canvas too, so the poster underneath shows instead of a
-   * stale frame.
+   * Frees every decoded frame; the fetched files stay, so `load` only has
+   * to decode again. Clears the canvas too, so the poster underneath shows
+   * instead of a stale frame.
    */
   release() {
-    this.generation++;
-    this.loading = false;
-    this.frames = [];
+    this.active = false;
+    this.generation += 1;
+    for (const bitmap of this.decoded.values()) bitmap.close();
+    this.decoded.clear();
     this.drawn = '';
     this.context?.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   dispose() {
-    this.disposed = true;
     this.release();
+    this.disposed = true;
+    this.files.length = 0;
     if (this.raf) cancelAnimationFrame(this.raf);
   }
 
-  private async fetchFrames(generation: number) {
+  private get playhead() {
+    return Math.round(this.progress * (this.film.count - 1));
+  }
+
+  private async fetchFrames() {
     const queue = loadOrder(this.film.count);
-    const stale = () => this.disposed || generation !== this.generation;
     const next = async (): Promise<void> => {
       const index = queue.shift();
-      if (index === undefined || stale()) return;
-      const image = new Image();
-      image.src = frameUrl(this.film, this.size, index);
+      if (index === undefined || this.disposed) return;
       try {
-        await image.decode();
-        if (stale()) return;
-        this.frames[index] = image;
-        this.schedule();
+        const response = await fetch(frameUrl(this.film, this.size, index));
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        this.files[index] = await response.blob();
+        this.refill();
       } catch {
         // A frame that fails to load is skipped; its neighbours stand in.
+        this.broken.add(index);
       }
       return next();
     };
-    await Promise.all(Array.from({ length: MAX_PARALLEL }, next));
+    await Promise.all(Array.from({ length: FETCH_PARALLEL }, next));
+  }
+
+  /** Frees frames that left the window and decodes missing ones inside it. */
+  private refill() {
+    if (!this.active || this.disposed) return;
+    const center = this.playhead;
+    for (const [index, bitmap] of this.decoded) {
+      if (Math.abs(index - center) > DECODE_RADIUS) {
+        bitmap.close();
+        this.decoded.delete(index);
+      }
+    }
+    const wanted = decodeOrder(
+      center,
+      this.film.count,
+      DECODE_RADIUS,
+      this.direction
+    );
+    for (const index of wanted) {
+      if (this.decoding.size >= DECODE_PARALLEL) return;
+      const file = this.files[index];
+      const skip =
+        !file ||
+        this.decoded.has(index) ||
+        this.decoding.has(index) ||
+        this.broken.has(index);
+      if (!skip) void this.decode(index, file);
+    }
+  }
+
+  private async decode(index: number, file: Blob) {
+    const generation = this.generation;
+    this.decoding.add(index);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const stale =
+        this.disposed ||
+        generation !== this.generation ||
+        Math.abs(index - this.playhead) > DECODE_RADIUS;
+      if (stale) {
+        bitmap.close();
+      } else {
+        this.decoded.set(index, bitmap);
+        this.schedule();
+      }
+    } catch {
+      // A frame that fails to decode is skipped; its neighbours stand in.
+      this.broken.add(index);
+    } finally {
+      this.decoding.delete(index);
+    }
+    this.refill();
   }
 
   private schedule() {
@@ -143,12 +241,15 @@ export class FilmPlayer {
     }
   }
 
-  /** The nearest loaded frame at or before `index`, else after it. */
+  /** The nearest decoded frame at or before `index`, else after it. */
   private nearest(index: number) {
-    for (let i = index; i >= 0; i--) if (this.frames[i]) return i;
-    for (let i = index + 1; i < this.film.count; i++)
-      if (this.frames[i]) return i;
-    return -1;
+    let before = -1;
+    let after = -1;
+    for (const decoded of this.decoded.keys()) {
+      if (decoded <= index && decoded > before) before = decoded;
+      if (decoded > index && (after < 0 || decoded < after)) after = decoded;
+    }
+    return before >= 0 ? before : after;
   }
 
   private draw() {
@@ -158,30 +259,27 @@ export class FilmPlayer {
     const base = Math.floor(position);
     const from = this.nearest(base);
     if (from < 0) return;
-    const to = from === base ? base + 1 : -1;
-    const blend = to >= 0 && this.frames[to] ? position - base : 0;
+    const next = this.decoded.get(base + 1);
+    const blend = from === base && next ? position - base : 0;
     const key = `${from}:${blend.toFixed(2)}:${this.canvas.width}`;
     if (key === this.drawn) return;
     this.drawn = key;
 
     context.globalAlpha = 1;
-    this.cover(context, this.frames[from]!);
-    if (blend > 0.01) {
+    this.cover(context, this.decoded.get(from)!);
+    if (blend > 0.01 && next) {
       context.globalAlpha = blend;
-      this.cover(context, this.frames[to]!);
+      this.cover(context, next);
       context.globalAlpha = 1;
     }
   }
 
   /** Draws a frame to fill the canvas, cropping like object-fit: cover. */
-  private cover(context: CanvasRenderingContext2D, image: HTMLImageElement) {
+  private cover(context: CanvasRenderingContext2D, image: ImageBitmap) {
     const { width, height } = this.canvas;
-    const scale = Math.max(
-      width / image.naturalWidth,
-      height / image.naturalHeight
-    );
-    const w = image.naturalWidth * scale;
-    const h = image.naturalHeight * scale;
+    const scale = Math.max(width / image.width, height / image.height);
+    const w = image.width * scale;
+    const h = image.height * scale;
     context.drawImage(image, (width - w) / 2, (height - h) / 2, w, h);
   }
 }
