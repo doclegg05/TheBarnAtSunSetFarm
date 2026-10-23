@@ -54,10 +54,10 @@ interface FakeBitmap {
 
 let frameQueue: FrameRequestCallback[] = [];
 let bitmaps: FakeBitmap[] = [];
-const flushFrames = () => {
+const flushFrames = (time = 0) => {
   const queued = frameQueue;
   frameQueue = [];
-  for (const callback of queued) callback(0);
+  for (const callback of queued) callback(time);
 };
 /** Lets every pending fetch and decode finish. */
 const settle = async () => {
@@ -135,10 +135,37 @@ describe('experience scroll film', () => {
     await settle();
     expect(openBitmaps()).toBeLessThanOrEqual(DECODE_RADIUS * 2 + 1);
 
+    // The shown frame glides to the end over a few frames of animation.
     player.setProgress(1);
-    await settle();
+    for (let time = 16; time < 2000; time += 16) {
+      flushFrames(time);
+      await settle();
+    }
     expect(openBitmaps()).toBeLessThanOrEqual(DECODE_RADIUS * 2 + 1);
     expect(bitmaps[0].closed).toBe(true);
+  });
+
+  it('draws no more canvas pixels than the frames have, even on a 2x screen', () => {
+    vi.stubGlobal('devicePixelRatio', 2);
+    const { canvas } = fakeCanvas();
+    new FilmPlayer(canvas, film(3));
+    expect(canvas.width).toBe(640);
+    expect(canvas.height).toBe(360);
+  });
+
+  it('glides toward a new scroll position instead of jumping to it', async () => {
+    const { canvas } = fakeCanvas();
+    const player = new FilmPlayer(canvas, film(10));
+    player.load();
+    await settle();
+
+    player.setProgress(1);
+    flushFrames(16);
+    expect(player.displayedProgress).toBeGreaterThan(0);
+    expect(player.displayedProgress).toBeLessThan(0.5);
+
+    for (let time = 32; time < 2000; time += 16) flushFrames(time);
+    expect(player.displayedProgress).toBe(1);
   });
 
   it('stops fetching once released, so a film left behind never queues ahead of the next', async () => {

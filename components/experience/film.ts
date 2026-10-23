@@ -30,6 +30,14 @@ const FETCH_PARALLEL = 6;
 const DECODE_PARALLEL = 3;
 /** Decoded frames kept either side of the playhead. */
 export const DECODE_RADIUS = 12;
+/**
+ * How quickly the shown frame catches up with the scroll position: the gap
+ * shrinks by about two thirds every GLIDE_MS. An uneven finger or wheel
+ * then plays as one smooth move instead of a run of steps.
+ */
+const GLIDE_MS = 110;
+/** Close enough to the scroll position to stop gliding. */
+const SETTLED = 0.0004;
 
 export const frameUrl = (film: Film, size: Size, index: number) =>
   `/${film.name}/${size}/${String(index).padStart(3, '0')}.avif`;
@@ -91,7 +99,11 @@ export class FilmPlayer {
   private readonly decoded = new Map<number, ImageBitmap>();
   private readonly decoding = new Set<number>();
   private readonly broken = new Set<number>();
+  /** Where the scroll says the film should be, 0 to 1. */
   private progress = 0;
+  /** Where the film is drawn, gliding toward `progress`. */
+  private shown = 0;
+  private lastTime = 0;
   private direction: Direction = 1;
   private drawn = '';
   private raf = 0;
@@ -110,6 +122,11 @@ export class FilmPlayer {
     this.resize();
   }
 
+  /** The progress the canvas currently shows, 0 to 1. */
+  get displayedProgress() {
+    return this.shown;
+  }
+
   /** 0 at the film's first frame, 1 at its last. */
   setProgress(progress: number) {
     const next = Math.min(1, Math.max(0, progress));
@@ -119,8 +136,13 @@ export class FilmPlayer {
     this.schedule();
   }
 
+  /**
+   * One canvas pixel per screen point: the frames are at most 1024 wide and
+   * drawn larger than that, so a 2x canvas would only cost four times the
+   * drawing for no extra detail.
+   */
   resize() {
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const ratio = 1;
     const { clientWidth, clientHeight } = this.canvas;
     this.canvas.width = Math.round(clientWidth * ratio);
     this.canvas.height = Math.round(clientHeight * ratio);
@@ -164,8 +186,9 @@ export class FilmPlayer {
     if (this.raf) cancelAnimationFrame(this.raf);
   }
 
+  /** The frame on screen: decoding centres here, ahead in the direction of travel. */
   private get playhead() {
-    return Math.round(this.progress * (this.film.count - 1));
+    return Math.round(this.shown * (this.film.count - 1));
   }
 
   /**
@@ -244,11 +267,26 @@ export class FilmPlayer {
 
   private schedule() {
     if (!this.raf && !this.disposed) {
-      this.raf = requestAnimationFrame(() => {
+      this.raf = requestAnimationFrame((time) => {
         this.raf = 0;
+        this.glide(time);
+        this.refill();
         this.draw();
+        if (this.shown !== this.progress) this.schedule();
+        else this.lastTime = 0;
       });
     }
+  }
+
+  /** Moves the shown position part of the way to the scroll position. */
+  private glide(time: number) {
+    const elapsed = this.lastTime ? Math.min(100, time - this.lastTime) : 16;
+    this.lastTime = time;
+    const gap = this.progress - this.shown;
+    this.shown =
+      Math.abs(gap) < SETTLED
+        ? this.progress
+        : this.shown + gap * (1 - Math.exp(-elapsed / GLIDE_MS));
   }
 
   /** The nearest decoded frame at or before `index`, else after it. */
@@ -265,7 +303,7 @@ export class FilmPlayer {
   private draw() {
     const context = this.context;
     if (!context) return;
-    const position = this.progress * (this.film.count - 1);
+    const position = this.shown * (this.film.count - 1);
     const base = Math.floor(position);
     const from = this.nearest(base);
     if (from < 0) return;
