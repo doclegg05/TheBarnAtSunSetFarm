@@ -41,6 +41,29 @@ const landOnSection = (id: string): (() => void) => {
   return stop;
 };
 
+/**
+ * Lenis eases wheel and keyboard scrolling. It listens to touch with
+ * passive: false, which makes iOS Safari wait for script before every scroll
+ * step, so the whole page jerks whenever the page is busy; that is why it
+ * only starts with a mouse or trackpad. GSAP's ticker drives it so pins and
+ * scrubs stay in lockstep.
+ */
+const startSmoothScroll = (): { lenis: Lenis; stop: () => void } => {
+  const lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9 });
+  lenis.on('scroll', ScrollTrigger.update);
+  const drive = (time: number) => lenis.raf(time * 1000);
+  gsap.ticker.add(drive);
+  gsap.ticker.lagSmoothing(0);
+  setScrollEngine(lenis);
+  const stop = () => {
+    setScrollEngine(null);
+    gsap.ticker.remove(drive);
+    gsap.ticker.lagSmoothing(500, 33);
+    lenis.destroy();
+  };
+  return { lenis, stop };
+};
+
 interface MotionOptions {
   /** A section to land on once the page has measured itself. */
   landOn?: string;
@@ -69,20 +92,10 @@ export const initMotion = (
       const cleanups: Array<() => void> = [];
 
       /* ---------------- Smooth, weighted scrolling ---------------- */
-      // Lenis eases wheel and keyboard scrolling; touch keeps its native
-      // feel. GSAP's ticker drives it so pins and scrubs stay in lockstep.
-      const lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9 });
-      lenis.on('scroll', ScrollTrigger.update);
-      const drive = (time: number) => lenis.raf(time * 1000);
-      gsap.ticker.add(drive);
-      gsap.ticker.lagSmoothing(0);
-      setScrollEngine(lenis);
-      cleanups.push(() => {
-        setScrollEngine(null);
-        gsap.ticker.remove(drive);
-        gsap.ticker.lagSmoothing(500, 33);
-        lenis.destroy();
-      });
+      // Only with a mouse or trackpad: touch screens keep native scrolling.
+      const smooth = finePointer ? startSmoothScroll() : null;
+      if (smooth) cleanups.push(smooth.stop);
+      const lenis = smooth?.lenis ?? null;
 
       /* ---------------- Headings rise line by line ---------------- */
       for (const heading of all('.xp-split')) {
@@ -378,7 +391,7 @@ export const initMotion = (
         );
         // Desktop visitors can also grab the track and fling it sideways.
         const range = slide.scrollTrigger;
-        if (finePointer && range) {
+        if (lenis && range) {
           let dragging = false;
           let moved = false;
           let startX = 0;

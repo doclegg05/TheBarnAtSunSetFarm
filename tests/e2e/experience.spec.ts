@@ -138,6 +138,25 @@ test.describe('experience page', () => {
     ).toBeVisible();
   });
 
+  // Smooth scrolling listens to touch with passive: false, which makes iOS
+  // wait for script before every scroll step; touch screens scroll natively.
+  test('smooth scrolling runs only with a mouse or trackpad', async ({
+    page,
+    isMobile,
+  }) => {
+    await page.goto('/experience');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'The Barn at Sunset Farm' })
+    ).toBeVisible();
+    const html = page.locator('html');
+    if (isMobile) {
+      await page.waitForTimeout(1000);
+      await expect(html).not.toHaveClass(/lenis/);
+    } else {
+      await expect(html).toHaveClass(/lenis/);
+    }
+  });
+
   test('the sound button switches on and off', async ({ page, isMobile }) => {
     test.skip(isMobile, 'covered on desktop; same button on phones');
     await page.goto('/experience');
