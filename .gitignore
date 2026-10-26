@@ -30,3 +30,7 @@ coverage
 
 # Removed website photos kept as local backups (not part of the site)
 Photo Archive/
+
+# Playwright browser-test output
+test-results/
+playwright-report/
